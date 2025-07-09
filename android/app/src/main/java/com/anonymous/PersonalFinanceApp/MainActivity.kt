@@ -1,4 +1,4 @@
-package com.anonymous.PersonalFinanceAnalyticsAndPlanningMobileApp
+package com.anonymous.PersonalFinanceApp
 
 import android.os.Build
 import android.os.Bundle

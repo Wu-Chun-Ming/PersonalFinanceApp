@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'Personal-Finance-Analytics-And-Planning-Mobile-App'
+rootProject.name = 'PersonalFinanceApp'
 
 dependencyResolutionManagement {
   versionCatalogs {

@@ -1,4 +1,4 @@
-package com.anonymous.PersonalFinanceAnalyticsAndPlanningMobileApp
+package com.anonymous.PersonalFinanceApp
 
 import android.app.Application
 import android.content.res.Configuration
