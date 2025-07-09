@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Personal-Finance-Analytics-And-Planning-Mobile-App",
-    "slug": "Personal-Finance-Analytics-And-Planning-Mobile-App",
+    "name": "PersonalFinanceApp",
+    "slug": "PersonalFinanceApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "personalfinanceanalyticsandplanningmobileapp",
+    "scheme": "personalfinanceapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -17,7 +17,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.PersonalFinanceAnalyticsAndPlanningMobileApp"
+      "package": "com.anonymous.PersonalFinanceApp"
     },
     "web": {
       "bundler": "metro",

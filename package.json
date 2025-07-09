@@ -1,5 +1,5 @@
 {
-  "name": "personal-finance-analytics-and-planning-mobile-app",
+  "name": "personalfinanceapp",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
