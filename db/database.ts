@@ -56,44 +56,30 @@ export const initializeDatabase = async () => {
     }
 }
 
-/*
-============================================================
-General Operations
-============================================================
-*/
-
-// Get all rows from specified table
-export const getAllRows = async (tableName: string) => {
+// Fetch all transaction
+export const getTransactions = async () => {
     try {
         // Get the database instance
         const db = await getDatabaseInstance();
 
         // Fetch all the data from table
-        const result = await db.getAllAsync(`SELECT * FROM ${tableName}`);
+        const result = await db.getAllAsync(`SELECT * FROM transactions`);
 
         // Successful fetched
         if (result.length > 0) {
             return {
-                success: true,
                 data: result,
             };
         }
 
-        // No rows fetched
+        // No data fetched
         return {
-            success: false,
             data: null,
         };
     } catch (error) {
-        throw new Error(`Error fetching items from ${tableName}: ${error}`);
+        throw new Error(`Error fetching data from transactions table: ${error}`);
     }
-};
-
-/*
-============================================================
-Table-specified Operations
-============================================================
-*/
+}
 
 // Fetch specific transaction
 export const showTransaction = async (id: number) => {
@@ -107,13 +93,11 @@ export const showTransaction = async (id: number) => {
         // Successful fetched
         if (result) {
             return {
-                success: true,
                 data: result,
             };
         }
 
         return {
-            success: false,
             data: null,
         };
     } catch (error) {
