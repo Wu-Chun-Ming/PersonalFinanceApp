@@ -1,0 +1,289 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import * as SecureStore from 'expo-secure-store';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
+import { Pie, PolarChart } from 'victory-native';
+
+// Gluestack UI
+import { Box } from '@/components/ui/box';
+import { Button, ButtonText } from '@/components/ui/button';
+import { HStack } from '@/components/ui/hstack';
+import { VStack } from '@/components/ui/vstack';
+
+// Custom import
+import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
+import { initializeDatabase } from '@/db/database';
+import { fetchTransactions } from '@/db/transactions';
+import useShowToast from '@/hooks/useShowToast';
+
+const App = () => {
+  const queryClient = useQueryClient();
+  const showToast = useShowToast();     // Use custom hook
+
+  const [dbInitialized, setDbInitialized] = useState(false);
+  const {
+    data: transactions,
+    isLoading,
+    isError,
+    isSuccess,
+    isRefetchError,
+    isRefetching,
+    refetch
+  } = useQuery({
+    queryKey: ['transactions'],
+    queryFn: async () => {
+      try {
+        return await fetchTransactions();
+      } catch (error) {
+        console.error(error);
+        return [];
+      }
+    }
+  });
+  const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
+
+  // Check if the database has been initialized
+  const checkDatabaseInitialization = async () => {
+    try {
+      const dbInitialized = await SecureStore.getItemAsync('dbInitialized');
+
+      // Create the database if not initialized
+      if (!dbInitialized) {
+        await initializeDatabase();
+        await SecureStore.setItemAsync('dbInitialized', 'true');
+        setDbInitialized(true);
+      }
+    } catch (error) {
+      console.error('Error checking database initialization:', error);
+    }
+  };
+
+  useEffect(() => {
+    checkDatabaseInitialization();
+  }, [dbInitialized]);
+
+  // Filter the transactions by transaction type and category
+  const filterTransactions = (transactions: TransactionProps[], type: TransactionType) => {
+    const categories = type === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+    const transactionsByType = transactions.filter((transaction) => transaction.type === type);
+
+    const transactionByCategoryArray = categories.map((category) => {
+      // Calculate total amount for each category
+      const total = transactionsByType
+        .filter((t) => t.category === category)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      return {
+        label: category,
+        value: total,
+        color: CATEGORY_COLORS[category],
+      };
+    });
+
+    return transactionByCategoryArray;
+  }
+
+  // Calculate the total amount based on transaction type and category
+  const TransactionBreakdown = ({ type }: { type: 'expense' | 'income' }) => {
+    const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+    const transactionsByType = (transactions as TransactionProps[]).filter((transaction) => transaction.type === type);
+    const grandTotal = transactionsByType.reduce((sum, t) => sum + t.amount, 0);
+
+    const transactionBreakdownByType = categories.map((category) => {
+      // Calculate total amount for each category
+      const total = transactionsByType
+        .filter((t) => t.category === category)
+        .reduce((sum, t) => sum + t.amount, 0);
+      // Calculate percentage of total
+      const percentage = grandTotal ? (total / grandTotal) * 100 : 0;
+
+      return {
+        category,
+        total,
+        percentage,
+      };
+    });
+
+    return (
+      <VStack>
+        {transactionBreakdownByType.map((item, index) => {
+          if (item.total != 0) {
+            return (
+              <HStack
+                key={index}
+                className='justify-between items-center mx-5 my-2'
+              >
+                {/* Color Box */}
+                <Box
+                  className="w-5 h-5 rounded"
+                  style={{
+                    backgroundColor: CATEGORY_COLORS[item.category],
+                  }} />
+                {/* Category Label */}
+                <View style={[styles.centered, {
+                  width: '40%',
+                }]}>
+                  <Text style={styles.text}>{item.category}</Text>
+                </View>
+                {/* Currency Label */}
+                <Text style={styles.text}>RM</Text>
+                {/* Total Amount and Percentage */}
+                <View
+                  style={{
+                    width: '30%',
+                    justifyContent: 'center',
+                    alignItems: 'flex-end',
+                  }}
+                >
+                  <Text style={styles.text}>{item.total.toFixed(2)}</Text>
+                  <Text>({item.percentage.toFixed(2)}%)</Text>
+                </View>
+              </HStack>
+            );
+          }
+        })}
+      </VStack>
+    );
+  };
+
+  // If still loading or refetching
+  if (isLoading || isRefetching) {
+    return (
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <ActivityIndicator size={80} color="#0000ff" />
+      </View>
+    );
+  }
+  // If error occurs
+  if (isError || isRefetchError) {
+    return (
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Text style={{ color: 'red' }}>Error loading data</Text>
+        <Button onPress={() =>
+          queryClient.invalidateQueries({ queryKey: ['transactions', transactions] })
+        }>
+          <ButtonText>Try again</ButtonText>
+        </Button>
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <Dropdown
+        data={[
+          { label: 'Expense', value: 'expense' },
+          { label: 'Income', value: 'income' },
+        ]}
+        labelField="label"
+        valueField="value"
+        value={transactionType}
+        onChange={(item) => setTransactionType(item.value)}
+        style={{
+          margin: 10,
+          padding: 5,
+          paddingLeft: 10,
+          borderWidth: 1,
+          borderRadius: 10,
+          maxWidth: '25%',
+        }}
+        itemTextStyle={{
+          justifyContent: 'center',
+          textAlign: 'center',
+        }}
+      />
+
+      {/* Pie Chart */}
+      <View style={{
+        height: "40%",
+        paddingVertical: 10,
+      }}>
+        {transactions ?
+          <PolarChart
+            data={filterTransactions(transactions as TransactionProps[], transactionType)}
+            labelKey={"label"}
+            valueKey={"value"}
+            colorKey={"color"}
+          >
+            <Pie.Chart/>
+          </PolarChart>
+          : <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+            <Text style={[styles.text, {
+              fontWeight: 'bold',
+            }]}>No transaction data available.</Text>
+          </View>}
+      </View>
+
+      <ScrollView>
+        <View style={{
+          margin: 10,
+        }}>
+          {/* Expense Section */}
+          {transactionType === TransactionType.EXPENSE && <>
+            {/* Expense Heading */}
+            <View style={{
+              padding: 20,
+              backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
+              borderRadius: 20,
+            }}>
+              <Text style={[
+                styles.text,
+                {
+                  fontWeight: 'bold',
+                  textDecorationLine: 'underline',
+                }
+              ]}>Expense</Text>
+            </View>
+            {/* Expense Total by Categories */}
+            {transactions && <TransactionBreakdown type="expense" />}
+          </>}
+
+          {/* Income Section */}
+          {transactionType === TransactionType.INCOME && <>
+            {/* Income Heading */}
+            <View style={{
+              padding: 20,
+              backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
+              borderRadius: 20,
+            }}>
+              <Text style={[
+                styles.text,
+                {
+                  fontWeight: 'bold',
+                  textDecorationLine: 'underline',
+                }]}>Income</Text>
+            </View>
+            {/* Income Total by Categories */}
+            {transactions && <TransactionBreakdown type="income" />}
+          </>}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  text: {
+    fontSize: 15,
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
+});
+
+export default App;
