@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Href, router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -8,7 +9,9 @@ import { Pie, PolarChart } from 'victory-native';
 // Gluestack UI
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
+import { Fab, FabIcon } from '@/components/ui/fab';
 import { HStack } from '@/components/ui/hstack';
+import { AddIcon } from '@/components/ui/icon';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
@@ -272,6 +275,15 @@ const App = () => {
           </>}
         </View>
       </ScrollView>
+
+      {/* Floating action button to add new transaction */}
+      <Fab
+        size="lg"
+        placement="top right"
+        onPress={() => router.navigate(`/transaction/` as Href)}
+      >
+        <FabIcon as={AddIcon} size='xl' />
+      </Fab>
     </SafeAreaView>
   );
 };

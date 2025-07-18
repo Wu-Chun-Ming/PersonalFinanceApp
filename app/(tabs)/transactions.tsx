@@ -266,6 +266,15 @@ const TransactionScreen = () => {
                     {transactions && <TransactionsListing type="income" />}
                 </View>
             </ScrollView>
+
+            {/* Floating action button to add new transaction */}
+            <Fab
+                size="lg"
+                placement="top right"
+                onPress={() => router.navigate(`/transaction/` as Href)}
+            >
+                <FabIcon as={AddIcon} size='xl' />
+            </Fab>
         </SafeAreaView>
     );
 };

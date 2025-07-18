@@ -15,6 +15,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="transaction" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
       </QueryClientProvider>
