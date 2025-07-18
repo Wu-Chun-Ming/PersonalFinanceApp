@@ -1,0 +1,499 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useFormik } from 'formik';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
+import * as Yup from 'yup';
+
+// Gluestack UI
+import { Button, ButtonText } from "@/components/ui/button";
+import { Divider } from '@/components/ui/divider';
+import { HStack } from '@/components/ui/hstack';
+import { ChevronDownIcon } from '@/components/ui/icon';
+import { Input, InputField } from "@/components/ui/input";
+import {
+    Select,
+    SelectBackdrop,
+    SelectContent,
+    SelectDragIndicator,
+    SelectDragIndicatorWrapper,
+    SelectIcon,
+    SelectInput,
+    SelectItem,
+    SelectPortal,
+    SelectScrollView,
+    SelectTrigger
+} from "@/components/ui/select";
+import { Textarea, TextareaInput } from '@/components/ui/textarea';
+import { VStack } from "@/components/ui/vstack";
+
+// Custom import
+import styles from '@/app/styles';
+import FormGroup from '@/components/FormGroup';
+import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
+import { createTransaction, deleteTransaction, editTransaction, fetchTransaction } from '@/db/transactions';
+import useShowToast from '@/hooks/useShowToast';
+
+const TransactionManager = () => {
+    const navigation = useNavigation();
+    const queryClient = useQueryClient();
+    const showToast = useShowToast();       // Use the useShowToast hook (custom)
+    const [formAction, setFormAction] = useState<"create" | "update" | "delete" | undefined>(undefined)
+    const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
+    const { transactionId } = useLocalSearchParams();
+    const {
+        data: transaction,
+        isLoading,
+        isError,
+        isSuccess,
+        isRefetching,
+        isRefetchError,
+        refetch
+    } = useQuery({
+        queryKey: ['transaction', transactionId],
+        queryFn: async () => {
+            try {
+                return await fetchTransaction(Number(transactionId));
+            } catch (error) {
+                console.error(error);
+                router.back(); // Navigate to previous page if error occurs
+                return null;
+            }
+        },
+        enabled: !!transactionId, // Only run the query if transactionId is available
+    });
+    const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
+    const [recurring, setRecurring] = useState<boolean>(false);
+    // Define mutation for create transaction
+    const createMutation = useMutation({
+        mutationFn: (newTransactionData: TransactionProps) => createTransaction(newTransactionData),
+        onSuccess: (response) => {
+            const { success, messages } = response;
+            const actionType = success ? 'success' : 'info';
+            showToast({ action: actionType, messages: messages });
+        },
+        onError: (error) => {
+            const error_message = error.message;
+            showToast({ action: 'warning', messages: error_message });
+        },
+        onSettled: (_data, error) => {
+            if (!error) {
+                queryClient.invalidateQueries({ queryKey: ['transactions'] });      // Refresh transaction data after creating new transaction
+                router.back(); // Navigate to previous page after creating transaction
+            }
+        },
+    });
+
+    // Define mutation for update transaction
+    const updateMutation = useMutation({
+        mutationFn: ({ id, updatedTransactionData }: { id: number, updatedTransactionData: TransactionProps }) => editTransaction(id, updatedTransactionData),
+        onSuccess: (response) => {
+            const { success, messages } = response;
+            const actionType = success ? 'success' : 'info';
+            showToast({ action: actionType, messages: messages });
+        },
+        onError: (error) => {
+            const error_message = error.message;
+            showToast({ action: 'warning', messages: error_message });
+        },
+        onSettled: (_data, error, variables) => {
+            if (!error) {
+                queryClient.invalidateQueries({ queryKey: ['transaction', variables.id] });
+                refetch(); // Refetch the transaction data to get the latest changes
+                queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            }
+        },
+    });
+
+    // Define mutation for delete transaction
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => deleteTransaction(id),
+        onSuccess: (response) => {
+            const { success, messages } = response;
+            const actionType = success ? 'success' : 'info';
+            showToast({ action: actionType, messages: messages });
+        },
+        onError: (error) => {
+            const error_message = error.message;
+            showToast({ action: 'warning', messages: error_message });
+        },
+        onSettled: (_data, error) => {
+            if (!error) {
+                queryClient.invalidateQueries({ queryKey: ['transactions'] });     // Refresh transactions after delete transaction
+                router.back(); // Navigate to previous page after deleting transaction
+            }
+        },
+    });
+
+    // Validation Schema
+    const validationSchema = Yup.object().shape({
+        date: Yup.date()
+            .required('Date is required'),
+        type: Yup
+            .mixed<TransactionType>().oneOf(Object.values(TransactionType))
+            .required('Transaction type is required'),
+        category: Yup.string()
+            .oneOf((transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES), 'Invalid Category')
+            .required('Category is required'),
+        amount: Yup.number().typeError("Must be a number")
+            .positive('Amount must be positive')
+            .required('Amount is required'),
+        description: Yup.string()
+            .required('Description is required'),
+        recurring: Yup.boolean().nullable(),
+    });
+
+    // Formik setup
+    const formik = useFormik({
+        initialValues: {
+            date: transaction?.date || new Date(),
+            type: transaction?.type || TransactionType.EXPENSE,
+            category: transaction?.category || '',
+            amount: transaction?.amount || '',
+            description: transaction?.description || '',
+            recurring: transaction?.recurring || false,
+            recurring_frequency: transaction?.recurring_frequency || null,
+        },
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            const transformedTransactionData = {
+                ...values,
+                type: transactionType,
+                category: values.category as TransactionCategory,
+                amount: Number(values.amount),
+                recurring_frequency: values.recurring_frequency ? JSON.parse(values.recurring_frequency) : null,
+            };
+            switch (formAction) {
+                case 'create':
+                    createMutation.mutate(transformedTransactionData);
+                    break;
+                case 'update':
+                    updateMutation.mutate({
+                        id: Number(transactionId),
+                        updatedTransactionData: transformedTransactionData
+                    });
+                    break;
+            }
+        },
+    });
+    useEffect(() => {
+        if (transaction) {
+            setTransactionType(transaction.type);
+        }
+        // Set the title for the screen
+        const isNewTransaction = !transactionId;
+        navigation.setOptions({
+            title: isNewTransaction ? 'Create New Transaction' : 'Edit Transaction',
+        });
+
+        // Show toast if transaction is not found
+        if (!isNewTransaction && isSuccess && !transaction) {
+            showToast({ action: 'info', messages: 'Transaction not found' });
+        }
+    }, [transaction]);
+
+    // If still loading or refetching
+    if (isLoading || isRefetching) {
+        return (
+            <View style={styles.centeredFlex}>
+                <ActivityIndicator size={80} color="#0000ff" />
+            </View>
+        );
+    }
+    // If error occurs
+    if (isError || isRefetchError) {
+        return (
+            <View style={styles.centeredFlex}>
+                <Text style={{ color: 'red' }}>Error loading data</Text>
+                <Button action='negative' onPress={() => {
+                    queryClient.invalidateQueries({ queryKey: ['transaction', transaction] });
+                    // refetch();
+                }}>
+                    <ButtonText>Try again</ButtonText>
+                </Button>
+            </View>
+        );
+    }
+
+    return (
+        <ScrollView style={{ flex: 1, }}>
+            <VStack className="flex-1 p-4">
+                {!transaction && <HStack
+                    style={[styles.centeredFlex, {
+                        flexDirection: 'row',
+                        minHeight: '10%',
+                    }]}
+                >
+                    <TouchableNativeFeedback onPress={() => setTransactionType(TransactionType.EXPENSE)}>
+                        <View style={[styles.centered, {
+                            minWidth: 120,
+                            padding: 20,
+                            marginHorizontal: 20,
+                            backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
+                            borderRadius: 20,
+                            borderWidth: transactionType === TransactionType.EXPENSE ? 3 : 0,
+                        },]}>
+                            <Text style={[styles.text, {
+                                fontWeight: 'bold',
+                            }]}>Expense</Text>
+                        </View>
+                    </TouchableNativeFeedback>
+
+                    <Divider
+                        orientation="vertical"
+                        className="mx-5 h-full bg-black"
+                    />
+
+                    <TouchableNativeFeedback onPress={() => setTransactionType(TransactionType.INCOME)}>
+                        <View style={[styles.centered, {
+                            minWidth: 120,
+                            padding: 20,
+                            marginHorizontal: 20,
+                            backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
+                            borderRadius: 20,
+                            borderWidth: transactionType == TransactionType.INCOME ? 3 : 0,
+                        }]}>
+                            <Text style={[styles.text, {
+                                fontWeight: 'bold',
+                            }]}>Income</Text>
+                        </View>
+                    </TouchableNativeFeedback>
+                </HStack>}
+                {/* Date */}
+                {!recurring ? <FormGroup
+                    label='Date'
+                    isInvalid={formik.errors.date && formik.touched.date}
+                    isRequired={true}
+                    errorText={formik.errors.date}
+                >
+                    <Input
+                        className="text-center"
+                        isReadOnly={true}
+                    >
+                        <TouchableOpacity
+                            onPress={() => setDateModalVisible(true)}
+                        >
+                            <InputField
+                                type="text"
+                                value={dayjs((formik.values.date).toString()).format('YYYY-MM-DD')}
+                                placeholder='YYYY-MM-DD'
+                                inputMode='text'
+                            />
+                        </TouchableOpacity>
+                    </Input>
+                </FormGroup>
+                    : <FormGroup
+                        label='Recurring Frequency'
+                        isInvalid={formik.errors.recurring_frequency && formik.touched.recurring_frequency}
+                        isRequired={true}
+                        errorText={formik.errors.recurring_frequency}
+                    >
+                    </FormGroup>}
+                {dateModalVisible && <DateTimePicker
+                    value={new Date((formik.values.date).toString())}
+                    mode='date'
+                    onChange={(_event, selectedDate) => {
+                        if (selectedDate) {
+                            formik.setFieldValue('date', dayjs(selectedDate).format('YYYY-MM-DD'));
+                            setDateModalVisible(false);
+                        }
+                    }}
+                />}
+
+                {/* Type */}
+                {transaction && <FormGroup
+                    label='Type'
+                    isInvalid={formik.errors.type && formik.touched.type}
+                    isRequired={true}
+                    errorText={formik.errors.type}
+                >
+                    <Select
+                        initialLabel={transaction.type[0].toUpperCase() + transaction.type.slice(1)}
+                        selectedValue={formik.values.type}
+                        onValueChange={(value) => {
+                            setTransactionType(value as TransactionType);
+                            formik.setFieldValue('type', value);
+                        }}
+                    >
+                        <SelectTrigger variant="outline" size="md">
+                            <SelectInput placeholder="Select option" className='flex-1' />
+                            <SelectIcon className="mr-3" as={ChevronDownIcon} />
+                        </SelectTrigger>
+                        <SelectPortal>
+                            <SelectBackdrop />
+                            <SelectContent>
+                                <SelectDragIndicatorWrapper>
+                                    <SelectDragIndicator />
+                                </SelectDragIndicatorWrapper>
+                                <SelectScrollView
+                                    showsVerticalScrollIndicator={true}
+                                >
+                                    {Object.values(TransactionType).map(
+                                        (label) => (
+                                            <SelectItem
+                                                key={label}
+                                                label={label[0].toUpperCase() + label.slice(1)}
+                                                value={label}
+                                            />
+                                        )
+                                    )}
+                                </SelectScrollView>
+                            </SelectContent>
+                        </SelectPortal>
+                    </Select>
+                </FormGroup>}
+
+                {/* Category */}
+                <FormGroup
+                    label='Category'
+                    isInvalid={formik.errors.category && formik.touched.category}
+                    isRequired={true}
+                    errorText={formik.errors.category}
+                >
+                    <Select
+                        initialLabel={formik.values.category ? formik.values.category[0].toUpperCase() + formik.values.category.slice(1) : ''}
+                        selectedValue={formik.values.category}
+                        onValueChange={formik.handleChange('category')}
+                    >
+                        <SelectTrigger variant="outline" size="md">
+                            <SelectInput placeholder="Select option" className='flex-1' />
+                            <SelectIcon className="mr-3" as={ChevronDownIcon} />
+                        </SelectTrigger>
+                        <SelectPortal>
+                            <SelectBackdrop />
+                            <SelectContent>
+                                <SelectDragIndicatorWrapper>
+                                    <SelectDragIndicator />
+                                </SelectDragIndicatorWrapper>
+                                <SelectScrollView
+                                    showsVerticalScrollIndicator={true}
+                                >
+                                    {(transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(
+                                        (label) => (
+                                            <SelectItem
+                                                key={label}
+                                                label={label[0].toUpperCase() + label.slice(1)}
+                                                value={label}
+                                            />
+                                        )
+                                    )}
+                                </SelectScrollView>
+                            </SelectContent>
+                        </SelectPortal>
+                    </Select>
+                </FormGroup>
+
+                {/* Amount */}
+                <FormGroup
+                    label='Amount (RM)'
+                    isInvalid={formik.errors.amount && formik.touched.amount}
+                    isRequired={true}
+                    errorText={formik.errors.amount}
+                >
+                    <Input className="text-center">
+                        <InputField
+                            type="text"
+                            value={formik.values.amount.toString()}
+                            onChangeText={formik.handleChange('amount')}
+                            placeholder='Enter Amount'
+                            inputMode='numeric'
+                        />
+                    </Input>
+                </FormGroup>
+
+                {/* Description */}
+                <FormGroup
+                    label='Description'
+                    isInvalid={formik.errors.description && formik.touched.description}
+                    isRequired={true}
+                    errorText={formik.errors.description}
+                >
+                    <Textarea>
+                        <TextareaInput
+                            value={formik.values.description}
+                            placeholder="Enter Description"
+                            onChangeText={formik.handleChange('description')}
+                            style={{ textAlignVertical: 'top' }}
+                            inputMode='text'
+                        />
+                    </Textarea>
+                </FormGroup>
+
+                {/* Icon Group */}
+                {!transaction && <HStack className='my-4 justify-between'>
+                    <TouchableNativeFeedback
+                        onPress={() => setRecurring(prevState => !prevState)}
+                    >
+                        <View
+                            style={[styles.centered, {
+                                height: 75,
+                                width: 75,
+                            }]}
+                        >
+                            {recurring ? <MaterialCommunityIcons name="repeat" size={65} color="black" />
+                                : <MaterialCommunityIcons name="repeat-off" size={65} color="black" />}
+                        </View>
+                    </TouchableNativeFeedback>
+                    {transactionType === TransactionType.EXPENSE && (
+                        <TouchableNativeFeedback
+                            onPress={() => router.navigate('/transaction/scan' as Href)}
+                        >
+                            <View
+                                style={[styles.centered, {
+                                    height: 75,
+                                    width: 75,
+                                }]}
+                            >
+                                <MaterialCommunityIcons name="camera-outline" size={80} color="black" />
+                            </View>
+                        </TouchableNativeFeedback>)}
+                </HStack>}
+
+                {/* Button Group */}
+                {transaction ? (
+                    <HStack className='mt-4 justify-between'>
+                        <Button
+                            size="lg"
+                            onPress={() => deleteMutation.mutate(Number(transaction.id))}
+                            action="negative"
+                        >
+                            <ButtonText>Delete</ButtonText>
+                        </Button>
+
+                        <Button
+                            size="lg"
+                            onPress={() => {
+                                setFormAction("update");
+                                formik.handleSubmit();
+                            }}
+                            action="positive"
+                        >
+                            <ButtonText>Save</ButtonText>
+                        </Button>
+                    </HStack>
+                ) : (
+                    <View className='mt-4'>
+                        <Button
+                            className="self-center"
+                            size="lg"
+                            onPress={() => {
+                                setFormAction('create');
+                                formik.setFieldValue('type', transactionType)
+                                formik.handleSubmit();
+                            }}
+                            action="positive"
+                        >
+                            <ButtonText>Create</ButtonText>
+                        </Button>
+                    </View>
+                )}
+            </VStack>
+        </ScrollView >
+    );
+};
+
+export default TransactionManager;
