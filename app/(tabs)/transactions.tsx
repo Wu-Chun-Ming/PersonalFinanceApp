@@ -2,7 +2,7 @@ import { Color, useFont } from '@shopify/react-native-skia';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { BarGroup, CartesianChart } from 'victory-native';
 
 // Gluestack UI
@@ -13,6 +13,7 @@ import { AddIcon } from '@/components/ui/icon';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
+import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
@@ -145,11 +146,7 @@ const TransactionScreen = () => {
     // If still loading or refetching
     if (isLoading || isRefetching) {
         return (
-            <View style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
+            <View style={styles.centeredFlex}>
                 <ActivityIndicator size={80} color="#0000ff" />
             </View>
         );
@@ -157,11 +154,7 @@ const TransactionScreen = () => {
     // If error occurs
     if (isError || isRefetchError) {
         return (
-            <View style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
+            <View style={styles.centeredFlex}>
                 <Text style={{ color: 'red' }}>Error loading data</Text>
                 <Button onPress={() =>
                     queryClient.invalidateQueries({ queryKey: ['transactions', transactions] })
@@ -175,12 +168,10 @@ const TransactionScreen = () => {
     return (
         <SafeAreaView style={{ flex: 1 }}>
             {/* Bar Chart */}
-            <View style={{
+            <View style={[styles.centered, {
                 height: "40%",
                 paddingVertical: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}>
+            }]}>
                 <View style={{
                     width: '95%',
                     height: "100%",
@@ -216,11 +207,7 @@ const TransactionScreen = () => {
                             </BarGroup>
                         )}
                     </CartesianChart>
-                        : <View style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
+                        : <View style={styles.centeredFlex}>
                             <Text style={[styles.text, { fontWeight: 'bold' }]}>No transaction data available.</Text>
                         </View>}
                 </View>
@@ -278,11 +265,5 @@ const TransactionScreen = () => {
         </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    text: {
-        fontSize: 15,
-    },
-});
 
 export default TransactionScreen;

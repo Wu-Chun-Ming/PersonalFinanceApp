@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Pie, PolarChart } from 'victory-native';
 
@@ -15,6 +15,7 @@ import { AddIcon } from '@/components/ui/icon';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
+import styles from '@/app/styles';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
 import { initializeDatabase } from '@/db/database';
@@ -154,11 +155,7 @@ const App = () => {
   // If still loading or refetching
   if (isLoading || isRefetching) {
     return (
-      <View style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+      <View style={styles.centeredFlex}>
         <ActivityIndicator size={80} color="#0000ff" />
       </View>
     );
@@ -166,11 +163,7 @@ const App = () => {
   // If error occurs
   if (isError || isRefetchError) {
     return (
-      <View style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+      <View style={styles.centeredFlex}>
         <Text style={{ color: 'red' }}>Error loading data</Text>
         <Button onPress={() =>
           queryClient.invalidateQueries({ queryKey: ['transactions', transactions] })
@@ -220,11 +213,7 @@ const App = () => {
           >
             <Pie.Chart/>
           </PolarChart>
-          : <View style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
+          : <View style={styles.centeredFlex}>
             <Text style={[styles.text, {
               fontWeight: 'bold',
             }]}>No transaction data available.</Text>
@@ -287,15 +276,5 @@ const App = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  text: {
-    fontSize: 15,
-  },
-  centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
-});
 
 export default App;
