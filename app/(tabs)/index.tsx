@@ -66,7 +66,7 @@ const App = () => {
 
   useEffect(() => {
     checkDatabaseInitialization();
-  }, [dbInitialized]);
+  }, [dbInitialized, transactions]);
 
   // Filter the transactions by transaction type and category
   const filterTransactions = (transactions: TransactionProps[], type: TransactionType) => {
