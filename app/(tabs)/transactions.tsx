@@ -252,12 +252,15 @@ const TransactionScreen = () => {
                     {/* Income Total by Categories */}
                     {transactions && <TransactionsListing type="income" />}
                 </View>
+
+                {/* Reserve Space for Floating Action Button */}
+                <View style={{ minHeight: 60 }}/>
             </ScrollView>
 
             {/* Floating action button to add new transaction */}
             <Fab
                 size="lg"
-                placement="top right"
+                placement="bottom right"
                 onPress={() => router.navigate(`/transaction/` as Href)}
             >
                 <FabIcon as={AddIcon} size='xl' />
