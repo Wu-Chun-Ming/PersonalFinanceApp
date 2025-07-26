@@ -38,8 +38,8 @@ export default function TabLayout() {
           <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
         ),
       }} />
-      <Tabs.Screen name="budget" options={{
-        title: 'Budget',
+      <Tabs.Screen name="budgets" options={{
+        title: 'Budgets',
         headerTitleAlign: 'center',
         tabBarIcon: ({ color, focused }) => (
           <Ionicons name={focused ? 'funnel' : 'funnel-outline'} color={color} size={24} />

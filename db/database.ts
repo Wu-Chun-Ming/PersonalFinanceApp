@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 // Custom import
-import { TransactionProps } from '@/constants/Types';
+import { BudgetProps, TransactionProps } from '@/constants/Types';
 
 let dbInstance: SQLite.SQLiteDatabase | null = null; // To store the singleton instance
 
@@ -30,6 +30,15 @@ amount                  DOUBLE
 description             VARCHAR
 recurring               BOOLEAN
 currency                VARCHAR
+/* 
+Table: budgets
+============================================================
+Column Name             Type
+============================================================
+year                    INTEGER
+month                   INTEGER
+category                ENUM(...)
+amount                  DOUBLE
 ============================================================
 */
 
@@ -39,8 +48,8 @@ export const initializeDatabase = async () => {
         // Get db instance
         const db = await getDatabaseInstance();
 
-        // Create the table
-        await db.runAsync(`
+        // Create the tables
+        await db.execAsync(`
             CREATE TABLE IF NOT EXISTS transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 date TEXT,
@@ -49,6 +58,16 @@ export const initializeDatabase = async () => {
                 description TEXT,
                 type TEXT NOT NULL CHECK(type IN ('expense', 'income')),
                 recurring INTEGER NOT NULL CHECK(recurring IN (0, 1)),
+            );
+            CREATE TABLE IF NOT EXISTS budgets (
+                year INTEGER NOT NULL,
+                month INTEGER NOT NULL,
+                category TEXT NOT NULL CHECK(category IN (
+                    'Groceries', 'Rent', 'Utilities', 'Transportation', 'Dining', 'Subscriptions',
+                    'Salary', 'Freelance', 'Investment', 'Gift'
+                )),
+                amount REAL NOT NULL DEFAULT 0.0,
+                PRIMARY KEY (year, month, category)
             );
         `);
     } catch (error) {
@@ -209,5 +228,67 @@ export const destroyTransaction = async (id: number) => {
         };
     } catch (error) {
         throw new Error(`Error deleting transaction: ${error}`);
+    }
+}
+
+
+// Fetch budgets
+export const getBudgets = async () => {
+    try {
+        // Get the database instance
+        const db = await getDatabaseInstance();
+
+        // Fetch all the data from table
+        const result = await db.getAllAsync(`SELECT * FROM budgets`);
+
+        // Successful fetched
+        if (result.length > 0) {
+            return {
+                data: result,
+            };
+        }
+
+        // No data fetched
+        return {
+            data: null,
+        };
+    } catch (error) {
+        throw new Error(`Error fetching data from budgets table: ${error}`);
+    }
+}
+
+// Update budget amount
+export const updateBudget = async (amount: number, { year, month, category }: { year: number; month: number; category: string }) => {
+    try {
+        // Get the database instance
+        const db = await getDatabaseInstance();
+
+        // Update the budget
+        const result = await db.runAsync(
+            'UPDATE budgets SET amount = ? WHERE year = ? AND month = ? AND category = ?',
+            amount,
+            year,
+            month,
+            category,
+        );
+
+        // Successful update
+        if (result) {
+            return {
+                data: {
+                    success: true,
+                    messages: 'Budget updated successfully',
+                }
+            };
+        }
+
+        return {
+            data: {
+                success: false,
+                messages: 'Failed to update budget',
+            }
+        };
+    } catch (error) {
+        throw new Error(`Error updating budget: ${error}`);
     }
 }

@@ -51,3 +51,10 @@ export type TransactionProps = {
   recurring: boolean,
   currency?: string,
 };
+
+export type BudgetProps = {
+  year: number;
+  month: number;
+  category: TransactionCategory,
+  amount: number,
+};

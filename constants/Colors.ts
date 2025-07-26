@@ -22,3 +22,6 @@ export const TRANSACTION_TYPE_COLORS: { [key in TransactionType]: string } = {
     [TransactionType.EXPENSE]: 'limegreen',             // Expense
     [TransactionType.INCOME]: '#e1e106ff',            // Income
 };
+
+// Define color for budget
+export const BUDGET_COLOR = '#304cbdff'; // Dark blue
