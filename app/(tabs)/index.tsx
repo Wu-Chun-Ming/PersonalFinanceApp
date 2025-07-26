@@ -10,6 +10,7 @@ import { Pie, PolarChart } from 'victory-native';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Fab, FabIcon } from '@/components/ui/fab';
+import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
 import { VStack } from '@/components/ui/vstack';
@@ -224,44 +225,19 @@ const App = () => {
         <View style={{
           margin: 10,
         }}>
-          {/* Expense Section */}
-          {transactionType === TransactionType.EXPENSE && <>
-            {/* Expense Heading */}
-            <View style={{
-              padding: 20,
-              backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
-              borderRadius: 20,
+          <View style={{
+            padding: 20,
+            backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
+            borderRadius: 20,
+          }}>
+            <Heading style={{
+              textDecorationLine: 'underline',
             }}>
-              <Text style={[
-                styles.text,
-                {
-                  fontWeight: 'bold',
-                  textDecorationLine: 'underline',
-                }
-              ]}>Expense</Text>
-            </View>
-            {/* Expense Total by Categories */}
-            {transactions && <TransactionBreakdown type="expense" />}
-          </>}
-
-          {/* Income Section */}
-          {transactionType === TransactionType.INCOME && <>
-            {/* Income Heading */}
-            <View style={{
-              padding: 20,
-              backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
-              borderRadius: 20,
-            }}>
-              <Text style={[
-                styles.text,
-                {
-                  fontWeight: 'bold',
-                  textDecorationLine: 'underline',
-                }]}>Income</Text>
-            </View>
-            {/* Income Total by Categories */}
-            {transactions && <TransactionBreakdown type="income" />}
-          </>}
+              {transactionType[0].toUpperCase() + transactionType.slice(1)}
+            </Heading>
+          </View>
+          {/* Total by Category */}
+          {transactions && <TransactionBreakdown type={transactionType} />}
         </View>
       </ScrollView>
 
