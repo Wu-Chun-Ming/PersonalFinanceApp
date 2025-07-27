@@ -1,20 +1,23 @@
 import { TransactionCategory, TransactionType } from "./Types";
 
-// Define color for categories
+// Define color for transaction categories
 export const CATEGORY_COLORS: { [key in TransactionCategory]: string } = {
-    [TransactionCategory.FOOD]: '#ff9800',            // Orange
-    [TransactionCategory.ENTERTAINMENT]: '#9c27b0',   // Purple
-    [TransactionCategory.UTILITIES]: '#2196f3',       // Blue
-    [TransactionCategory.GROCERY]: '#ff5733',         // Orange-Red
-    [TransactionCategory.RENT]: '#33FF57',            // Light Green
-    [TransactionCategory.TRANSPORTATION]: '#3357FF',  // Blue
-    [TransactionCategory.DINING]: '#F1C40F',          // Yellow
-    [TransactionCategory.SUBSCRIPTIONS]: '#8E44AD',   // Purple
-    [TransactionCategory.SALARY]: '#4caf50',          // Green
-    [TransactionCategory.FREELANCE]: '#a2b9b4ff',     // Grayish Blue
-    [TransactionCategory.INVESTMENT]: '#E74C3C',      // Red
-    [TransactionCategory.GIFT]: '#F39C12',            // Orange
-    [TransactionCategory.OTHER]: '#607d8b',           // Blue Grey
+    // Expense categories
+    [TransactionCategory.FOOD]: '#FF6F61',            // Coral Red
+    [TransactionCategory.ENTERTAINMENT]: '#6B5B95',   // Deep Purple
+    [TransactionCategory.UTILITIES]: '#45B8AC',       // Teal
+    [TransactionCategory.GROCERY]: '#FFD662',         // Bright Yellow
+    [TransactionCategory.RENT]: '#955251',            // Mauve
+    [TransactionCategory.TRANSPORTATION]: '#034F84',  // Navy Blue
+    [TransactionCategory.DINING]: '#F7CAC9',          // Light Pink
+    [TransactionCategory.SUBSCRIPTIONS]: '#B565A7',   // Violet
+    // Income categories
+    [TransactionCategory.SALARY]: '#88B04B',          // Olive Green
+    [TransactionCategory.FREELANCE]: '#F7786B',       // Salmon
+    [TransactionCategory.INVESTMENT]: '#92A8D1',      // Soft Blue
+    [TransactionCategory.GIFT]: '#DD4124',            // Red-Orange
+    // Other category
+    [TransactionCategory.OTHER]: '#939597',           // Gray
 };
 
 // Define color for transaction types
