@@ -27,7 +27,6 @@ const TransactionScreen = () => {
         data: transactions,
         isLoading,
         isError,
-        isSuccess,
         isRefetchError,
         isRefetching,
         refetch
@@ -49,8 +48,8 @@ const TransactionScreen = () => {
     const getTransactionBreakdownByType = (categories: TransactionCategory[], transactionType: TransactionType) => (
         categories.map((category) => {
             const total = (transactions as TransactionProps[]).filter(transaction => transaction.type === transactionType)
-                .filter((t) => t.category === category)
-                .reduce((sum, t) => sum + t.amount, 0);
+                .filter((transaction) => transaction.category === category)
+                .reduce((sum, transaction) => sum + transaction.amount, 0);
 
             return {
                 category,
@@ -109,22 +108,22 @@ const TransactionScreen = () => {
 
         const transactionByMonthArray = months_num.map((month) => {
             const expenseTotalByMonth = expenseTransactions
-                .filter((t) => {
-                    if (!t.date) return false;
+                .filter((transaction) => {
+                    if (!transaction.date) return false;
 
-                    const transactionMonth = new Date(t.date.toString()).getMonth() + 1;
+                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
                     return transactionMonth === month;
                 })
-                .reduce((sum, t) => sum + t.amount, 0);
+                .reduce((sum, transaction) => sum + transaction.amount, 0);
 
             const incomeTotalByMonth = incomeTransactions
-                .filter((t) => {
-                    if (!t.date) return false;
+                .filter((transaction) => {
+                    if (!transaction.date) return false;
 
-                    const transactionMonth = new Date(t.date.toString()).getMonth() + 1;
+                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
                     return transactionMonth === month;
                 })
-                .reduce((sum, t) => sum + t.amount, 0);
+                .reduce((sum, transaction) => sum + transaction.amount, 0);
 
             return {
                 month: month,
