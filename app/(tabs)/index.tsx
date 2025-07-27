@@ -166,9 +166,10 @@ const App = () => {
     return (
       <View style={styles.centeredFlex}>
         <Text style={{ color: 'red' }}>Error loading data</Text>
-        <Button onPress={() =>
+        <Button onPress={() => {
           queryClient.invalidateQueries({ queryKey: ['transactions', transactions] })
-        }>
+          refetch();
+        }}>
           <ButtonText>Try again</ButtonText>
         </Button>
       </View>

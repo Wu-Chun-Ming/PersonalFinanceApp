@@ -156,9 +156,10 @@ const TransactionScreen = () => {
         return (
             <View style={styles.centeredFlex}>
                 <Text style={{ color: 'red' }}>Error loading data</Text>
-                <Button onPress={() =>
-                    queryClient.invalidateQueries({ queryKey: ['transactions', transactions] })
-                } >
+                <Button onPress={() => {
+                    queryClient.invalidateQueries({ queryKey: ['transactions', transactions] });
+                    refetch();
+                }}>
                     <ButtonText>Try again</ButtonText>
                 </Button>
             </View>
