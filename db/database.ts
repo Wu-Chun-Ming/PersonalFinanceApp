@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 // Custom import
-import { BudgetProps, TransactionProps } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 
 let dbInstance: SQLite.SQLiteDatabase | null = null; // To store the singleton instance
 
@@ -48,28 +48,41 @@ export const initializeDatabase = async () => {
         // Get db instance
         const db = await getDatabaseInstance();
 
+        // Define allowed values for transaction types and categories
+        const allowedTransactionTypes = Object.values(TransactionType).join("', '");
+        const allowedTransactionCategories = Object.values(TransactionCategory).map(category => `'${category}'`).join(', ');
+        // Define allowed values for budget categories
+        const allowedBudgetCategories = EXPENSE_CATEGORIES.map(category => `'${category}'`).join(', ');
         // Create the tables
         await db.execAsync(`
             CREATE TABLE IF NOT EXISTS transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 date TEXT,
-                category TEXT NOT NULL,
+                category TEXT NOT NULL CHECK(category IN (${allowedTransactionCategories})),
                 amount REAL NOT NULL,
                 description TEXT,
-                type TEXT NOT NULL CHECK(type IN ('expense', 'income')),
+                type TEXT NOT NULL CHECK(type IN (${allowedTransactionTypes})),
                 recurring INTEGER NOT NULL CHECK(recurring IN (0, 1)),
             );
             CREATE TABLE IF NOT EXISTS budgets (
                 year INTEGER NOT NULL,
                 month INTEGER NOT NULL,
-                category TEXT NOT NULL CHECK(category IN (
-                    'Groceries', 'Rent', 'Utilities', 'Transportation', 'Dining', 'Subscriptions',
-                    'Salary', 'Freelance', 'Investment', 'Gift'
-                )),
+                category TEXT NOT NULL CHECK(category IN (${allowedBudgetCategories})),
                 amount REAL NOT NULL DEFAULT 0.0,
                 PRIMARY KEY (year, month, category)
             );
         `);
+        // Initialize budgets table with default budgets for current year andmonth
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth() + 1;
+        const values = EXPENSE_CATEGORIES.flatMap((category) => [
+            currentYear, currentMonth, category, 0.0
+        ]);
+        const placeholders = EXPENSE_CATEGORIES.map(() => '(?, ?, ?, ?)').join(', ');
+        await db.runAsync(`
+            INSERT OR REPLACE INTO budgets (year, month, category, amount) VALUES ${placeholders}`,
+            values
+        );
     } catch (error) {
         throw new Error(`Error creating the database or table: ${error}`);
     }
