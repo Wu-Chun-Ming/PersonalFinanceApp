@@ -10,6 +10,7 @@ import { Bar, CartesianChart, Line } from 'victory-native';
 // Gluestack UI
 import { Button, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
+import { Fab, FabIcon } from '@/components/ui/fab';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
@@ -392,6 +393,15 @@ const GoalsScreen = () => {
                 {/* Reserve Space for Floating Action Button */}
                 <View style={{ minHeight: 60 }}></View>
             </ScrollView>
+
+            {/* Floating action button to edit goals */}
+            <Fab
+                size="lg"
+                placement="bottom right"
+                onPress={() => router.navigate(`/goal/goal_settings` as Href)}
+            >
+                <FabIcon as={AddIcon} size='xl' />
+            </Fab>
         </SafeAreaView>
     );
 };

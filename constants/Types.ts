@@ -58,3 +58,14 @@ export type BudgetProps = {
   category: TransactionCategory,
   amount: number,
 };
+
+export type SavingsGoalProps = {
+  date: Date | dayjs.Dayjs,
+  amount: number,
+};
+
+export type IncomeGoalProps = {
+  perDay: number,
+  perMonth: number,
+  perYear: number,
+};
