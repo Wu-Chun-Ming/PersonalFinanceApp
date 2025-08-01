@@ -190,8 +190,8 @@ const TransactionScreen = () => {
                                 font,
                                 tickCount: 12,
                                 formatXLabel: (value) => {
-                                    const date = new Date(2024, value - 1);
-                                    return date.toLocaleString("default", { month: "short" });
+                                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                    return monthNames[(value - 1) % 12];
                                 },
                             }}
                             yKeys={["expensePerMonth", "incomePerMonth"]}
