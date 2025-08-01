@@ -1,0 +1,399 @@
+import { useFont } from '@shopify/react-native-skia';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Href, router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
+import * as Progress from 'react-native-progress';
+import { Bar, CartesianChart, Line } from 'victory-native';
+
+// Gluestack UI
+import { Button, ButtonText } from '@/components/ui/button';
+import { Divider } from '@/components/ui/divider';
+import { Heading } from '@/components/ui/heading';
+import { HStack } from '@/components/ui/hstack';
+import { AddIcon } from '@/components/ui/icon';
+import { VStack } from '@/components/ui/vstack';
+
+// Custom import
+import styles from '@/app/styles';
+import inter from "@/assets/inter-medium.ttf";
+import { GOALS_COLOR } from '@/constants/Colors';
+import { TransactionProps, TransactionType } from '@/constants/Types';
+import { fetchGoal } from '@/db/goals';
+import { fetchTransactions } from '@/db/transactions';
+
+const GoalsScreen = () => {
+    const queryClient = useQueryClient();
+    const font = useFont(inter, 12);
+    const [savingsProgress, setSavingsProgress] = useState(0);
+    const [incomeProgress, setIncomeProgress] = useState(0);
+    const [incomeGraphMode, setIncomeGraphMode] = useState<'day' | 'month' | 'year'>('month');
+    const {
+        data: goals,
+    } = useQuery({
+        queryKey: ['goals'],
+        queryFn: async () => {
+            try {
+                return {
+                    savings: await fetchGoal('savings'),
+                    income: await fetchGoal('income'),
+                }
+            } catch (error) {
+                console.error(error);
+                return {
+                    savings: {
+                        date: new Date(),
+                        amount: 0,
+                    },
+                    income: {
+                        perDay: 0,
+                        perMonth: 0,
+                        perYear: 0,
+                    },
+                };
+            }
+        }
+    });
+    const {
+        data: transactions,
+        isLoading: isTransactionsLoading,
+        isError: isTransactionsError,
+        isRefetchError: isTransactionsRefetchError,
+        isRefetching: isTransactionsRefetching,
+        refetch: refetchTransactions
+    } = useQuery({
+        queryKey: ['transactions'],
+        queryFn: async () => {
+            try {
+                return (await fetchTransactions() || []) as TransactionProps[];
+            } catch (error) {
+                console.error(error);
+                return [] as TransactionProps[];
+            }
+        }
+    });
+    const [currentSavingsRate, setCurrentSavingsRate] = useState<number>(0);
+
+    const calculateSavingsGoalProgress = (transactions: TransactionProps[]) => {
+        const expenseTotal = transactions
+            .filter(transaction => transaction.type === TransactionType.EXPENSE)
+            .reduce((sum, transaction) => sum + transaction.amount, 0);
+        const incomeTotal = transactions
+            .filter(transaction => transaction.type === TransactionType.INCOME)
+            .reduce((sum, transaction) => sum + transaction.amount, 0);
+        if (goals?.savings && goals.savings.amount) {        // Savings goal
+            const savingsGoalAmount = Number(goals.savings.amount) || 0;
+            const progress = (incomeTotal - expenseTotal) / savingsGoalAmount;
+            setSavingsProgress(progress);
+        }
+    };
+
+    const calculateIncomeGoalProgress = (transactions: TransactionProps[]) => {
+        const currentMonthlyIncome = (transactions
+            .filter(transaction => transaction.type === TransactionType.INCOME)
+            .reduce((sum, transaction) => sum + transaction.amount, 0)) / 12;
+
+        if (goals?.income && goals.income.perMonth) {      // Income goals
+            const incomeGoalPerMonth = Number(goals.income.perMonth) || 0;
+            const progress = currentMonthlyIncome / incomeGoalPerMonth;
+            setIncomeProgress(progress);
+        }
+    }
+
+    useEffect(() => {
+        if (transactions) {
+            // Calculate goals progress
+            calculateSavingsGoalProgress(transactions as TransactionProps[]);
+            calculateIncomeGoalProgress(transactions as TransactionProps[]);
+            // Calculate current savings rate
+            setCurrentSavingsRate(getSavingsPerMonth(transactions)[new Date().getMonth()].savings);
+        }
+    }, [goals]);
+
+    // Savings per month (savings = income - expenses)
+    const getSavingsPerMonth = (transactions: TransactionProps[]) => {
+        const months_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        const expenseTransactions = transactions.filter(transaction => transaction.type === TransactionType.EXPENSE);
+        const incomeTransactions = transactions.filter(transaction => transaction.type === TransactionType.INCOME);
+
+        const transactionByMonthArray = months_num.map((month) => {
+            const expenseTotalByMonth = expenseTransactions
+                .filter((transaction) => {
+                    if (!transaction.date) return false;
+
+                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
+                    return transactionMonth === month;
+                })
+                .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+            const incomeTotalByMonth = incomeTransactions
+                .filter((transaction) => {
+                    if (!transaction.date) return false;
+
+                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
+                    return transactionMonth === month;
+                })
+                .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+            return {
+                month: month,
+                savings: incomeTotalByMonth - expenseTotalByMonth,
+            };
+        });
+
+        return transactionByMonthArray;
+    }
+
+    // Income per month
+    const getIncomePerMonth = (transactions: TransactionProps[]) => {
+        const months_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        const incomeTransactions = transactions.filter(transaction => transaction.type === TransactionType.INCOME);
+
+        const transactionByMonthArray = months_num.map((month) => {
+            const incomeTotalByMonth = incomeTransactions
+                .filter((transaction) => {
+                    if (!transaction.date) return false;
+
+                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
+                    return transactionMonth === month;
+                })
+                .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+            return {
+                month: month,
+                income: incomeTotalByMonth,
+            };
+        });
+
+        return transactionByMonthArray;
+    }
+
+    const GoalProgress = ({ goalType }: {
+        goalType: "savings" | "income"
+    }) => (
+        <View style={styles.centeredFlex}>
+            <View style={{
+                backgroundColor: GOALS_COLOR[goalType],
+                borderRadius: 10,
+                paddingHorizontal: 10,
+                marginVertical: 10,
+            }}>
+                <Heading className='my-5'
+                    style={{
+                        color: goalType === 'savings' ? 'white' : 'black',
+                    }}
+                >{goalType.charAt(0).toUpperCase() + goalType.slice(1)} Goal</Heading>
+            </View>
+            {/* Progress Indicator */}
+            <Progress.Circle
+                size={150}
+                progress={goalType === 'savings' ? savingsProgress : incomeProgress}
+                thickness={10}
+                showsText={true}
+                strokeCap="round"
+                color={GOALS_COLOR[goalType]}
+                animated={false}
+                formatText={(progress) => (progress >= 1) ? `Achieved` : `${Math.round(progress * 100)}%`}
+            />
+        </View>
+    );
+
+    // If still loading or refetching
+    if (isTransactionsLoading || isTransactionsRefetching) {
+        return (
+            <View style={styles.centeredFlex}>
+                <ActivityIndicator size={80} color="#0000ff" />
+            </View>
+        );
+    }
+    // If error occurs
+    if (isTransactionsError || isTransactionsRefetchError) {
+        return (
+            <View style={styles.centeredFlex}>
+                <Text style={{ color: 'red' }}>Error loading data</Text>
+                <Button onPress={() => {
+                    queryClient.invalidateQueries({ queryKey: ['transactions', transactions] });
+                    refetchTransactions();
+                }}>
+                    <ButtonText>Try again</ButtonText>
+                </Button>
+            </View>
+        );
+    }
+
+    return (
+        <SafeAreaView style={{ flex: 1, }}>
+            <ScrollView>
+                <HStack className='my-2'>
+                    {/* Savings Goal Progress */}
+                    <GoalProgress goalType='savings' />
+
+                    {/* Income Goal Progress */}
+                    <GoalProgress goalType='income' />
+                </HStack>
+
+                <Divider
+                    orientation="horizontal"
+                    className="my-5 w-full bg-black"
+                />
+
+                {/* Savings Chart Label */}
+                <HStack className="justify-between items-center mx-5">
+                    <View style={{
+                        backgroundColor: GOALS_COLOR['savings'],
+                        borderRadius: 10,
+                        padding: 10,
+                    }}>
+                        <Heading style={{
+                                color: 'white',
+                            }}
+                        >Savings</Heading>
+                    </View>
+
+                    <HStack className="items-center">
+                        <VStack className='items-center'>
+                            <Text style={[styles.text, {
+                                fontWeight: 'bold',
+                            }]}>Current</Text>
+                            <Text style={[styles.text, {
+                                fontWeight: 'bold',
+                            }]}>Savings Rate: </Text>
+                        </VStack>
+                        <View style={{
+                            backgroundColor: GOALS_COLOR['savings'],
+                            borderRadius: 10,
+                            padding: 10,
+                        }}>
+                            <Text style={[styles.text, {
+                                fontWeight: 'bold',
+                                color: 'white',
+                            }]}>{currentSavingsRate}%</Text>
+                        </View>
+                    </HStack>
+                </HStack>
+
+                {/* Savings Chart */}
+                <View style={[styles.centered, {
+                    height: 250,
+                    paddingVertical: 10,
+                }]}>
+                    <View style={{
+                        flex: 1,
+                        width: '95%',
+                    }}>
+                        {transactions && <CartesianChart
+                            data={getSavingsPerMonth(transactions as TransactionProps[])}
+                            xKey="month"
+                            xAxis={{
+                                font,
+                                tickCount: 12,
+                                formatXLabel: (value) => {
+                                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                    return monthNames[(value - 1) % 12];
+                                },
+                            }}
+                            yKeys={["savings"]}
+                            axisOptions={{
+                                font,
+                                lineColor: "#d4d4d8",
+                            }}
+                            domainPadding={{ left: 20, right: 20, top: 10, }}
+                        >
+                            {({ points, chartBounds }) => (
+                                <Bar
+                                    points={points.savings}
+                                    chartBounds={chartBounds}
+                                    color={GOALS_COLOR['savings']}
+                                />
+                            )}
+                        </CartesianChart>}
+                    </View>
+                </View>
+
+                <Divider
+                    orientation="horizontal"
+                    className="my-5 w-full bg-black"
+                />
+
+                {/* Income Graph Label */}
+                <HStack className="justify-between items-center mx-5">
+                    <View style={{
+                        backgroundColor: GOALS_COLOR['income'],
+                        borderRadius: 10,
+                        padding: 10,
+                    }}>
+                        <Heading>Income</Heading>
+                    </View>
+
+                    <Dropdown
+                        data={[
+                            { label: 'Per Day', value: 'day' },
+                            { label: 'Per Month', value: 'month' },
+                            { label: 'Per Year', value: 'year' },
+                        ]}
+                        labelField="label"
+                        valueField="value"
+                        value={incomeGraphMode}
+                        onChange={(item) => setIncomeGraphMode(item.value)}
+                        style={{
+                            flex: 1,
+                            padding: 5,
+                            paddingLeft: 10,
+                            borderWidth: 1,
+                            borderRadius: 10,
+                            maxWidth: 120,
+                        }}
+                        itemTextStyle={{
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                        }}
+                    />
+                </HStack>
+
+                {/* Income Graph */}
+                <View style={[styles.centered, {
+                    height: 250,
+                    paddingVertical: 10,
+                }]}>
+                    <View style={{
+                        flex: 1,
+                        width: '95%',
+                    }}>
+                        {transactions && <CartesianChart
+                            data={getIncomePerMonth(transactions as TransactionProps[])}
+                            xKey="month"
+                            xAxis={{
+                                font,
+                                tickCount: 12,
+                                formatXLabel: (value) => {
+                                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                    return monthNames[(value - 1) % 12];
+                                },
+                            }}
+                            yKeys={["income"]}
+                            axisOptions={{
+                                font,
+                                lineColor: "#d4d4d8",
+                            }}
+                            domainPadding={{ left: 20, right: 20, top: 10, }}
+                        >
+                            {({ points }) => (
+                                <Line
+                                    points={points.income}
+                                    color={GOALS_COLOR['income']}
+                                    strokeWidth={3}
+                                    animate={{ type: "timing", duration: 300 }}
+                                />
+                            )}
+                        </CartesianChart>}
+                    </View>
+                </View>
+                {/* Reserve Space for Floating Action Button */}
+                <View style={{ minHeight: 60 }}></View>
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
+
+export default GoalsScreen;

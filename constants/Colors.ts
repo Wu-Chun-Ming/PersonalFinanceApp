@@ -28,3 +28,9 @@ export const TRANSACTION_TYPE_COLORS: { [key in TransactionType]: string } = {
 
 // Define color for budget
 export const BUDGET_COLOR = '#304cbdff'; // Dark blue
+
+// Define color for goals
+export const GOALS_COLOR = {
+    'savings': '#5169c9ff',     // Blue
+    'income': '#e1e106ff',      // Yellow
+}

@@ -16,7 +16,7 @@ export default function TabLayout() {
         },
       }}
     >
-      <Tabs.Screen name="goal" options={{
+      <Tabs.Screen name="goals" options={{
         title: 'Goals',
         headerTitleAlign: 'center',
         tabBarIcon: ({ color, focused }) => (
