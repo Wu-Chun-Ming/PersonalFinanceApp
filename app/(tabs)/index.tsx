@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
@@ -20,8 +20,8 @@ import styles from '@/app/styles';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
 import { initializeDatabase } from '@/db/database';
-import { fetchTransactions } from '@/db/transactions';
 import useShowToast from '@/hooks/useShowToast';
+import { useTransactions } from '@/hooks/useTransactions';
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -36,17 +36,7 @@ const App = () => {
     isRefetchError,
     isRefetching,
     refetch
-  } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: async () => {
-      try {
-        return await fetchTransactions();
-      } catch (error) {
-        console.error(error);
-        return [];
-      }
-    }
-  });
+  } = useTransactions();
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
 
   // Check if the database has been initialized

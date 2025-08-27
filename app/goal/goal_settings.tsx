@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
@@ -16,8 +16,7 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import { GOALS_COLOR } from '@/constants/Colors';
-import { IncomeGoalProps, SavingsGoalProps } from '@/constants/Types';
-import { editGoal, fetchGoal } from '@/db/goals';
+import { useGoals, useUpdateGoal } from '@/hooks/useGoals';
 import useShowToast from '@/hooks/useShowToast';
 
 const GoalSettingsScreen = () => {
@@ -32,50 +31,9 @@ const GoalSettingsScreen = () => {
         isRefetchError,
         isRefetching,
         refetch
-    } = useQuery({
-        queryKey: ['goals'],
-        queryFn: async () => {
-            try {
-                return {
-                    savings: await fetchGoal('savings'),
-                    income: await fetchGoal('income'),
-                }
-            } catch (error) {
-                console.error(error);
-                return {
-                    savings: {
-                        date: new Date(),
-                        amount: 0,
-                    },
-                    income: {
-                        perDay: 0,
-                        perMonth: 0,
-                        perYear: 0,
-                    },
-                };
-            }
-        }
-    });
+    } = useGoals();
 
-    // Define mutation for update goal
-    const updateMutation = useMutation({
-        mutationFn: (updatedGoalsData: { savings: SavingsGoalProps, income: IncomeGoalProps }) => editGoal(updatedGoalsData),
-        onSuccess: (response) => {
-            const { success, messages } = response.data;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['goals'] });
-                refetch(); // Refetch the goals data to get the latest changes
-            }
-        },
-    });
+    const updateMutation = useUpdateGoal();
 
     // Validation Schema
     const validationSchema = Yup.object().shape({

@@ -1,5 +1,5 @@
 import { Color, useFont } from '@shopify/react-native-skia';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from 'react-native';
@@ -18,7 +18,7 @@ import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
-import { fetchTransactions } from '@/db/transactions';
+import { useTransactions } from '@/hooks/useTransactions';
 
 const TransactionScreen = () => {
     const queryClient = useQueryClient();
@@ -30,17 +30,7 @@ const TransactionScreen = () => {
         isRefetchError,
         isRefetching,
         refetch
-    } = useQuery({
-        queryKey: ['transactions'],
-        queryFn: async () => {
-            try {
-                return await fetchTransactions();
-            } catch (error) {
-                console.error(error);
-                return [];
-            }
-        }
-    });
+    } = useTransactions();
     const [expenseTotal, setExpenseTotal] = useState<number>(0);
     const [incomeTotal, setIncomeTotal] = useState<number>(0);
 

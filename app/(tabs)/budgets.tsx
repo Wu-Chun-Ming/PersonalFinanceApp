@@ -1,5 +1,5 @@
 import { useFont } from '@shopify/react-native-skia';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -43,9 +43,9 @@ import inter from "@/assets/inter-medium.ttf";
 import FormGroup from '@/components/FormGroup';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { BudgetProps, EXPENSE_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
-import { editBudget, fetchBudgets } from '@/db/budgets';
-import { fetchTransactions } from '@/db/transactions';
+import { useBudgets, useUpdateBudget } from '@/hooks/useBudgets';
 import useShowToast from '@/hooks/useShowToast';
+import { useTransactions } from '@/hooks/useTransactions';
 
 const BudgetScreen = () => {
     const queryClient = useQueryClient();
@@ -58,53 +58,15 @@ const BudgetScreen = () => {
         isRefetchError,
         isRefetching,
         refetch
-    } = useQuery({
-        queryKey: ['budgets'],
-        queryFn: async () => {
-            try {
-                return await fetchBudgets();
-            } catch (error) {
-                console.error(error);
-                return [];
-            }
-        }
-    });
+    } = useBudgets();
     const {
         data: transactions = [],
         isLoading: isTransactionsLoading,
         isError: isTransactionsError,
-    } = useQuery({
-        queryKey: ['transactions'],
-        queryFn: async () => {
-            try {
-                return await fetchTransactions() as TransactionProps[];
-            } catch (error) {
-                console.error(error);
-                return [];
-            }
-        }
-    });
+    } = useTransactions();
     const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
-    // Define mutation for update transaction
-    const updateMutation = useMutation({
-        mutationFn: ({ year, month, category, amount }: BudgetProps) => editBudget(amount, { year, month, category }),
-        onSuccess: (response) => {
-            const { success, messages } = response;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['budgets'] });
-                refetch(); // Refetch the budgets data to get the latest changes
-            }
-        },
-    });
+    const updateMutation = useUpdateBudget();
 
     // Validation Schema
     const validationSchema = Yup.object().shape({

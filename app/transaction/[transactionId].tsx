@@ -1,6 +1,6 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useFormik } from 'formik';
@@ -34,9 +34,9 @@ import { VStack } from "@/components/ui/vstack";
 import styles from '@/app/styles';
 import FormGroup from '@/components/FormGroup';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
-import { createTransaction, deleteTransaction, editTransaction, fetchTransaction } from '@/db/transactions';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionType } from '@/constants/Types';
 import useShowToast from '@/hooks/useShowToast';
+import { useCreateTransaction, useDeleteTransaction, useTransaction, useUpdateTransaction } from '@/hooks/useTransactions';
 
 const TransactionManager = () => {
     const navigation = useNavigation();
@@ -45,6 +45,7 @@ const TransactionManager = () => {
     const [formAction, setFormAction] = useState<"create" | "update" | "delete" | undefined>(undefined)
     const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
     const { transactionId } = useLocalSearchParams();
+    const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
     const {
         data: transaction,
         isLoading,
@@ -53,81 +54,10 @@ const TransactionManager = () => {
         isRefetching,
         isRefetchError,
         refetch
-    } = useQuery({
-        queryKey: ['transaction', transactionId],
-        queryFn: async () => {
-            try {
-                return await fetchTransaction(Number(transactionId));
-            } catch (error) {
-                console.error(error);
-                router.back(); // Navigate to previous page if error occurs
-                return null;
-            }
-        },
-        enabled: !!transactionId, // Only run the query if transactionId is available
-    });
-    const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
-    const [recurring, setRecurring] = useState<boolean>(false);
-    // Define mutation for create transaction
-    const createMutation = useMutation({
-        mutationFn: (newTransactionData: TransactionProps) => createTransaction(newTransactionData),
-        onSuccess: (response) => {
-            const { success, messages } = response;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['transactions'] });      // Refresh transaction data after creating new transaction
-                router.back(); // Navigate to previous page after creating transaction
-            }
-        },
-    });
-
-    // Define mutation for update transaction
-    const updateMutation = useMutation({
-        mutationFn: ({ id, updatedTransactionData }: { id: number, updatedTransactionData: TransactionProps }) => editTransaction(id, updatedTransactionData),
-        onSuccess: (response) => {
-            const { success, messages } = response;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error, variables) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['transaction', variables.id] });
-                refetch(); // Refetch the transaction data to get the latest changes
-                queryClient.invalidateQueries({ queryKey: ['transactions'] });
-            }
-        },
-    });
-
-    // Define mutation for delete transaction
-    const deleteMutation = useMutation({
-        mutationFn: (id: number) => deleteTransaction(id),
-        onSuccess: (response) => {
-            const { success, messages } = response;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['transactions'] });     // Refresh transactions after delete transaction
-                router.back(); // Navigate to previous page after deleting transaction
-            }
-        },
-    });
+    } = useTransaction(Number(transactionId));
+    const createMutation = useCreateTransaction();
+    const updateMutation = useUpdateTransaction();
+    const deleteMutation = useDeleteTransaction();
 
     // Validation Schema
     const validationSchema = Yup.object().shape({

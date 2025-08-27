@@ -1,5 +1,5 @@
 import { useFont } from '@shopify/react-native-skia';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from 'react-native';
@@ -21,8 +21,8 @@ import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
 import { GOALS_COLOR } from '@/constants/Colors';
 import { TransactionProps, TransactionType } from '@/constants/Types';
-import { fetchGoal } from '@/db/goals';
-import { fetchTransactions } from '@/db/transactions';
+import { useGoals } from '@/hooks/useGoals';
+import { useTransactions } from '@/hooks/useTransactions';
 
 const GoalsScreen = () => {
     const queryClient = useQueryClient();
@@ -32,30 +32,7 @@ const GoalsScreen = () => {
     const [incomeGraphMode, setIncomeGraphMode] = useState<'day' | 'month' | 'year'>('month');
     const {
         data: goals,
-    } = useQuery({
-        queryKey: ['goals'],
-        queryFn: async () => {
-            try {
-                return {
-                    savings: await fetchGoal('savings'),
-                    income: await fetchGoal('income'),
-                }
-            } catch (error) {
-                console.error(error);
-                return {
-                    savings: {
-                        date: new Date(),
-                        amount: 0,
-                    },
-                    income: {
-                        perDay: 0,
-                        perMonth: 0,
-                        perYear: 0,
-                    },
-                };
-            }
-        }
-    });
+    } = useGoals();
     const {
         data: transactions,
         isLoading: isTransactionsLoading,
@@ -63,18 +40,7 @@ const GoalsScreen = () => {
         isRefetchError: isTransactionsRefetchError,
         isRefetching: isTransactionsRefetching,
         refetch: refetchTransactions
-    } = useQuery({
-        queryKey: ['transactions'],
-        queryFn: async () => {
-            try {
-                return (await fetchTransactions() || []) as TransactionProps[];
-            } catch (error) {
-                console.error(error);
-                return [] as TransactionProps[];
-            }
-        }
-    });
-    const [currentSavingsRate, setCurrentSavingsRate] = useState<number>(0);
+    } = useTransactions();
 
     const calculateSavingsGoalProgress = (transactions: TransactionProps[]) => {
         const expenseTotal = transactions
