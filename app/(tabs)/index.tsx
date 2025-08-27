@@ -1,14 +1,12 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Pie, PolarChart } from 'victory-native';
 
 // Gluestack UI
 import { Box } from '@/components/ui/box';
-import { Button, ButtonText } from '@/components/ui/button';
 import { Fab, FabIcon } from '@/components/ui/fab';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
@@ -17,6 +15,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
+import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
 import { initializeDatabase } from '@/db/database';
@@ -24,7 +23,6 @@ import useShowToast from '@/hooks/useShowToast';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const App = () => {
-  const queryClient = useQueryClient();
   const showToast = useShowToast();     // Use custom hook
 
   const [dbInitialized, setDbInitialized] = useState(false);
@@ -143,28 +141,17 @@ const App = () => {
     );
   };
 
-  // If still loading or refetching
-  if (isLoading || isRefetching) {
-    return (
-      <View style={styles.centeredFlex}>
-        <ActivityIndicator size={80} color="#0000ff" />
-      </View>
+  const queryState = (
+        <QueryState
+            isLoading={isLoading}
+            isError={isError}
+            isRefetching={isRefetching}
+            isRefetchError={isRefetchError}
+            queryKey='transactions'
+        />
     );
-  }
-  // If error occurs
-  if (isError || isRefetchError) {
-    return (
-      <View style={styles.centeredFlex}>
-        <Text style={{ color: 'red' }}>Error loading data</Text>
-        <Button onPress={() => {
-          queryClient.invalidateQueries({ queryKey: ['transactions', transactions] })
-          refetch();
-        }}>
-          <ButtonText>Try again</ButtonText>
-        </Button>
-      </View>
-    );
-  }
+
+    if (queryState) return queryState;
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

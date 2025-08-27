@@ -1,13 +1,11 @@
-import { Color, useFont } from '@shopify/react-native-skia';
-import { useQueryClient } from '@tanstack/react-query';
+import { useFont } from '@shopify/react-native-skia';
 import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { BarGroup, CartesianChart } from 'victory-native';
 
 // Gluestack UI
 import { Box } from '@/components/ui/box';
-import { Button, ButtonText } from '@/components/ui/button';
 import { Fab, FabIcon } from '@/components/ui/fab';
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
@@ -16,12 +14,12 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
+import QueryState from '@/components/QueryState';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const TransactionScreen = () => {
-    const queryClient = useQueryClient();
     const font = useFont(inter, 12);
     const {
         data: transactions,
@@ -133,28 +131,17 @@ const TransactionScreen = () => {
         }
     }, [transactions]);
 
-    // If still loading or refetching
-    if (isLoading || isRefetching) {
-        return (
-            <View style={styles.centeredFlex}>
-                <ActivityIndicator size={80} color="#0000ff" />
-            </View>
-        );
-    }
-    // If error occurs
-    if (isError || isRefetchError) {
-        return (
-            <View style={styles.centeredFlex}>
-                <Text style={{ color: 'red' }}>Error loading data</Text>
-                <Button onPress={() => {
-                    queryClient.invalidateQueries({ queryKey: ['transactions', transactions] });
-                    refetch();
-                }}>
-                    <ButtonText>Try again</ButtonText>
-                </Button>
-            </View>
-        );
-    }
+    const queryState = (
+        <QueryState
+            isLoading={isLoading}
+            isError={isError}
+            isRefetching={isRefetching}
+            isRefetchError={isRefetchError}
+            queryKey='transactions'
+        />
+    );
+
+    if (queryState) return queryState;
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

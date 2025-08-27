@@ -1,11 +1,10 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useFormik } from 'formik';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import * as Yup from 'yup';
 
 // Gluestack UI
@@ -33,6 +32,7 @@ import { VStack } from "@/components/ui/vstack";
 // Custom import
 import styles from '@/app/styles';
 import FormGroup from '@/components/FormGroup';
+import QueryState from '@/components/QueryState';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionType } from '@/constants/Types';
 import useShowToast from '@/hooks/useShowToast';
@@ -40,7 +40,6 @@ import { useCreateTransaction, useDeleteTransaction, useTransaction, useUpdateTr
 
 const TransactionManager = () => {
     const navigation = useNavigation();
-    const queryClient = useQueryClient();
     const showToast = useShowToast();       // Use the useShowToast hook (custom)
     const [formAction, setFormAction] = useState<"create" | "update" | "delete" | undefined>(undefined)
     const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
@@ -126,28 +125,17 @@ const TransactionManager = () => {
         }
     }, [transaction]);
 
-    // If still loading or refetching
-    if (isLoading || isRefetching) {
-        return (
-            <View style={styles.centeredFlex}>
-                <ActivityIndicator size={80} color="#0000ff" />
-            </View>
-        );
-    }
-    // If error occurs
-    if (isError || isRefetchError) {
-        return (
-            <View style={styles.centeredFlex}>
-                <Text style={{ color: 'red' }}>Error loading data</Text>
-                <Button action='negative' onPress={() => {
-                    queryClient.invalidateQueries({ queryKey: ['transaction', transaction] });
-                    // refetch();
-                }}>
-                    <ButtonText>Try again</ButtonText>
-                </Button>
-            </View>
-        );
-    }
+    const queryState = (
+        <QueryState
+            isLoading={isLoading}
+            isError={isError}
+            isRefetching={isRefetching}
+            isRefetchError={isRefetchError}
+            queryKey='transaction'
+        />
+    );
+
+    if (queryState) return queryState;
 
     return (
         <ScrollView style={{ flex: 1, }}>

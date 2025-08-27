@@ -2,7 +2,7 @@ import { useFont } from '@shopify/react-native-skia';
 import { useQueryClient } from '@tanstack/react-query';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 import { BarGroup, CartesianChart } from 'victory-native';
 import * as Yup from 'yup';
@@ -41,6 +41,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
 import FormGroup from '@/components/FormGroup';
+import QueryState from '@/components/QueryState';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { BudgetProps, EXPENSE_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 import { useBudgets, useUpdateBudget } from '@/hooks/useBudgets';
@@ -137,28 +138,17 @@ const BudgetScreen = () => {
         return expensesAndBudgetsByMonthArray;
     }
 
-    // If still loading or refetching
-    if (isLoading || isRefetching) {
-        return (
-            <View style={styles.centeredFlex}>
-                <ActivityIndicator size={80} color="#0000ff" />
-            </View>
-        );
-    }
-    // If error occurs
-    if (isError || isRefetchError) {
-        return (
-            <View style={styles.centeredFlex}>
-                <Text style={{ color: 'red' }}>Error loading data</Text>
-                <Button onPress={() => {
-                    queryClient.invalidateQueries({ queryKey: ['budgets', budgets] });
-                    refetch();
-                }}>
-                    <ButtonText>Try again</ButtonText>
-                </Button>
-            </View>
-        );
-    }
+    const queryState = (
+        <QueryState
+            isLoading={isLoading}
+            isError={isError}
+            isRefetching={isRefetching}
+            isRefetchError={isRefetchError}
+            queryKey='budgets'
+        />
+    );
+
+    if (queryState) return queryState;
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

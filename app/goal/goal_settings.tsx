@@ -1,9 +1,8 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
-import { ActivityIndicator, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, TouchableOpacity, View } from 'react-native';
 import * as Yup from 'yup';
 
 // Gluestack UI
@@ -14,13 +13,12 @@ import { Input, InputField } from '@/components/ui/input';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
-import styles from '@/app/styles';
+import QueryState from '@/components/QueryState';
 import { GOALS_COLOR } from '@/constants/Colors';
 import { useGoals, useUpdateGoal } from '@/hooks/useGoals';
 import useShowToast from '@/hooks/useShowToast';
 
 const GoalSettingsScreen = () => {
-    const queryClient = useQueryClient();
     const showToast = useShowToast();
     const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
 
@@ -102,28 +100,17 @@ const GoalSettingsScreen = () => {
         },
     });
 
-    // If still loading or refetching
-    if (isLoading || isRefetching) {
-        return (
-            <View style={styles.centeredFlex}>
-                <ActivityIndicator size={80} color="#0000ff" />
-            </View>
-        );
-    }
-    // If error occurs
-    if (isError || isRefetchError) {
-        return (
-            <View style={styles.centeredFlex}>
-                <Text style={{ color: 'red' }}>Error loading data</Text>
-                <Button onPress={() => {
-                    queryClient.invalidateQueries({ queryKey: ['goals', goals] });
-                    refetch(); // Refetch the goals data
-                }}>
-                    <ButtonText>Try again</ButtonText>
-                </Button>
-            </View>
-        );
-    }
+    const queryState = (
+        <QueryState
+            isLoading={isLoading}
+            isError={isError}
+            isRefetching={isRefetching}
+            isRefetchError={isRefetchError}
+            queryKey='goals'
+        />
+    );
+
+    if (queryState) return queryState;
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
