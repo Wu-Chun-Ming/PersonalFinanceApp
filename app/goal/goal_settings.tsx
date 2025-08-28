@@ -164,9 +164,11 @@ const GoalSettingsScreen = () => {
                     onChange={(event, selectedDate) => {
                         // If user selected date and pressed OK
                         if (event.type === 'set' && selectedDate) {
+                            setDateModalVisible(false);
                             formik.setFieldValue('savings.date', dayjs(selectedDate).format('YYYY-MM-DD'));
+                        } else if (event.type === 'dismissed') {
+                            setDateModalVisible(false);
                         }
-                        setDateModalVisible(false);
                     }}
                 />}
 

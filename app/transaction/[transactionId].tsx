@@ -217,9 +217,11 @@ const TransactionManager = () => {
                     mode='date'
                     onChange={(event, selectedDate) => {
                         if (event.type === 'set' && selectedDate) {
+                            setDateModalVisible(false);
                             formik.setFieldValue('date', dayjs(selectedDate).format('YYYY-MM-DD'));
+                        } else if (event.type === 'dismissed') {
+                            setDateModalVisible(false);
                         }
-                        setDateModalVisible(false);
                     }}
                 />}
 
