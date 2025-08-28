@@ -1,5 +1,20 @@
 import { IncomeGoalProps, SavingsGoalProps } from '@/constants/Types';
+import dayjs from 'dayjs';
 import * as SecureStore from 'expo-secure-store';
+
+/* 
+SecureStore Keys: goals
+============================================================
+Key (Item Name)         Intended Type
+------------------------------------------------------------
+savingsGoalDate         string (format: 'YYYY-MM-DD')
+savingsGoalAmount       number
+
+incomeGoalPerDay        number
+incomeGoalPerMonth      number
+incomeGoalPerYear       number
+============================================================
+*/
 
 // Fetch single goal
 export const fetchGoal = async (type: 'savings' | 'income') => {
@@ -40,7 +55,7 @@ export const editGoal = async (updatedGoalsData: {
 }) => {
     try {
         if (updatedGoalsData.savings) {
-            await SecureStore.setItemAsync('savingsGoalDate', updatedGoalsData.savings.date.toString());
+            await SecureStore.setItemAsync('savingsGoalDate', dayjs(updatedGoalsData.savings.date).format('YYYY-MM-DD'));
             await SecureStore.setItemAsync('savingsGoalAmount', updatedGoalsData.savings.amount.toString());
         }
         if (updatedGoalsData.income) {

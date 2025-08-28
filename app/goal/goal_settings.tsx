@@ -73,13 +73,13 @@ const GoalSettingsScreen = () => {
     const formik = useFormik({
         initialValues: {
             savings: {
-                date: goals?.savings.date?.toString() || '',
-                amount: goals?.savings.amount?.toString() || '',
+                date: goals?.savings.date ? dayjs(goals?.savings.date).format('YYYY-MM-DD') : '',
+                amount: goals?.savings.amount ? goals?.savings.amount.toString() : '',
             },
             income: {
-                perDay: goals?.income.perDay?.toString() || '',
-                perMonth: goals?.income.perMonth?.toString() || '',
-                perYear: goals?.income.perYear?.toString() || '',
+                perDay: goals?.income.perDay ? goals.income.perDay.toString() : '',
+                perMonth: goals?.income.perMonth ? goals.income.perMonth.toString() : '',
+                perYear: goals?.income.perYear ? goals.income.perYear.toString() : '',
             }
         },
         validationSchema: validationSchema,
