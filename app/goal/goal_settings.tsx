@@ -73,20 +73,20 @@ const GoalSettingsScreen = () => {
     const formik = useFormik({
         initialValues: {
             savings: {
-                date: dayjs(goals?.savings.date) || '',
-                amount: goals?.savings.amount || '',
+                date: goals?.savings.date?.toString() || '',
+                amount: goals?.savings.amount?.toString() || '',
             },
             income: {
-                perDay: goals?.income.perDay || '',
-                perMonth: goals?.income.perMonth || '',
-                perYear: goals?.income.perYear || '',
+                perDay: goals?.income.perDay?.toString() || '',
+                perMonth: goals?.income.perMonth?.toString() || '',
+                perYear: goals?.income.perYear?.toString() || '',
             }
         },
         validationSchema: validationSchema,
         onSubmit: (values) => {
             const transformedGoalsData = {
                 savings: {
-                    date: values.savings.date,
+                    date: new Date(values.savings.date),
                     amount: Number(values.savings.amount),
                 },
                 income: {
@@ -149,7 +149,7 @@ const GoalSettingsScreen = () => {
                         >
                             <InputField
                                 type="text"
-                                value={dayjs((formik.values.savings.date).toString()).format('YYYY-MM-DD')}
+                                value={formik.values.savings.date}
                                 placeholder='YYYY-MM-DD'
                                 inputMode='text'
                             />
@@ -159,7 +159,7 @@ const GoalSettingsScreen = () => {
 
                 {dateModalVisible && <DateTimePicker
                     minimumDate={new Date()}
-                    value={new Date((formik.values.savings.date).toString())}
+                    value={formik.values.savings.date ? new Date(formik.values.savings.date) : new Date()}
                     mode='date'
                     onChange={(_event, selectedDate) => {
                         if (selectedDate) {
@@ -178,7 +178,7 @@ const GoalSettingsScreen = () => {
                     <Input className="text-center">
                         <InputField
                             type="text"
-                            value={formik.values.savings?.amount.toString()}
+                            value={formik.values.savings?.amount}
                             onChangeText={formik.handleChange('savings.amount')}
                             placeholder='Enter Amount'
                             inputMode='numeric'
@@ -214,7 +214,7 @@ const GoalSettingsScreen = () => {
                     <Input className="text-center">
                         <InputField
                             type="text"
-                            value={formik.values.income?.perDay.toString()}
+                            value={formik.values.income?.perDay}
                             onChangeText={formik.handleChange('income.perDay')}
                             placeholder='Enter Amount'
                             inputMode='numeric'
@@ -231,7 +231,7 @@ const GoalSettingsScreen = () => {
                     <Input className="text-center">
                         <InputField
                             type="text"
-                            value={formik.values.income?.perMonth.toString()}
+                            value={formik.values.income?.perMonth}
                             onChangeText={formik.handleChange('income.perMonth')}
                             placeholder='Enter Amount'
                             inputMode='numeric'
@@ -248,7 +248,7 @@ const GoalSettingsScreen = () => {
                     <Input className="text-center">
                         <InputField
                             type="text"
-                            value={formik.values.income?.perYear.toString()}
+                            value={formik.values.income?.perYear}
                             onChangeText={formik.handleChange('income.perYear')}
                             placeholder='Enter Amount'
                             inputMode='numeric'
