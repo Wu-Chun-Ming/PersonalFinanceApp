@@ -138,10 +138,11 @@ const TransactionScreen = () => {
             isRefetching={isRefetching}
             isRefetchError={isRefetchError}
             queryKey='transactions'
+            onRetry={refetch}
         />
     );
 
-    if (queryState) return queryState;
+    if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

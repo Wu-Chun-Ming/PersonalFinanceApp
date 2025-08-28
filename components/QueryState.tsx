@@ -10,6 +10,7 @@ type QueryStateProps = {
     isRefetchError: boolean;
     queryKey: string;
     message?: string;
+    onRetry: () => void;
 };
 
 const QueryState = ({
@@ -19,6 +20,7 @@ const QueryState = ({
     isRefetchError = false,
     queryKey,
     message = "Error loading data",
+    onRetry,
 }: QueryStateProps) => {
     const queryClient = useQueryClient();
 
@@ -38,7 +40,7 @@ const QueryState = ({
                 <Text style={{ color: "red" }}>{message}</Text>
                 <Button onPress={() => {
                     queryClient.invalidateQueries({ queryKey: [queryKey], exact: true });
-                    // refetch();
+                    onRetry();
                 }}>
                     <ButtonText>Try again</ButtonText>
                 </Button>

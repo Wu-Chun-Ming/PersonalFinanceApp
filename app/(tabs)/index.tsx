@@ -142,16 +142,17 @@ const App = () => {
   };
 
   const queryState = (
-        <QueryState
-            isLoading={isLoading}
-            isError={isError}
-            isRefetching={isRefetching}
-            isRefetchError={isRefetchError}
-            queryKey='transactions'
-        />
-    );
+    <QueryState
+      isLoading={isLoading}
+      isError={isError}
+      isRefetching={isRefetching}
+      isRefetchError={isRefetchError}
+      queryKey='transactions'
+      onRetry={refetch}
+    />
+  );
 
-    if (queryState) return queryState;
+  if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

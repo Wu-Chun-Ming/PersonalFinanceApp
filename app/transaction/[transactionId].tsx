@@ -132,10 +132,11 @@ const TransactionManager = () => {
             isRefetching={isRefetching}
             isRefetchError={isRefetchError}
             queryKey='transaction'
+            onRetry={refetch}
         />
     );
 
-    if (queryState) return queryState;
+    if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
     return (
         <ScrollView style={{ flex: 1, }}>
