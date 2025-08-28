@@ -79,13 +79,13 @@ const TransactionManager = () => {
     // Formik setup
     const formik = useFormik({
         initialValues: {
-            date: transaction?.date || new Date(),
-            type: transaction?.type || TransactionType.EXPENSE,
-            category: transaction?.category || '',
-            amount: transaction?.amount || '',
-            description: transaction?.description || '',
-            recurring: transaction?.recurring || false,
-            recurring_frequency: transaction?.recurring_frequency || null,
+            date: new Date().toString(),
+            type: TransactionType.EXPENSE,
+            category: '',
+            amount: '',
+            description: '',
+            recurring: false,
+            recurring_frequency: null,
         },
         validationSchema: validationSchema,
         onSubmit: (values) => {
@@ -198,7 +198,7 @@ const TransactionManager = () => {
                         >
                             <InputField
                                 type="text"
-                                value={dayjs((formik.values.date).toString()).format('YYYY-MM-DD')}
+                                value={dayjs((formik.values.date)).format('YYYY-MM-DD')}
                                 placeholder='YYYY-MM-DD'
                                 inputMode='text'
                             />
@@ -213,13 +213,13 @@ const TransactionManager = () => {
                     >
                     </FormGroup>}
                 {dateModalVisible && <DateTimePicker
-                    value={new Date((formik.values.date).toString())}
+                    value={new Date((formik.values.date))}
                     mode='date'
-                    onChange={(_event, selectedDate) => {
-                        if (selectedDate) {
+                    onChange={(event, selectedDate) => {
+                        if (event.type === 'set' && selectedDate) {
                             formik.setFieldValue('date', dayjs(selectedDate).format('YYYY-MM-DD'));
-                            setDateModalVisible(false);
                         }
+                        setDateModalVisible(false);
                     }}
                 />}
 
@@ -316,7 +316,7 @@ const TransactionManager = () => {
                     <Input className="text-center">
                         <InputField
                             type="text"
-                            value={formik.values.amount.toString()}
+                            value={formik.values.amount}
                             onChangeText={formik.handleChange('amount')}
                             placeholder='Enter Amount'
                             inputMode='numeric'
