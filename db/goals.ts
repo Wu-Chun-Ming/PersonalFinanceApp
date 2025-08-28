@@ -4,22 +4,29 @@ import * as SecureStore from 'expo-secure-store';
 // Fetch single goal
 export const fetchGoal = async (type: 'savings' | 'income') => {
     if (type == 'savings') {        // Savings goal
-        const savingsGoalDate = await SecureStore.getItemAsync('savingsGoalDate');
-        const savingsGoalAmount = await SecureStore.getItemAsync('savingsGoalAmount');
+        const savingsGoalDateStr = await SecureStore.getItemAsync('savingsGoalDate');
+        const savingsGoalAmountStr = await SecureStore.getItemAsync('savingsGoalAmount');
+
+        const date = savingsGoalDateStr ? new Date(savingsGoalDateStr) : null;
+        const amount = savingsGoalAmountStr ? parseFloat(savingsGoalAmountStr) : null;
 
         return {
-            date: savingsGoalDate,
-            amount: savingsGoalAmount,
+            date,
+            amount,
         }
     } else if (type == 'income') {      // Income goals
-        const incomeGoalPerDay = await SecureStore.getItemAsync('incomeGoalPerDay');
-        const incomeGoalPerMonth = await SecureStore.getItemAsync('incomeGoalPerMonth');
-        const incomeGoalPerYear = await SecureStore.getItemAsync('incomeGoalPerYear');
+        const incomeGoalPerDayStr = await SecureStore.getItemAsync('incomeGoalPerDay');
+        const incomeGoalPerMonthStr = await SecureStore.getItemAsync('incomeGoalPerMonth');
+        const incomeGoalPerYearStr = await SecureStore.getItemAsync('incomeGoalPerYear');
+
+        const perDay = incomeGoalPerDayStr ? parseFloat(incomeGoalPerDayStr) : null;
+        const perMonth = incomeGoalPerMonthStr ? parseFloat(incomeGoalPerMonthStr) : null;
+        const perYear = incomeGoalPerYearStr ? parseFloat(incomeGoalPerYearStr) : null;
 
         return {
-            perDay: incomeGoalPerDay,
-            perMonth: incomeGoalPerMonth,
-            perYear: incomeGoalPerYear,
+            perDay,
+            perMonth,
+            perYear,
         }
     } else {
         throw new Error('Invalid goal type');

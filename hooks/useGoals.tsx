@@ -10,27 +10,20 @@ export const useGoals = () => {
         queryFn: async () => {
             try {
                 return {
-                    savings: await fetchGoal('savings') || {
-                        date: new Date(),
-                        amount: 0,
-                    },
-                    income: await fetchGoal('income') || {
-                        perDay: 0,
-                        perMonth: 0,
-                        perYear: 0,
-                    },
+                    savings: await fetchGoal('savings'),
+                    income: await fetchGoal('income'),
                 }
             } catch (error) {
                 console.error(error);
                 return {
                     savings: {
-                        date: new Date(),
-                        amount: 0,
+                        date: null,
+                        amount: null,
                     },
                     income: {
-                        perDay: 0,
-                        perMonth: 0,
-                        perYear: 0,
+                        perDay: null,
+                        perMonth: null,
+                        perYear: null,
                     },
                 };
             }
