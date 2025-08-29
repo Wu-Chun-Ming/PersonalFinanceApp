@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 // Custom import
-import { EXPENSE_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
+import { BudgetProps, EXPENSE_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 
 let dbInstance: SQLite.SQLiteDatabase | null = null; // To store the singleton instance
 
@@ -18,7 +18,7 @@ export const getDatabaseInstance = async () => {
 };
 
 /* 
-Table: Transactions
+Table: transactions
 ============================================================
 Column Name             Type
 ============================================================
@@ -50,10 +50,11 @@ export const initializeDatabase = async () => {
         const db = await getDatabaseInstance();
 
         // Define allowed values for transaction types and categories
-        const allowedTransactionTypes = Object.values(TransactionType).join("', '");
+        const allowedTransactionTypes = Object.values(TransactionType).map(type => `'${type}'`).join(', ');
         const allowedTransactionCategories = Object.values(TransactionCategory).map(category => `'${category}'`).join(', ');
         // Define allowed values for budget categories
         const allowedBudgetCategories = EXPENSE_CATEGORIES.map(category => `'${category}'`).join(', ');
+
         // Create the tables
         await db.execAsync(`
             CREATE TABLE IF NOT EXISTS transactions (
@@ -102,7 +103,7 @@ export const getTransactions = async () => {
         // Successful fetched
         if (result.length > 0) {
             return {
-                data: result,
+                data: result as TransactionProps[],
             };
         }
 
@@ -127,7 +128,7 @@ export const showTransaction = async (id: number) => {
         // Successful fetched
         if (result) {
             return {
-                data: result,
+                data: result as TransactionProps,
             };
         }
 
@@ -261,7 +262,7 @@ export const getBudgets = async () => {
         // Successful fetched
         if (result.length > 0) {
             return {
-                data: result,
+                data: result as BudgetProps[],
             };
         }
 
