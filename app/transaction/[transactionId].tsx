@@ -11,21 +11,8 @@ import * as Yup from 'yup';
 import { Button, ButtonText } from "@/components/ui/button";
 import { Divider } from '@/components/ui/divider';
 import { HStack } from '@/components/ui/hstack';
-import { ChevronDownIcon } from '@/components/ui/icon';
 import { Input, InputField } from "@/components/ui/input";
-import {
-    Select,
-    SelectBackdrop,
-    SelectContent,
-    SelectDragIndicator,
-    SelectDragIndicatorWrapper,
-    SelectIcon,
-    SelectInput,
-    SelectItem,
-    SelectPortal,
-    SelectScrollView,
-    SelectTrigger
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
 import { Textarea, TextareaInput } from '@/components/ui/textarea';
 import { VStack } from "@/components/ui/vstack";
 
@@ -33,6 +20,7 @@ import { VStack } from "@/components/ui/vstack";
 import styles from '@/app/styles';
 import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
+import SelectGroup from '@/components/SelectGroup';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionType } from '@/constants/Types';
 import useShowToast from '@/hooks/useShowToast';
@@ -232,7 +220,7 @@ const TransactionManager = () => {
                     isRequired={true}
                     errorText={formik.errors.type}
                 >
-                    <Select
+                    <SelectGroup
                         initialLabel={transaction.type[0].toUpperCase() + transaction.type.slice(1)}
                         selectedValue={formik.values.type}
                         onValueChange={(value) => {
@@ -240,32 +228,16 @@ const TransactionManager = () => {
                             formik.setFieldValue('type', value);
                         }}
                     >
-                        <SelectTrigger variant="outline" size="md">
-                            <SelectInput placeholder="Select option" className='flex-1' />
-                            <SelectIcon className="mr-3" as={ChevronDownIcon} />
-                        </SelectTrigger>
-                        <SelectPortal>
-                            <SelectBackdrop />
-                            <SelectContent>
-                                <SelectDragIndicatorWrapper>
-                                    <SelectDragIndicator />
-                                </SelectDragIndicatorWrapper>
-                                <SelectScrollView
-                                    showsVerticalScrollIndicator={true}
-                                >
-                                    {Object.values(TransactionType).map(
-                                        (label) => (
-                                            <SelectItem
-                                                key={label}
-                                                label={label[0].toUpperCase() + label.slice(1)}
-                                                value={label}
-                                            />
-                                        )
-                                    )}
-                                </SelectScrollView>
-                            </SelectContent>
-                        </SelectPortal>
-                    </Select>
+                        {Object.values(TransactionType).map(
+                            (label) => (
+                                <SelectItem
+                                    key={label}
+                                    label={label[0].toUpperCase() + label.slice(1)}
+                                    value={label}
+                                />
+                            )
+                        )}
+                    </SelectGroup>
                 </FormGroup>}
 
                 {/* Category */}
@@ -275,37 +247,21 @@ const TransactionManager = () => {
                     isRequired={true}
                     errorText={formik.errors.category}
                 >
-                    <Select
+                    <SelectGroup
                         initialLabel={formik.values.category ? formik.values.category[0].toUpperCase() + formik.values.category.slice(1) : ''}
                         selectedValue={formik.values.category}
                         onValueChange={formik.handleChange('category')}
                     >
-                        <SelectTrigger variant="outline" size="md">
-                            <SelectInput placeholder="Select option" className='flex-1' />
-                            <SelectIcon className="mr-3" as={ChevronDownIcon} />
-                        </SelectTrigger>
-                        <SelectPortal>
-                            <SelectBackdrop />
-                            <SelectContent>
-                                <SelectDragIndicatorWrapper>
-                                    <SelectDragIndicator />
-                                </SelectDragIndicatorWrapper>
-                                <SelectScrollView
-                                    showsVerticalScrollIndicator={true}
-                                >
-                                    {(transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(
-                                        (label) => (
-                                            <SelectItem
-                                                key={label}
-                                                label={label[0].toUpperCase() + label.slice(1)}
-                                                value={label}
-                                            />
-                                        )
-                                    )}
-                                </SelectScrollView>
-                            </SelectContent>
-                        </SelectPortal>
-                    </Select>
+                        {(transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(
+                            (label) => (
+                                <SelectItem
+                                    key={label}
+                                    label={label[0].toUpperCase() + label.slice(1)}
+                                    value={label}
+                                />
+                            )
+                        )}
+                    </SelectGroup>
                 </FormGroup>
 
                 {/* Amount */}

@@ -12,7 +12,6 @@ import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
-import { ChevronDownIcon } from '@/components/ui/icon';
 import { Input, InputField } from '@/components/ui/input';
 import {
     Modal,
@@ -22,19 +21,7 @@ import {
     ModalFooter,
     ModalHeader
 } from "@/components/ui/modal";
-import {
-    Select,
-    SelectBackdrop,
-    SelectContent,
-    SelectDragIndicator,
-    SelectDragIndicatorWrapper,
-    SelectIcon,
-    SelectInput,
-    SelectItem,
-    SelectPortal,
-    SelectScrollView,
-    SelectTrigger
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
@@ -42,6 +29,7 @@ import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
 import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
+import SelectGroup from '@/components/SelectGroup';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { BudgetProps, EXPENSE_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 import { useBudgets, useUpdateBudget } from '@/hooks/useBudgets';
@@ -310,36 +298,20 @@ const BudgetScreen = () => {
                                 isRequired={true}
                                 errorText={formik.errors.year}
                             >
-                                <Select
+                                <SelectGroup
                                     selectedValue={formik.values.year}
                                     onValueChange={formik.handleChange('year')}
                                 >
-                                    <SelectTrigger variant="outline" size="md">
-                                        <SelectInput placeholder="Select option" className='flex-1' />
-                                        <SelectIcon className="mr-3" as={ChevronDownIcon} />
-                                    </SelectTrigger>
-                                    <SelectPortal>
-                                        <SelectBackdrop />
-                                        <SelectContent>
-                                            <SelectDragIndicatorWrapper>
-                                                <SelectDragIndicator />
-                                            </SelectDragIndicatorWrapper>
-                                            <SelectScrollView
-                                                showsVerticalScrollIndicator={true}
-                                            >
-                                                {(['2024', '2025']).map(
-                                                    (label) => (
-                                                        <SelectItem
-                                                            key={label}
-                                                            label={label}
-                                                            value={label}
-                                                        />
-                                                    )
-                                                )}
-                                            </SelectScrollView>
-                                        </SelectContent>
-                                    </SelectPortal>
-                                </Select>
+                                    {(['2024', '2025']).map(
+                                        (label) => (
+                                            <SelectItem
+                                                key={label}
+                                                label={label}
+                                                value={label}
+                                            />
+                                        )
+                                    )}
+                                </SelectGroup>
                             </FormGroup>
 
                             {/* Month */}
@@ -349,40 +321,23 @@ const BudgetScreen = () => {
                                 isRequired={true}
                                 errorText={formik.errors.month}
                             >
-                                <Select
-                                    initialLabel={formik.values.month ? [
-                                        'January', 'February', 'March', 'April', 'May', 'June',
+                                <SelectGroup
+                                    initialLabel={formik.values.month ? ['January', 'February', 'March', 'April', 'May', 'June',
                                         'July', 'August', 'September', 'October', 'November', 'December'
                                     ][Number(formik.values.month) - 1] : ''}
                                     selectedValue={formik.values.month}
                                     onValueChange={formik.handleChange('month')}
                                 >
-                                    <SelectTrigger variant="outline" size="md">
-                                        <SelectInput placeholder="Select option" className='flex-1' />
-                                        <SelectIcon className="mr-3" as={ChevronDownIcon} />
-                                    </SelectTrigger>
-                                    <SelectPortal>
-                                        <SelectBackdrop />
-                                        <SelectContent>
-                                            <SelectDragIndicatorWrapper>
-                                                <SelectDragIndicator />
-                                            </SelectDragIndicatorWrapper>
-                                            <SelectScrollView
-                                                showsVerticalScrollIndicator={true}
-                                            >
-                                                {([['January', 1], ['February', 2], ['March', 3], ['April', 4], ['May', 5], ['June', 6], ['July', 7], ['August', 8], ['September', 9], ['October', 10], ['November', 11], ['December', 12]]).map(
-                                                    (label) => (
-                                                        <SelectItem
-                                                            key={label[1]}
-                                                            label={label[0].toString()}
-                                                            value={label[1].toString()}
-                                                        />
-                                                    )
-                                                )}
-                                            </SelectScrollView>
-                                        </SelectContent>
-                                    </SelectPortal>
-                                </Select>
+                                    {([['January', 1], ['February', 2], ['March', 3], ['April', 4], ['May', 5], ['June', 6], ['July', 7], ['August', 8], ['September', 9], ['October', 10], ['November', 11], ['December', 12]]).map(
+                                        (label) => (
+                                            <SelectItem
+                                                key={label[1]}
+                                                label={label[0].toString()}
+                                                value={label[1].toString()}
+                                            />
+                                        )
+                                    )}
+                                </SelectGroup>
                             </FormGroup>
 
                             {/* Category */}
@@ -392,37 +347,21 @@ const BudgetScreen = () => {
                                 isRequired={true}
                                 errorText={formik.errors.category}
                             >
-                                <Select
+                                <SelectGroup
                                     initialLabel={formik.values.category ? formik.values.category[0].toUpperCase() + formik.values.category.slice(1) : ''}
                                     selectedValue={formik.values.category}
                                     onValueChange={formik.handleChange('category')}
                                 >
-                                    <SelectTrigger variant="outline" size="md">
-                                        <SelectInput placeholder="Select option" className='flex-1' />
-                                        <SelectIcon className="mr-3" as={ChevronDownIcon} />
-                                    </SelectTrigger>
-                                    <SelectPortal>
-                                        <SelectBackdrop />
-                                        <SelectContent>
-                                            <SelectDragIndicatorWrapper>
-                                                <SelectDragIndicator />
-                                            </SelectDragIndicatorWrapper>
-                                            <SelectScrollView
-                                                showsVerticalScrollIndicator={true}
-                                            >
-                                                {EXPENSE_CATEGORIES.map(
-                                                    (label) => (
-                                                        <SelectItem
-                                                            key={label}
-                                                            label={label[0].toUpperCase() + label.slice(1)}
-                                                            value={label}
-                                                        />
-                                                    )
-                                                )}
-                                            </SelectScrollView>
-                                        </SelectContent>
-                                    </SelectPortal>
-                                </Select>
+                                    {EXPENSE_CATEGORIES.map(
+                                        (label) => (
+                                            <SelectItem
+                                                key={label}
+                                                label={label[0].toUpperCase() + label.slice(1)}
+                                                value={label}
+                                            />
+                                        )
+                                    )}
+                                </SelectGroup>
                             </FormGroup>
 
                             {/* Amount */}
