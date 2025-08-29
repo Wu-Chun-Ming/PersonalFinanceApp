@@ -114,12 +114,19 @@ const App = () => {
                   style={{
                     backgroundColor: CATEGORY_COLORS[item.category],
                   }} />
-                {/* Category Label */}
-                <View style={[styles.centered, {
-                  width: '40%',
-                }]}>
-                  <Text style={styles.text}>{item.category}</Text>
-                </View>
+                <TouchableNativeFeedback
+                  onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}`)}
+                >
+                  {/* Category Label */}
+                  <View style={[styles.centered, {
+                    width: '40%',
+                    padding: 5,
+                    borderRadius: 10,
+                    backgroundColor: CATEGORY_COLORS[item.category],
+                  }]}>
+                    <Text style={styles.text}>{item.category}</Text>
+                  </View>
+                </TouchableNativeFeedback>
                 {/* Currency Label */}
                 <Text style={styles.text}>RM</Text>
                 {/* Total Amount and Percentage */}
@@ -205,15 +212,27 @@ const App = () => {
           margin: 10,
         }}>
           <View style={{
-            padding: 20,
+            paddingHorizontal: 20,
+            paddingVertical: 15,
             backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
             borderRadius: 20,
           }}>
-            <Heading style={{
-              textDecorationLine: 'underline',
-            }}>
-              {transactionType[0].toUpperCase() + transactionType.slice(1)}
-            </Heading>
+            <HStack className='justify-between items-center'>
+              <Heading style={{
+                textDecorationLine: 'underline',
+              }}>
+                {transactionType[0].toUpperCase() + transactionType.slice(1)}
+              </Heading>
+              <TouchableNativeFeedback
+                onPress={() => router.navigate(`/transaction/listing?type=${transactionType}`)}
+              >
+                <Text style={[styles.text, {
+                  backgroundColor: transactionType === TransactionType.EXPENSE ? '#2bae2bff' : '#bebe09ff',
+                  padding: 8,
+                  borderRadius: 10,
+                }]}>View All</Text>
+              </TouchableNativeFeedback>
+            </HStack>
           </View>
           {/* Total by Category */}
           {transactions && <TransactionBreakdown type={transactionType} />}

@@ -1,7 +1,7 @@
 import { useFont } from '@shopify/react-native-skia';
 import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { BarGroup, CartesianChart } from 'victory-native';
 
 // Gluestack UI
@@ -15,7 +15,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
 import QueryState from '@/components/QueryState';
-import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 import { useTransactions } from '@/hooks/useTransactions';
 
@@ -54,7 +54,7 @@ const TransactionScreen = () => {
             <VStack>
                 {(getTransactionBreakdownByType(categories, transactionType))
                     .sort((a, b) => b.total - a.total)  // Sort in descending order by 'amount'
-                    .slice(0, 5)  // Limit to the top 5 category
+                    .slice(0, 5)  // Limit to the top 5 categories
                     .map((item, index) => {
                         if (item.total != 0) {
                             return (
@@ -66,11 +66,20 @@ const TransactionScreen = () => {
                                         marginVertical: 10,
                                     }}
                                 >
-                                    <View style={{
-                                        width: '50%',
-                                    }}>
-                                        <Text style={styles.text}>{item.category}</Text>
-                                    </View>
+                                    <TouchableNativeFeedback
+                                        onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}`)}
+                                    >
+                                        <View style={{
+                                            width: '50%',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            padding: 5,
+                                            borderRadius: 10,
+                                            backgroundColor: CATEGORY_COLORS[item.category],
+                                        }}>
+                                            <Text style={styles.text}>{item.category}</Text>
+                                        </View>
+                                    </TouchableNativeFeedback>
 
                                     <Text style={styles.text}>RM</Text>
                                     <View
@@ -227,8 +236,9 @@ const TransactionScreen = () => {
                     <HStack
                         className='justify-between'
                         style={{
-                            padding: 20,
                             backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
+                            paddingHorizontal: 20,
+                            paddingVertical: 15,
                             borderRadius: 20,
                             alignItems: 'center',
                         }}>
@@ -236,6 +246,15 @@ const TransactionScreen = () => {
                             fontWeight: 'bold',
                             textDecorationLine: 'underline',
                         }]}>Top 5 Expense Categories</Text>
+                        <TouchableNativeFeedback
+                            onPress={() => router.navigate(`/transaction/listing?type=expense`)}
+                        >
+                            <Text style={[styles.text, {
+                                backgroundColor: '#2bae2bff',
+                                padding: 8,
+                                borderRadius: 10,
+                            }]}>View All</Text>
+                        </TouchableNativeFeedback>
                     </HStack>
                     {/* Expense Total by Categories */}
                     {transactions && <TransactionsListing type="expense" />}
@@ -244,8 +263,9 @@ const TransactionScreen = () => {
                     <HStack
                         className='justify-between'
                         style={{
-                            padding: 20,
                             backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
+                            paddingHorizontal: 20,
+                            paddingVertical: 15,
                             borderRadius: 20,
                             alignItems: 'center',
                         }}
@@ -254,6 +274,15 @@ const TransactionScreen = () => {
                             fontWeight: 'bold',
                             textDecorationLine: 'underline',
                         }]}>Top 5 Income Categories</Text>
+                        <TouchableNativeFeedback
+                            onPress={() => router.navigate(`/transaction/listing?type=income`)}
+                        >
+                            <Text style={[styles.text, {
+                                padding: 8,
+                                backgroundColor: '#bebe09ff',
+                                borderRadius: 10,
+                            }]}>View All</Text>
+                        </TouchableNativeFeedback>
                     </HStack>
                     {/* Income Total by Categories */}
                     {transactions && <TransactionsListing type="income" />}
