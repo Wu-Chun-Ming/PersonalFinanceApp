@@ -1,6 +1,5 @@
 import Ionicons from '@expo/vector-icons/build/Ionicons';
 import React from 'react';
-import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 
 // Gluestack UI
 import {
@@ -12,7 +11,8 @@ import {
   FormControlLabel,
   FormControlLabelText
 } from "@/components/ui/form-control";
-const FormGroup = ({ isRequired, isDisabled, isReadOnly, label, children, helperText, isInvalid, errorText }: any) => {
+
+const FormGroup = ({ isRequired, isDisabled, isReadOnly, isInvalid, style, label, children, helperText, errorText }: any) => {
   return (
     <FormControl
       size="lg"
@@ -20,10 +20,11 @@ const FormGroup = ({ isRequired, isDisabled, isReadOnly, label, children, helper
       isDisabled={isDisabled}
       isReadOnly={isReadOnly}
       isInvalid={isInvalid}
+      style={style}
     >
-      <FormControlLabel className="my-2">
+      {label && <FormControlLabel className="my-2">
         <FormControlLabelText>{label}</FormControlLabelText>
-      </FormControlLabel>
+      </FormControlLabel>}
 
       {children}
       {helperText && (
@@ -45,4 +46,5 @@ const FormGroup = ({ isRequired, isDisabled, isReadOnly, label, children, helper
     </FormControl>
   );
 };
+
 export default FormGroup;
