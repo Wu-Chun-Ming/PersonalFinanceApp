@@ -5,7 +5,11 @@ export default function RootLayout() {
   return (
     <>
       <Stack>
-        <Stack.Screen name="[transactionId]" options={{ title: ''}}/>
+        <Stack.Screen name="[transactionId]" options={{ title: '' }} />
+        <Stack.Screen name="listing" options={{
+          title: 'Transaction Listing',
+          headerTitleAlign: 'center',
+        }} />
       </Stack>
       <StatusBar style="light" />
     </>
