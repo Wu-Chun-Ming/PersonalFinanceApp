@@ -29,6 +29,7 @@ category                ENUM(...)
 amount                  DOUBLE
 description             VARCHAR
 recurring               BOOLEAN
+recurring_frequency     JSON { frequency, time: { month, day, date }}
 currency                VARCHAR
 /* 
 Table: budgets
@@ -63,6 +64,7 @@ export const initializeDatabase = async () => {
                 description TEXT,
                 type TEXT NOT NULL CHECK(type IN (${allowedTransactionTypes})),
                 recurring INTEGER NOT NULL CHECK(recurring IN (0, 1)),
+                recurring_frequency TEXT
             );
             CREATE TABLE IF NOT EXISTS budgets (
                 year INTEGER NOT NULL,
@@ -145,13 +147,14 @@ export const storeTransaction = async (transaction: TransactionProps) => {
 
         // Insert the transaction
         const result = await db.runAsync(
-            'INSERT INTO transactions (date, type, category, amount, description, recurring) VALUES (?, ?, ?, ?, ?, ?)',
-            transaction.date.toString(),
+            'INSERT INTO transactions (date, type, category, amount, description, recurring, recurring_frequency) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            transaction.date ? transaction.date.toString() : null,
             transaction.type,
             transaction.category,
             transaction.amount,
             transaction?.description,
             transaction.recurring ? 1 : 0,
+            JSON.stringify(transaction.recurring_frequency),
         );
 
         // Successful insertion
@@ -183,13 +186,14 @@ export const updateTransaction = async (transaction: TransactionProps, id: numbe
 
         // Update the transaction
         const result = await db.runAsync(
-            'UPDATE transactions SET date = ?, type = ?, category = ?, amount = ?, description = ?, recurring = ? WHERE id = ?',
-            transaction.date.toString(),
+            'UPDATE transactions SET date = ?, type = ?, category = ?, amount = ?, description = ?, recurring = ?, recurring_frequency = ? WHERE id = ?',
+            transaction.date ? transaction.date.toString() : null,
             transaction.type,
             transaction.category,
             transaction.amount,
             transaction?.description,
             transaction.recurring ? 1 : 0,
+            JSON.stringify(transaction.recurring_frequency),
             id
         );
 

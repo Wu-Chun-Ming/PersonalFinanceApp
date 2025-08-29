@@ -41,6 +41,22 @@ export const INCOME_CATEGORIES: TransactionCategory[] = [
   TransactionCategory.OTHER,
 ];
 
+export enum Frequency {
+  DAILY = "daily",
+  WEEKLY = "weekly",
+  MONTHLY = "monthly",
+  YEARLY = "yearly",
+}
+
+export type RecurringFrequency = {
+  frequency: Frequency;
+  time: {
+    month?: string | null;
+    day?: string | null;
+    date?: string | null;
+  };
+}
+
 export type TransactionProps = {
   id?: number,
   date: Date | dayjs.Dayjs,
@@ -49,6 +65,7 @@ export type TransactionProps = {
   amount: number,
   description: string,
   recurring: boolean,
+  recurring_frequency: RecurringFrequency | null,
   currency?: string,
 };
 
