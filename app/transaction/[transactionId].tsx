@@ -171,7 +171,7 @@ const TransactionManager = () => {
                     </TouchableNativeFeedback>
                 </HStack>}
                 {/* Date */}
-                {!recurring ? <FormGroup
+                {!formik.values.recurring ? <FormGroup
                     label='Date'
                     isInvalid={formik.errors.date && formik.touched.date}
                     isRequired={true}
@@ -303,7 +303,12 @@ const TransactionManager = () => {
                 {/* Icon Group */}
                 {!transaction && <HStack className='my-4 justify-between'>
                     <TouchableNativeFeedback
-                        onPress={() => setRecurring(prevState => !prevState)}
+                        onPress={() => {
+                            formik.setValues({
+                                ...formik.values,
+                                recurring: !formik.values.recurring,
+                            });
+                        }}
                     >
                         <View
                             style={[styles.centered, {
@@ -311,7 +316,7 @@ const TransactionManager = () => {
                                 width: 75,
                             }]}
                         >
-                            {recurring ? <MaterialCommunityIcons name="repeat" size={65} color="black" />
+                            {formik.values.recurring ? <MaterialCommunityIcons name="repeat" size={65} color="black" />
                                 : <MaterialCommunityIcons name="repeat-off" size={65} color="black" />}
                         </View>
                     </TouchableNativeFeedback>
