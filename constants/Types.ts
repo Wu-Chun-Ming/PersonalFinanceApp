@@ -1,8 +1,6 @@
-import dayjs from "dayjs";
-
 export enum TransactionType {
-  INCOME = "income",
   EXPENSE = "expense",
+  INCOME = "income",
 }
 
 export enum TransactionCategory {
@@ -59,7 +57,7 @@ export type RecurringFrequency = {
 
 export type TransactionProps = {
   id?: number,
-  date: Date | dayjs.Dayjs,
+  date: Date | null,
   type: TransactionType,
   category: TransactionCategory,
   amount: number,
@@ -77,7 +75,7 @@ export type BudgetProps = {
 };
 
 export type SavingsGoalProps = {
-  date: Date | dayjs.Dayjs,
+  date: Date,
   amount: number,
 };
 
