@@ -41,6 +41,7 @@ const GoalsScreen = () => {
         isRefetching: isTransactionsRefetching,
         refetch: refetchTransactions
     } = useTransactions();
+    const [currentSavingsRate, setCurrentSavingsRate] = useState<number>(0);       // Current savings rate = (income - expenses) / income * 100
 
     const calculateSavingsGoalProgress = (transactions: TransactionProps[]) => {
         const expenseTotal = transactions
@@ -235,7 +236,7 @@ const GoalsScreen = () => {
                             <Text style={[styles.text, {
                                 fontWeight: 'bold',
                                 color: 'white',
-                            }]}>{currentSavingsRate}%</Text>
+                            }]}>{currentSavingsRate.toFixed(2)}%</Text>
                         </View>
                     </HStack>
                 </HStack>
