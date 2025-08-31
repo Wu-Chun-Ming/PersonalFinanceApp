@@ -75,10 +75,31 @@ const TransactionManager = () => {
                         : schema.notRequired();
                 }),
             time: Yup.object().shape({
-                month: Yup.string().optional(),
-                date: Yup.string().optional(),
-                day: Yup.string().optional(),
-            }).optional(),
+                month: Yup.string()
+                    .when('$recurring_frequency.frequency', ([frequency], schema) => {
+                        return (frequency === RecurringFrequency.YEARLY)
+                            ? schema.required('Month is required')
+                            : schema.notRequired();
+                    }),
+                date: Yup.string(),
+                day: Yup.string()
+                    .oneOf(Object.values(RecurringDay), 'Invalid day')
+                    .when('$recurring_frequency.frequency', ([frequency], schema) => {
+                        return frequency === RecurringFrequency.WEEKLY
+                            ? schema.required('Day is required')
+                            : schema.notRequired();
+                    }),
+            }).test(
+                'monthly-day-or-date',
+                'Either day or date must be provided',
+                function (value) {
+                    const frequency = this.options.context?.recurring_frequency?.frequency;
+                    if (frequency === RecurringFrequency.MONTHLY) {
+                        return !!(value?.day || value?.date);
+                    }
+                    return true;
+                }
+            ),
         })
     });
 
@@ -104,6 +125,7 @@ const TransactionManager = () => {
         onSubmit: (values) => {
             const transformedTransactionData = {
                 ...values,
+                date: !values.recurring ? new Date(values.date) : null,
                 type: transactionType,
                 category: values.category as TransactionCategory,
                 amount: Number(values.amount),
@@ -258,9 +280,12 @@ const TransactionManager = () => {
                     : <>
                         <FormGroup
                             label='Recurring Frequency'
-                            isInvalid={formik.errors.recurring_frequency?.frequency && formik.touched.recurring_frequency?.frequency}
+                            isInvalid={
+                                (formik.errors.recurring_frequency?.frequency && formik.touched.recurring_frequency?.frequency)
+                                || ((typeof formik.errors.recurring_frequency?.time === 'string' ? formik.errors.recurring_frequency?.time : undefined) && formik.touched.recurring_frequency?.time)
+                            }
                             isRequired={true}
-                            errorText={formik.errors.recurring_frequency?.frequency}
+                            errorText={formik.errors.recurring_frequency?.frequency || (typeof formik.errors.recurring_frequency?.time === 'string' ? formik.errors.recurring_frequency?.time : undefined)}
                         >
                             <SelectGroup
                                 initialLabel={formik.values.recurring_frequency.frequency ? formik.values.recurring_frequency.frequency[0].toUpperCase() + formik.values.recurring_frequency.frequency.slice(1) : ''}
@@ -327,7 +352,7 @@ const TransactionManager = () => {
                                             formik.values.recurring_frequency.frequency === RecurringFrequency.MONTHLY
                                             || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
                                         )
-                                            && ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                                            && [['Monday', RecurringDay.MONDAY], ['Tuesday', RecurringDay.TUESDAY], ['Wednesday', RecurringDay.WEDNESDAY], ['Thursday', RecurringDay.THURSDAY], ['Friday', RecurringDay.FRIDAY], ['Saturday', RecurringDay.SATURDAY], ['Sunday', RecurringDay.SUNDAY]]
                                         )
                                         ||
                                         ((
@@ -357,6 +382,14 @@ const TransactionManager = () => {
                                 }}
                             >
                                 <SelectGroup
+                                    initialLabel={formik.values.recurring_frequency.time.date
+                                        ? `${formik.values.recurring_frequency.time.date}${[, "st", "nd", "rd"][Number(formik.values.recurring_frequency.time.date) % 10] &&
+                                            ![11, 12, 13].includes(Number(formik.values.recurring_frequency.time.date))
+                                            ? [, "st", "nd", "rd"][Number(formik.values.recurring_frequency.time.date) % 10]
+                                            : "th"
+                                        }`
+                                        : ''
+                                    }
                                     selectedValue={formik.values.recurring_frequency.time.date}
                                     onValueChange={formik.handleChange('recurring_frequency.time.date')}
                                     isDisabled={

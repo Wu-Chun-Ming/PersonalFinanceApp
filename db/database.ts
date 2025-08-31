@@ -20,17 +20,20 @@ export const getDatabaseInstance = async () => {
 /* 
 Table: transactions
 ============================================================
-Column Name             Type
+Column Name             Intended Type
 ============================================================
 id                      INTEGER
-date                    DATE            // YYYY-MM-DD
+date                    DATE (YYYY-MM-DD) | null
 type                    ENUM('expense', 'income')
 category                ENUM(...)
 amount                  DOUBLE
 description             VARCHAR
 recurring               BOOLEAN
-recurring_frequency     JSON { frequency, time: { month, day, date }}
+recurring_frequency     JSON { frequency, time: { month, day, date }} | null
 currency                VARCHAR
+============================================================
+*/
+
 /* 
 Table: budgets
 ============================================================
@@ -128,7 +131,10 @@ export const showTransaction = async (id: number) => {
         // Successful fetched
         if (result) {
             return {
-                data: result as TransactionProps,
+                data: {
+                    ...result,
+                    date: result.date ? new Date(result.date) : null,
+                } as TransactionProps,
             };
         }
 
