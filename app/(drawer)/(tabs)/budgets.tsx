@@ -226,15 +226,12 @@ const BudgetScreen = () => {
                         return (
                             <TouchableOpacity
                                 key={category}
-                                onLongPress={() => {
+                                onPress={() => {
                                     setBudgetModalVisible(true);
                                     if (budget) {
                                         formik.setValues({
                                             year: budget.year.toString(),
-                                            month: [
-                                                'January', 'February', 'March', 'April', 'May', 'June',
-                                                'July', 'August', 'September', 'October', 'November', 'December'
-                                            ][budget.month - 1],
+                                            month: budget.month.toString(),
                                             category: budget.category,
                                             amount: budget.amount.toString(),
                                         });
