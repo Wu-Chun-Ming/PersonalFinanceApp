@@ -1,8 +1,9 @@
 import { Href, router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import { RRule } from 'rrule';
 import { Pie, PolarChart } from 'victory-native';
 
 // Gluestack UI
@@ -17,8 +18,10 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequencyProps, TransactionProps, TransactionType } from '@/constants/Types';
 import { initializeDatabase } from '@/db/database';
+import { createTransaction } from '@/db/transactions';
+import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import useShowToast from '@/hooks/useShowToast';
 import { useTransactions } from '@/hooks/useTransactions';
 
@@ -53,9 +56,69 @@ const App = () => {
     }
   };
 
+  const recurringTransactions = useFilteredTransactions(transactions ?? [], {
+    recurring: true,
+    date: null,
+  });
+
+  // Add transaction(s) based on recurring transactions in the database
+  const handleRecurringTransactions = async (recurringTransactions: TransactionProps[]) => {
+    try {
+      const lastOpenDateStr = await SecureStore.getItemAsync('lastOpenDate');
+
+      // Check if the last open date is set
+      if (lastOpenDateStr) {
+        let lastOpenDateObj = new Date(lastOpenDateStr);
+        lastOpenDateObj.setDate(lastOpenDateObj.getDate() + 1);     // Exclude last open date
+
+        // Format to `YYYYMMDDTHHmmss`
+        const lastOpenDate = lastOpenDateObj.toISOString().replace(/[-:]/g, '').split('.')[0];
+        const today = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
+
+        if (lastOpenDate != today) {
+          recurringTransactions.map((transaction) => {
+            if (!transaction.recurring_frequency) return;
+            const recurringFrequency: RecurringFrequencyProps = JSON.parse(transaction.recurring_frequency);
+            const freq = recurringFrequency.frequency;
+            const month = recurringFrequency.time.month;
+            const day = recurringFrequency.time.day;
+            const date = recurringFrequency.time.date;
+
+            let rruleStr = `DTSTART:${lastOpenDate}\nRRULE:`;
+            if (freq) rruleStr += `FREQ=${freq};`;
+            if (month) rruleStr += `BYMONTH=${month};`;
+            if (day) rruleStr += `BYDAY=${day};`;
+            if (date) rruleStr += `BYMONTHDAY=${date};`;
+            rruleStr += `UNTIL=${today}`
+
+            const rule = RRule.fromString(rruleStr);
+            rule.all().map((date) => {
+              createTransaction({
+                ...transaction,
+                date: date,
+                recurring: false,
+                recurring_frequency: null,
+              });
+            });
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating recurring transactions:', error);
+    }
+  };
+
   useEffect(() => {
     checkDatabaseInitialization();
-  }, [dbInitialized, transactions]);
+    const updateLastOpen = async () => {
+      const today = new Date().toISOString();
+      await SecureStore.setItemAsync('lastOpenDate', today);
+    };
+    if (isSuccess && !isLoading && !isRefetching) {
+      handleRecurringTransactions(recurringTransactions);
+      updateLastOpen();
+    }
+  }, [dbInitialized, transactions, recurringTransactions]);
 
   // Filter the transactions by transaction type and category
   const filterTransactions = (transactions: TransactionProps[], type: TransactionType) => {
