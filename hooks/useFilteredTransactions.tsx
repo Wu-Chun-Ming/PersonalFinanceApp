@@ -5,6 +5,8 @@ import { RecurringFrequency, TransactionCategory, TransactionProps, TransactionT
 
 interface FilterParams {
     date?: Date | null;
+    startDate?: Date | null;
+    endDate?: Date | null;
     type?: TransactionType | string;
     category?: TransactionCategory | string;
     amount?: number | string;
@@ -18,6 +20,8 @@ export const useFilteredTransactions = (
 ) => {
     const {
         date,
+        startDate,
+        endDate,
         type,
         category,
         amount,
@@ -26,15 +30,23 @@ export const useFilteredTransactions = (
     } = filters;
 
     const filteredTransactions = useMemo(() => {
+        if (!transactions || transactions.length === 0) return [];
+
         return transactions.filter(transaction =>
-            (!date || transaction.date === new Date(date.toString()))
+            (date === undefined || transaction.date === date)
+            &&
+            (
+                transaction.date
+                && (!startDate || new Date(transaction.date) >= new Date(startDate))
+                && (!endDate || new Date(transaction.date) < new Date(endDate))
+            )
             && (!type || transaction.type === type)
             && (!category || transaction.category === category)
             && (!amount || transaction.amount === Number(amount))
             && (!recurring || transaction.recurring === (recurring === 'true'))
             && (!frequency || transaction.recurring_frequency?.frequency === frequency)
         );
-    }, [transactions, date, type, category, amount, recurring, frequency]);
+    }, [transactions, date, startDate, endDate, type, category, amount, recurring, frequency]);
 
     return filteredTransactions;
 };
