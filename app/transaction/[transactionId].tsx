@@ -22,7 +22,7 @@ import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, Frequency, INCOME_CATEGORIES, TransactionCategory, TransactionType } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringDay, RecurringFrequency, TransactionCategory, TransactionType } from '@/constants/Types';
 import useShowToast from '@/hooks/useShowToast';
 import { useCreateTransaction, useDeleteTransaction, useTransaction, useUpdateTransaction } from '@/hooks/useTransactions';
 
@@ -68,7 +68,7 @@ const TransactionManager = () => {
         recurring: Yup.boolean(),
         recurring_frequency: Yup.object().shape({
             frequency: Yup.string()
-                .oneOf(Object.values(Frequency), 'Invalid frequency')
+                .oneOf(Object.values(RecurringFrequency), 'Invalid frequency')
                 .when('$recurring', ([recurring], schema) => {
                     return recurring === true
                         ? schema.required('Frequency is required')
@@ -109,11 +109,11 @@ const TransactionManager = () => {
                 amount: Number(values.amount),
                 recurring_frequency: values.recurring
                     ? {
-                        frequency: values.recurring_frequency.frequency as Frequency,
+                        frequency: values.recurring_frequency.frequency as RecurringFrequency,
                         time: {
-                            month: values.recurring_frequency.time.month || null,
-                            day: values.recurring_frequency.time.day || null,
-                            date: values.recurring_frequency.time.date || null,
+                            month: Number(values.recurring_frequency.time.month) || null,
+                            date: Number(values.recurring_frequency.time.date) || null,
+                            day: values.recurring_frequency.time.day as RecurringDay || null,
                         },
                     } : null,
             };
@@ -148,9 +148,9 @@ const TransactionManager = () => {
                     {
                         frequency: transaction.recurring_frequency.frequency,
                         time: {
-                            month: transaction.recurring_frequency.time.month ?? '',
+                            month: transaction.recurring_frequency.time.month?.toString() ?? '',
                             day: transaction.recurring_frequency.time.day ?? '',
-                            date: transaction.recurring_frequency.time.date ?? '',
+                            date: transaction.recurring_frequency.time.date?.toString() ?? '',
                         },
                     } : {
                         frequency: '',
@@ -268,7 +268,7 @@ const TransactionManager = () => {
                                 onValueChange={formik.handleChange('recurring_frequency.frequency')}
                                 placeholder="Select frequency"
                             >
-                                {(Object.values(Frequency)).map(
+                                {(Object.values(RecurringFrequency)).map(
                                     (label) => (
                                         <SelectItem
                                             key={label}
@@ -284,12 +284,12 @@ const TransactionManager = () => {
                             {/* Recurring Day/Month */}
                             <FormGroup
                                 isInvalid={
-                                    formik.values.recurring_frequency.frequency === Frequency.YEARLY
+                                    formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
                                         ? formik.errors.recurring_frequency?.time?.month && formik.touched.recurring_frequency?.time?.month
                                         : formik.errors.recurring_frequency?.time?.day && formik.touched.recurring_frequency?.time?.day
                                 }
                                 errorText={
-                                    formik.values.recurring_frequency.frequency === Frequency.YEARLY
+                                    formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
                                         ? formik.errors.recurring_frequency?.time?.month
                                         : formik.errors.recurring_frequency?.time?.day
                                 }
@@ -300,48 +300,48 @@ const TransactionManager = () => {
                                 <SelectGroup
                                     initialLabel={
                                         ((
-                                            formik.values.recurring_frequency.frequency === Frequency.MONTHLY
-                                            || formik.values.recurring_frequency.frequency === Frequency.WEEKLY
+                                            formik.values.recurring_frequency.frequency === RecurringFrequency.MONTHLY
+                                            || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
                                         ) && (
                                                 formik.values.recurring_frequency.time.day ? formik.values.recurring_frequency.time.day[0].toUpperCase() + formik.values.recurring_frequency.time.day.slice(1) : ''
                                             ) || (
-                                                formik.values.recurring_frequency.frequency === Frequency.YEARLY
+                                                formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
                                             ) && (
                                                 formik.values.recurring_frequency.time.month ? formik.values.recurring_frequency.time.month[0].toUpperCase() + formik.values.recurring_frequency.time.month.slice(1) : ''
                                             ))
                                     }
                                     selectedValue={formik.values.recurring_frequency.time.day}
                                     onValueChange={
-                                        formik.values.recurring_frequency.frequency === Frequency.YEARLY
+                                        formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
                                             ? formik.handleChange('recurring_frequency.time.month')
                                             : formik.handleChange('recurring_frequency.time.day')
                                     }
                                     isDisabled={
                                         formik.values.recurring_frequency.frequency === ''
-                                        || formik.values.recurring_frequency.frequency === Frequency.DAILY
+                                        || formik.values.recurring_frequency.frequency === RecurringFrequency.DAILY
                                     }
-                                    placeholder={'Select ' + (formik.values.recurring_frequency.frequency === Frequency.YEARLY ? 'month' : 'day')}
+                                    placeholder={'Select ' + (formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY ? 'month' : 'day')}
                                 >
                                     {(
                                         ((
-                                            formik.values.recurring_frequency.frequency === Frequency.MONTHLY
-                                            || formik.values.recurring_frequency.frequency === Frequency.WEEKLY
+                                            formik.values.recurring_frequency.frequency === RecurringFrequency.MONTHLY
+                                            || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
                                         )
                                             && ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
                                         )
                                         ||
                                         ((
-                                            formik.values.recurring_frequency.frequency === Frequency.YEARLY
+                                            formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
                                         )
-                                            && ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+                                            && [['January', 1], ['February', 2], ['March', 3], ['April', 4], ['May', 5], ['June', 6], ['July', 7], ['August', 8], ['September', 9], ['October', 10], ['November', 11], ['December', 12]]
                                         )
                                         || []
                                     ).map(
                                         (label) => (
                                             <SelectItem
-                                                key={label}
-                                                label={label}
-                                                value={label}
+                                                key={label[1]}
+                                                label={label[0].toString()}
+                                                value={label[1].toString()}
                                             />
                                         )
                                     )}
@@ -361,22 +361,21 @@ const TransactionManager = () => {
                                     onValueChange={formik.handleChange('recurring_frequency.time.date')}
                                     isDisabled={
                                         formik.values.recurring_frequency.frequency === ''
-                                        || formik.values.recurring_frequency.frequency === Frequency.DAILY
-                                        || formik.values.recurring_frequency.frequency === Frequency.WEEKLY
+                                        || formik.values.recurring_frequency.frequency === RecurringFrequency.DAILY
+                                        || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
                                         || (transaction && formik.values.recurring_frequency.time.date === '')
                                     }
                                     placeholder='Select date'
                                     scrollViewStyle={{ maxHeight: 200, overflow: 'scroll' }}
                                 >
                                     {(
-                                        Array.from({ length: 31 }, (_, i) => `${i + 1}${["st", "nd", "rd"][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ["st", "nd", "rd"][(i + 1) % 10 - 1] : "th"}`)
-                                        || []
+                                        Array.from({ length: 31 }, (_, i) => [`${i + 1} ${["st", "nd", "rd"][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ["st", "nd", "rd"][(i + 1) % 10 - 1] : "th"}`, i + 1])
                                     ).map(
                                         (label) => (
                                             <SelectItem
-                                                key={label}
-                                                label={label.toString()}
-                                                value={label.toString()}
+                                                key={label[1]}
+                                                label={label[0].toString()}
+                                                value={label[1].toString()}
                                             />
                                         )
                                     )}

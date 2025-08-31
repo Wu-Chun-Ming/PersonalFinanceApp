@@ -39,19 +39,29 @@ export const INCOME_CATEGORIES: TransactionCategory[] = [
   TransactionCategory.OTHER,
 ];
 
-export enum Frequency {
+export enum RecurringFrequency {
   DAILY = "daily",
   WEEKLY = "weekly",
   MONTHLY = "monthly",
   YEARLY = "yearly",
 }
 
-export type RecurringFrequency = {
-  frequency: Frequency;
+export enum RecurringDay {
+  MONDAY = "MO",
+  TUESDAY = "TU",
+  WEDNESDAY = "WE",
+  THURSDAY = "TH",
+  FRIDAY = "FR",
+  SATURDAY = "SA",
+  SUNDAY = "SU",
+}
+
+export type RecurringFrequencyProps = {
+  frequency: RecurringFrequency;
   time: {
-    month?: string | null;
-    day?: string | null;
-    date?: string | null;
+    month?: number | null;
+    day?: RecurringDay | null;
+    date?: number | null;
   };
 }
 
@@ -63,7 +73,7 @@ export type TransactionProps = {
   amount: number,
   description: string,
   recurring: boolean,
-  recurring_frequency: RecurringFrequency | null,
+  recurring_frequency: RecurringFrequencyProps | null,
   currency?: string,
 };
 

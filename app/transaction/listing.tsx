@@ -13,7 +13,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, Frequency, INCOME_CATEGORIES, TransactionType } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionType } from '@/constants/Types';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
@@ -65,7 +65,7 @@ const TransactionListScreen = () => {
         recurring: Yup.boolean()
             .optional(),
         frequency: Yup.string()
-            .oneOf(Object.values(Frequency))
+            .oneOf(Object.values(RecurringFrequency))
             .optional(),
     });
 
