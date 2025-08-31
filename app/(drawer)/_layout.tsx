@@ -1,8 +1,13 @@
 import { Drawer } from 'expo-router/drawer';
 
+// Custom import
+import CustomDrawer from '@/components/CustomDrawer';
+
 export default function DrawerLayout() {
   return (
-    <Drawer screenOptions={{
+    <Drawer
+      drawerContent={() => <CustomDrawer />}
+      screenOptions={{
         drawerPosition: 'right',
       }}
     >
