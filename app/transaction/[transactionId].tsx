@@ -3,7 +3,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useFormik } from 'formik';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import * as Yup from 'yup';
 
@@ -18,6 +18,7 @@ import { VStack } from "@/components/ui/vstack";
 
 // Custom import
 import styles from '@/app/styles';
+import { ScanContext } from '@/app/transaction/_layout';
 import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
@@ -27,6 +28,7 @@ import useShowToast from '@/hooks/useShowToast';
 import { useCreateTransaction, useDeleteTransaction, useTransaction, useUpdateTransaction } from '@/hooks/useTransactions';
 
 const TransactionManager = () => {
+    const { scannedData } = useContext(ScanContext);
     const navigation = useNavigation();
     const showToast = useShowToast();       // Use the useShowToast hook (custom)
     const [formAction, setFormAction] = useState<"create" | "update" | "delete" | undefined>(undefined)
