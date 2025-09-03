@@ -1,6 +1,5 @@
 import Fontisto from '@expo/vector-icons/build/Fontisto';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import axios from 'axios';
 import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
@@ -99,14 +98,13 @@ const ScanScreen = () => {
             type: 'image/jpeg',
         } as any);
 
-        const response = await axios.post(`${process.env.EXPO_PUBLIC_SCAN_IMAGE_API_URL}`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-            timeout: 20000, // 20 seconds
+        await fetch(`${process.env.EXPO_PUBLIC_SCAN_IMAGE_API_URL}`, {
+            method: 'POST',
+            body: formData,
         })
             .then(async (response) => {
-                return response.data.result;
+                const data = await response.json();
+                return data.result;
             })
             .then((data) => {
                 setScannedData({
