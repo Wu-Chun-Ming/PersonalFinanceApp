@@ -1,14 +1,12 @@
 import { useFont } from '@shopify/react-native-skia';
-import { useQueryClient } from '@tanstack/react-query';
 import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import * as Progress from 'react-native-progress';
 import { Bar, CartesianChart, Line } from 'victory-native';
 
 // Gluestack UI
-import { Button, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Fab, FabIcon } from '@/components/ui/fab';
 import { Heading } from '@/components/ui/heading';
@@ -19,13 +17,13 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
+import QueryState from '@/components/QueryState';
 import { GOALS_COLOR } from '@/constants/Colors';
 import { TransactionProps, TransactionType } from '@/constants/Types';
 import { useGoals } from '@/hooks/useGoals';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const GoalsScreen = () => {
-    const queryClient = useQueryClient();
     const font = useFont(inter, 12);
     const [savingsProgress, setSavingsProgress] = useState(0);
     const [incomeProgress, setIncomeProgress] = useState(0);
@@ -172,28 +170,18 @@ const GoalsScreen = () => {
         </View>
     );
 
-    // If still loading or refetching
-    if (isTransactionsLoading || isTransactionsRefetching) {
-        return (
-            <View style={styles.centeredFlex}>
-                <ActivityIndicator size={80} color="#0000ff" />
-            </View>
-        );
-    }
-    // If error occurs
-    if (isTransactionsError || isTransactionsRefetchError) {
-        return (
-            <View style={styles.centeredFlex}>
-                <Text style={{ color: 'red' }}>Error loading data</Text>
-                <Button onPress={() => {
-                    queryClient.invalidateQueries({ queryKey: ['transactions', transactions] });
-                    refetchTransactions();
-                }}>
-                    <ButtonText>Try again</ButtonText>
-                </Button>
-            </View>
-        );
-    }
+    const queryState = (
+        <QueryState
+            isLoading={isTransactionsLoading}
+            isError={isTransactionsError}
+            isRefetching={isTransactionsRefetching}
+            isRefetchError={isTransactionsRefetchError}
+            queryKey='transactions'
+            onRetry={refetchTransactions}
+        />
+    );
+
+    if (isTransactionsLoading || isTransactionsRefetching || isTransactionsError || isTransactionsRefetchError) return queryState;
 
     return (
         <SafeAreaView style={{ flex: 1, }}>
