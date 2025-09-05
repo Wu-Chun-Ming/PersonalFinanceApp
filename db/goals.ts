@@ -71,6 +71,28 @@ export const editGoal = async (updatedGoalsData: {
             }
         };
     } catch (error) {
-        throw new Error(`Error updating budget: ${error}`);
+        throw new Error(`Error updating goal: ${error}`);
+    }
+};
+
+// Reset Goal
+export const resetGoal = async (type: 'savings' | 'income') => {
+    // try {
+    if (type === 'savings') {           // Savings goal           
+        await SecureStore.deleteItemAsync('savingsGoalDate');
+        await SecureStore.deleteItemAsync('savingsGoalAmount');
+    } else if (type === 'income') {      // Income goals
+        await SecureStore.deleteItemAsync('incomeGoalPerDay');
+        await SecureStore.deleteItemAsync('incomeGoalPerMonth');
+        await SecureStore.deleteItemAsync('incomeGoalPerYear');
+    } else {
+        throw new Error('Invalid goal type');
+    }
+
+    return {
+        data: {
+            success: true,
+            messages: 'Goals reset successfully',
+        }
     }
 };

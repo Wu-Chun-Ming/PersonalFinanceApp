@@ -1,8 +1,9 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
-import React, { useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
 
@@ -14,12 +15,16 @@ import { Input, InputField } from '@/components/ui/input';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
+import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
+import { HStack } from '@/components/ui/hstack';
 import { GOALS_COLOR } from '@/constants/Colors';
+import { resetGoal } from '@/db/goals';
 import { useGoals, useUpdateGoal } from '@/hooks/useGoals';
 import useShowToast from '@/hooks/useShowToast';
 
 const GoalSettingsScreen = () => {
+    const queryClient = useQueryClient();
     const showToast = useShowToast();
     const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
 
@@ -31,8 +36,9 @@ const GoalSettingsScreen = () => {
         isRefetching,
         refetch
     } = useGoals();
-
     const updateMutation = useUpdateGoal();
+    const [savingsGoalExists, setSavingsGoalExists] = useState(false);
+    const [incomeGoalExists, setIncomeGoalExists] = useState(false);
 
     // Validation Schema
     const validationSchema = Yup.object().shape({
@@ -98,8 +104,15 @@ const GoalSettingsScreen = () => {
             };
 
             updateMutation.mutate(transformedGoalsData);
+            setSavingsGoalExists((values.savings.date || values.savings.amount) ? true : false);
+            setIncomeGoalExists((values.income.perDay || values.income.perMonth || values.income.perYear) ? true : false);
         },
     });
+
+    useEffect(() => {
+        setSavingsGoalExists((goals?.savings.date || goals?.savings.amount) ? true : false);
+        setIncomeGoalExists((goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear) ? true : false);
+    }, [goals]);
 
     const queryState = (
         <QueryState
@@ -132,12 +145,35 @@ const GoalSettingsScreen = () => {
                         backgroundColor: GOALS_COLOR['savings'],
                         borderRadius: 20,
                     }}>
-                        <Heading style={{
-                            color: 'white',
-                            textDecorationLine: 'underline',
-                        }}>
-                            Savings Goal
-                        </Heading>
+                        <HStack className='justify-between items-center'>
+                            <Heading style={{
+                                color: 'white',
+                                textDecorationLine: 'underline',
+                            }}>
+                                Savings Goal
+                            </Heading>
+                            {savingsGoalExists && <TouchableNativeFeedback
+                                onPress={async () => {
+                                    await resetGoal('savings');
+                                    setSavingsGoalExists(false);
+                                    formik.resetForm({
+                                        values: {
+                                            ...formik.values,
+                                            savings: { date: '', amount: '' }
+                                        }
+                                    });
+                                    queryClient.invalidateQueries({ queryKey: ['goals'] });
+                                    refetch();
+                                    showToast({ action: 'success', messages: 'Savings goal has been reset' });
+                                }}
+                            >
+                                <Text style={[styles.text, {
+                                    backgroundColor: '#d01111ff',
+                                    padding: 8,
+                                    borderRadius: 10,
+                                }]}>Reset</Text>
+                            </TouchableNativeFeedback>}
+                        </HStack>
                     </View>
                 </View>
 
@@ -207,11 +243,34 @@ const GoalSettingsScreen = () => {
                         backgroundColor: GOALS_COLOR['income'],
                         borderRadius: 20,
                     }}>
-                        <Heading style={{
-                            textDecorationLine: 'underline',
-                        }}>
-                            Income Goal
-                        </Heading>
+                        <HStack className='justify-between items-center'>
+                            <Heading style={{
+                                textDecorationLine: 'underline',
+                            }}>
+                                Income Goal
+                            </Heading>
+                            {incomeGoalExists && <TouchableNativeFeedback
+                                onPress={async () => {
+                                    await resetGoal('income');
+                                    setIncomeGoalExists(false);
+                                    formik.resetForm({
+                                        values: {
+                                            ...formik.values,
+                                            income: { perDay: '', perMonth: '', perYear: '' }
+                                        }
+                                    });
+                                    queryClient.invalidateQueries({ queryKey: ['goals'] });
+                                    refetch();
+                                    showToast({ action: 'success', messages: 'Income goal has been reset' });
+                                }}
+                            >
+                                <Text style={[styles.text, {
+                                    backgroundColor: '#d01111ff',
+                                    padding: 8,
+                                    borderRadius: 10,
+                                }]}>Reset</Text>
+                            </TouchableNativeFeedback>}
+                        </HStack>
                     </View>
                 </View>
 
