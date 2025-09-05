@@ -78,7 +78,9 @@ const GoalsScreen = () => {
             calculateSavingsGoalProgress(transactions as TransactionProps[]);
             calculateIncomeGoalProgress(transactions as TransactionProps[]);
             // Calculate current savings rate
-            setCurrentSavingsRate(getSavingsPerMonth(transactions)[new Date().getMonth()].savings);
+            const currentSavingsTotal = getSavingsPerMonth(transactions)[new Date().getMonth()].savings;
+            const currentIncomeTotal = getIncomePerMonth(transactions)[new Date().getMonth()].income;
+            setCurrentSavingsRate(currentSavingsTotal / currentIncomeTotal * 100);
         }
     }, [goals]);
 
