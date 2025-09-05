@@ -50,11 +50,14 @@ const GoalsScreen = () => {
         const incomeTotal = transactions
             .filter(transaction => transaction.type === TransactionType.INCOME)
             .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+        let progress = 0;
         if (goals?.savings && goals.savings.amount) {        // Savings goal
             const savingsGoalAmount = Number(goals.savings.amount) || 0;
-            const progress = (incomeTotal - expenseTotal) / savingsGoalAmount;
-            setSavingsProgress(progress);
+            if (savingsGoalAmount == 0) return;   // Prevent division by zero
+            progress = (incomeTotal - expenseTotal) / savingsGoalAmount;
         }
+        setSavingsProgress(progress);
     };
 
     const calculateIncomeGoalProgress = (transactions: TransactionProps[]) => {
@@ -62,11 +65,13 @@ const GoalsScreen = () => {
             .filter(transaction => transaction.type === TransactionType.INCOME)
             .reduce((sum, transaction) => sum + transaction.amount, 0)) / 12;
 
+        let progress = 0;
         if (goals?.income && goals.income.perMonth) {      // Income goals
             const incomeGoalPerMonth = Number(goals.income.perMonth) || 0;
-            const progress = currentMonthlyIncome / incomeGoalPerMonth;
-            setIncomeProgress(progress);
+            if (incomeGoalPerMonth == 0) return;   // Prevent division by zero
+            progress = currentMonthlyIncome / incomeGoalPerMonth;
         }
+        setIncomeProgress(progress);
     }
 
     useEffect(() => {
