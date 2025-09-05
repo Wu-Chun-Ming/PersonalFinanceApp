@@ -4,7 +4,7 @@ import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
+import styles from '@/app/styles';
 import { ScanContext } from '@/app/transaction/_layout';
 import ImageViewer from '@/components/ImageViewer';
 
@@ -40,6 +41,7 @@ const ScanScreen = () => {
     const [camPerm, reqCamPerm] = ImagePicker.useCameraPermissions();
     const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
     const [permissionsChecked, setPermissionsChecked] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const checkPermissions = async () => {
         try {
@@ -98,11 +100,20 @@ const ScanScreen = () => {
             type: 'image/jpeg',
         } as any);
 
+        setLoading(true);
+
+        // Create a 30s timeout
+        const timeoutId = setTimeout(() => {
+            setLoading(false);
+            Alert.alert('Error', 'The request timed out. Please try again.');
+        }, 30000);
+
         await fetch(`${process.env.EXPO_PUBLIC_SCAN_IMAGE_API_URL}`, {
             method: 'POST',
             body: formData,
         })
             .then(async (response) => {
+                clearTimeout(timeoutId); // clear timeout if response arrives
                 const data = await response.json();
                 return data.result;
             })
@@ -114,11 +125,16 @@ const ScanScreen = () => {
                 router.back();
             })
             .catch((error) => {
+                clearTimeout(timeoutId); // clear timeout if error occurs
                 if (error.code === 'ECONNABORTED') {
-                    console.warn('Request timed out');
+                    Alert.alert('Error', 'The request timed out. Please try again.');
                 } else {
                     console.log(`Error: ${error.message}`);
+                    Alert.alert('Error', 'Failed to scan image. Please try again.');
                 }
+            })
+            .finally(() => {
+                setLoading(false);
             });
     }
 
@@ -134,6 +150,18 @@ const ScanScreen = () => {
             flex: 1,
             backgroundColor: '#25292e',
         }} edges={['bottom']}>
+
+            {loading && (
+                <View style={[styles.centered, {
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: "rgba(0,0,0,0.3)",
+                    zIndex: 1000,
+                }]}>
+                    <ActivityIndicator size={80} color="#fff" />
+                </View>
+            )}
+
             <VStack space='md' style={{
                 flex: 1,
                 backgroundColor: '#fff',
@@ -155,7 +183,6 @@ const ScanScreen = () => {
                     style={{
                         width: '80%',
                         height: '70%',
-                        marginVertical: 10,
                     }}
                 >
                     {selectedImage
