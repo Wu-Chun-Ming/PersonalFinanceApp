@@ -101,9 +101,11 @@ const ScanScreen = () => {
         } as any);
 
         setLoading(true);
+        let didTimeout = false;
 
         // Create a 30s timeout
         const timeoutId = setTimeout(() => {
+            didTimeout = true;
             setLoading(false);
             Alert.alert('Error', 'The request timed out. Please try again.');
         }, 30000);
@@ -126,9 +128,7 @@ const ScanScreen = () => {
             })
             .catch((error) => {
                 clearTimeout(timeoutId); // clear timeout if error occurs
-                if (error.code === 'ECONNABORTED') {
-                    Alert.alert('Error', 'The request timed out. Please try again.');
-                } else {
+                if (!didTimeout) {
                     console.log(`Error: ${error.message}`);
                     Alert.alert('Error', 'Failed to scan image. Please try again.');
                 }
