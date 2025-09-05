@@ -89,6 +89,7 @@ const BudgetScreen = () => {
                 category: values.category as TransactionCategory,
                 amount: Number(values.amount),
             });
+            setBudgetModalVisible(false);
         }
     });
 
@@ -394,7 +395,6 @@ const BudgetScreen = () => {
                                 onPress={async () => {
                                     formik.handleSubmit();
                                     if (!formik.errors) {
-                                        setBudgetModalVisible(false);
                                         queryClient.invalidateQueries({ queryKey: ['budgets'] });      // Invalidate budgets query
                                         refetch();
                                     }
