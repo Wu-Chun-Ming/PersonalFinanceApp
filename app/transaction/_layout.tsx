@@ -9,18 +9,25 @@ export default function RootLayout() {
 
   return (
     <ScanContext.Provider value={{ scannedData, setScannedData }}>
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#25292e',
+          },
+          headerShadowVisible: false,
+          headerTintColor: '#fff',
+          headerTitleAlign: 'center',
+        }}
+      >
         <Stack.Screen name="[transactionId]" options={{ title: '' }} />
         <Stack.Screen name="listing" options={{
           title: 'Transaction Listing',
-          headerTitleAlign: 'center',
         }} />
         <Stack.Screen name="scan" options={{
           title: 'Image Scanning',
-          headerTitleAlign: 'center',
         }} />
       </Stack>
-      <StatusBar style="light" />
+      <StatusBar style="light" backgroundColor="transparent" translucent />
     </ScanContext.Provider>
   );
 }

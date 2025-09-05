@@ -17,10 +17,14 @@ export default function RootLayout() {
       <GluestackUIProvider mode="light">
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <Stack>
-              <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-              <Stack.Screen name="transaction" options={{ headerShown: false }} />
-              <Stack.Screen name="goal" options={{ headerShown: false }} />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
+              <Stack.Screen name="(drawer)" />
+              <Stack.Screen name="transaction" />
+              <Stack.Screen name="goal" />
             </Stack>
           </GestureHandlerRootView>
           <StatusBar style="auto" />

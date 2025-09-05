@@ -2,10 +2,10 @@ import Fontisto from '@expo/vector-icons/build/Fontisto';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library';
 import { useRouter } from 'expo-router';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
 import { Button } from '@/components/ui/button';
@@ -130,75 +130,83 @@ const ScanScreen = () => {
     }, [camPerm, libPerm, selectedImage]);
 
     return (
-        <VStack space='md'>
-            <View
-                className="self-center"
-                style={{
-                    marginTop: 20,
-                    marginVertical: 10,
-                }}
-            >
-                <Text style={{
-                    fontSize: 20,
-                    fontWeight: 'bold',
-                }}>Scan or Upload Image</Text>
-            </View>
-            <View
-                className='justify-center self-center border'
-                style={{
-                    width: '80%',
-                    height: '70%',
-                    marginVertical: 10,
-                }}
-            >
-                {selectedImage
-                    ? <ImageViewer selectedImage={selectedImage} />
-                    : <CameraView
-                        ref={camera}
-                        style={{
+        <SafeAreaView style={{
+            flex: 1,
+            backgroundColor: '#25292e',
+        }} edges={['bottom']}>
+            <VStack space='md' style={{
+                flex: 1,
+                backgroundColor: '#fff',
+            }}>
+                <View
+                    className="self-center"
+                    style={{
+                        marginTop: 20,
+                        marginVertical: 10,
+                    }}
+                >
+                    <Text style={{
+                        fontSize: 20,
+                        fontWeight: 'bold',
+                    }}>Scan or Upload Image</Text>
+                </View>
+                <View
+                    className='justify-center self-center border'
+                    style={{
+                        width: '80%',
+                        height: '70%',
+                        marginVertical: 10,
+                    }}
+                >
+                    {selectedImage
+                        ? <ImageViewer selectedImage={selectedImage} />
+                        : <CameraView
+                            ref={camera}
+                            style={{
                                 flex: 1,
                             }}
-                        facing={facing}
-                    >
-                    </CameraView>}
-            </View>
+                            facing={facing}
+                        >
+                        </CameraView>}
+                </View>
 
-            <View
-                className="flex-row w-full"
-                style={{
-                    height: 80,
-                }}
-            >
-                <Button className='h-auto flex-1' size="md" variant="link" action="secondary" onPress={async () => {
-                    await pickImageAsync();
-                    scanImage();
-                }} >
-                    <Fontisto name="picture" size={55} color="black" />
-                </Button>
-
-                {!selectedImage
-                    ? <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
-                        onPress={() => {
-                            takePicture();
-                        }}       // saved pic not working in emulator 
-                    >
-                        <MaterialCommunityIcons name="circle-outline" size={70} color="black" />
+                <View
+                    className="flex-row w-full"
+                    style={{
+                        height: 80,
+                    }}
+                >
+                    <Button className='h-auto flex-1' size="md" variant="link" action="secondary" onPress={async () => {
+                        await pickImageAsync();
+                        scanImage();
+                    }} >
+                        <Fontisto name="picture" size={55} color="black" />
                     </Button>
-                    : <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
-                        onPress={scanImage}
-                    >
-                        <MaterialCommunityIcons name="check-circle-outline" size={80} color="green" />
-                    </Button>}
 
-                {!selectedImage
-                    ? <View className='flex-1' />
-                    : <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
-                        onPress={() => setSelectedImage(null)}
-                    >
-                        <MaterialCommunityIcons name="reload" size={75} color="black" />
-                    </Button>}
-            </View>
-        </VStack>
+                    {!selectedImage
+                        ? <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
+                            onPress={() => {
+                                takePicture();
+                            }}       // saved pic not working in emulator 
+                        >
+                            <MaterialCommunityIcons name="circle-outline" size={70} color="black" />
+                        </Button>
+                        : <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
+                            onPress={scanImage}
+                        >
+                            <MaterialCommunityIcons name="check-circle-outline" size={80} color="green" />
+                        </Button>}
+
+                    {!selectedImage
+                        ? <View className='flex-1' />
+                        : <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
+                            onPress={() => setSelectedImage(null)}
+                        >
+                            <MaterialCommunityIcons name="reload" size={75} color="black" />
+                        </Button>}
+                </View>
+            </VStack>
+        </SafeAreaView>
     );
 };
 

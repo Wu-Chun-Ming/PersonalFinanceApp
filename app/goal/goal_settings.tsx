@@ -2,7 +2,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
-import { SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
 
 // Gluestack UI
@@ -114,163 +115,170 @@ const GoalSettingsScreen = () => {
     if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-            {/* Savings Goal Label */}
+        <SafeAreaView style={{
+            flex: 1,
+            backgroundColor: '#25292e',
+        }} edges={['bottom']}>
             <View style={{
-                margin: 10,
+                flex: 1,
+                backgroundColor: '#fff'
             }}>
+                {/* Savings Goal Label */}
                 <View style={{
-                    padding: 20,
-                    backgroundColor: GOALS_COLOR['savings'],
-                    borderRadius: 20,
+                    margin: 10,
                 }}>
-                    <Heading style={{
-                        color: 'white',
-                        textDecorationLine: 'underline',
+                    <View style={{
+                        padding: 20,
+                        backgroundColor: GOALS_COLOR['savings'],
+                        borderRadius: 20,
                     }}>
-                        Savings Goal
-                    </Heading>
+                        <Heading style={{
+                            color: 'white',
+                            textDecorationLine: 'underline',
+                        }}>
+                            Savings Goal
+                        </Heading>
+                    </View>
                 </View>
-            </View>
 
-            <VStack className="px-4">
-                {/* Date */}
-                <FormGroup
-                    label='Date'
-                    isInvalid={formik.errors.savings?.date && formik.touched.savings?.date}
-                    errorText={formik.errors.savings?.date}
-                >
-                    <Input
-                        className="text-center"
-                        isReadOnly={true}
+                <VStack className="px-4">
+                    {/* Date */}
+                    <FormGroup
+                        label='Date'
+                        isInvalid={formik.errors.savings?.date && formik.touched.savings?.date}
+                        errorText={formik.errors.savings?.date}
                     >
-                        <TouchableOpacity
-                            onPress={() => setDateModalVisible(true)}
+                        <Input
+                            className="text-center"
+                            isReadOnly={true}
                         >
+                            <TouchableOpacity
+                                onPress={() => setDateModalVisible(true)}
+                            >
+                                <InputField
+                                    type="text"
+                                    value={formik.values.savings.date}
+                                    placeholder='YYYY-MM-DD'
+                                    inputMode='text'
+                                />
+                            </TouchableOpacity>
+                        </Input>
+                    </FormGroup>
+
+                    {dateModalVisible && <DateTimePicker
+                        minimumDate={new Date()}
+                        value={formik.values.savings.date ? new Date(formik.values.savings.date) : new Date()}
+                        mode='date'
+                        onChange={(event, selectedDate) => {
+                            // If user selected date and pressed OK
+                            if (event.type === 'set' && selectedDate) {
+                                setDateModalVisible(false);
+                                formik.setFieldValue('savings.date', dayjs(selectedDate).format('YYYY-MM-DD'));
+                            } else if (event.type === 'dismissed') {
+                                setDateModalVisible(false);
+                            }
+                        }}
+                    />}
+
+                    {/* Savings Amount */}
+                    <FormGroup
+                        label='Amount'
+                        isInvalid={formik.errors.savings?.amount && formik.touched.savings?.amount}
+                        errorText={formik.errors.savings?.amount}
+                    >
+                        <Input className="text-center">
                             <InputField
                                 type="text"
-                                value={formik.values.savings.date}
-                                placeholder='YYYY-MM-DD'
-                                inputMode='text'
+                                value={formik.values.savings?.amount}
+                                onChangeText={formik.handleChange('savings.amount')}
+                                placeholder='Enter Amount'
+                                inputMode='numeric'
                             />
-                        </TouchableOpacity>
-                    </Input>
-                </FormGroup>
+                        </Input>
+                    </FormGroup>
+                </VStack>
 
-                {dateModalVisible && <DateTimePicker
-                    minimumDate={new Date()}
-                    value={formik.values.savings.date ? new Date(formik.values.savings.date) : new Date()}
-                    mode='date'
-                    onChange={(event, selectedDate) => {
-                        // If user selected date and pressed OK
-                        if (event.type === 'set' && selectedDate) {
-                            setDateModalVisible(false);
-                            formik.setFieldValue('savings.date', dayjs(selectedDate).format('YYYY-MM-DD'));
-                        } else if (event.type === 'dismissed') {
-                            setDateModalVisible(false);
-                        }
-                    }}
-                />}
-
-                {/* Savings Amount */}
-                <FormGroup
-                    label='Amount'
-                    isInvalid={formik.errors.savings?.amount && formik.touched.savings?.amount}
-                    errorText={formik.errors.savings?.amount}
-                >
-                    <Input className="text-center">
-                        <InputField
-                            type="text"
-                            value={formik.values.savings?.amount}
-                            onChangeText={formik.handleChange('savings.amount')}
-                            placeholder='Enter Amount'
-                            inputMode='numeric'
-                        />
-                    </Input>
-                </FormGroup>
-            </VStack>
-
-            {/* Income Goal */}
-            <View style={{
-                margin: 10,
-            }}>
+                {/* Income Goal */}
                 <View style={{
-                    padding: 20,
-                    backgroundColor: GOALS_COLOR['income'],
-                    borderRadius: 20,
+                    margin: 10,
                 }}>
-                    <Heading style={{
-                        textDecorationLine: 'underline',
+                    <View style={{
+                        padding: 20,
+                        backgroundColor: GOALS_COLOR['income'],
+                        borderRadius: 20,
                     }}>
-                        Income Goal
-                    </Heading>
+                        <Heading style={{
+                            textDecorationLine: 'underline',
+                        }}>
+                            Income Goal
+                        </Heading>
+                    </View>
+                </View>
+
+                <VStack className="px-4">
+                    {/* Income Per Day */}
+                    <FormGroup
+                        label='Per Day'
+                        isInvalid={formik.errors.income?.perDay && formik.touched.income?.perDay}
+                        errorText={formik.errors.income?.perDay}
+                    >
+                        <Input className="text-center">
+                            <InputField
+                                type="text"
+                                value={formik.values.income?.perDay}
+                                onChangeText={formik.handleChange('income.perDay')}
+                                placeholder='Enter Amount'
+                                inputMode='numeric'
+                            />
+                        </Input>
+                    </FormGroup>
+
+                    {/* Income Per Month */}
+                    <FormGroup
+                        label='Per Month'
+                        isInvalid={formik.errors.income?.perMonth && formik.touched.income?.perMonth}
+                        errorText={formik.errors.income?.perMonth}
+                    >
+                        <Input className="text-center">
+                            <InputField
+                                type="text"
+                                value={formik.values.income?.perMonth}
+                                onChangeText={formik.handleChange('income.perMonth')}
+                                placeholder='Enter Amount'
+                                inputMode='numeric'
+                            />
+                        </Input>
+                    </FormGroup>
+
+                    {/* Income Per Year */}
+                    <FormGroup
+                        label='Per Year'
+                        isInvalid={formik.errors.income?.perYear && formik.touched.income?.perYear}
+                        errorText={formik.errors.income?.perYear}
+                    >
+                        <Input className="text-center">
+                            <InputField
+                                type="text"
+                                value={formik.values.income?.perYear}
+                                onChangeText={formik.handleChange('income.perYear')}
+                                placeholder='Enter Amount'
+                                inputMode='numeric'
+                            />
+                        </Input>
+                    </FormGroup>
+                </VStack>
+
+                <View className='mt-4'>
+                    <Button
+                        className="self-center"
+                        size="lg"
+                        onPress={() => formik.handleSubmit()}
+                        action="positive"
+                    >
+                        <ButtonText>Save</ButtonText>
+                    </Button>
                 </View>
             </View>
-
-            <VStack className="px-4">
-                {/* Income Per Day */}
-                <FormGroup
-                    label='Per Day'
-                    isInvalid={formik.errors.income?.perDay && formik.touched.income?.perDay}
-                    errorText={formik.errors.income?.perDay}
-                >
-                    <Input className="text-center">
-                        <InputField
-                            type="text"
-                            value={formik.values.income?.perDay}
-                            onChangeText={formik.handleChange('income.perDay')}
-                            placeholder='Enter Amount'
-                            inputMode='numeric'
-                        />
-                    </Input>
-                </FormGroup>
-
-                {/* Income Per Month */}
-                <FormGroup
-                    label='Per Month'
-                    isInvalid={formik.errors.income?.perMonth && formik.touched.income?.perMonth}
-                    errorText={formik.errors.income?.perMonth}
-                >
-                    <Input className="text-center">
-                        <InputField
-                            type="text"
-                            value={formik.values.income?.perMonth}
-                            onChangeText={formik.handleChange('income.perMonth')}
-                            placeholder='Enter Amount'
-                            inputMode='numeric'
-                        />
-                    </Input>
-                </FormGroup>
-
-                {/* Income Per Year */}
-                <FormGroup
-                    label='Per Year'
-                    isInvalid={formik.errors.income?.perYear && formik.touched.income?.perYear}
-                    errorText={formik.errors.income?.perYear}
-                >
-                    <Input className="text-center">
-                        <InputField
-                            type="text"
-                            value={formik.values.income?.perYear}
-                            onChangeText={formik.handleChange('income.perYear')}
-                            placeholder='Enter Amount'
-                            inputMode='numeric'
-                        />
-                    </Input>
-                </FormGroup>
-            </VStack>
-
-            <View className='mt-4'>
-                <Button
-                    className="self-center"
-                    size="lg"
-                    onPress={() => formik.handleSubmit()}
-                    action="positive"
-                >
-                    <ButtonText>Save</ButtonText>
-                </Button>
-            </View>
-
         </SafeAreaView >
     );
 };

@@ -3,6 +3,7 @@ import { Href, router, useLocalSearchParams } from 'expo-router';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
 
 // Gluestack UI
@@ -101,64 +102,72 @@ const TransactionListScreen = () => {
     if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
     return (
-        <ScrollView style={{ flex: 1 }}>
-            <VStack>
-                {transactions && (filteredTransactions)
-                    .map((item, index) => {
-                        return (
-                            <TouchableOpacity
-                                key={index}
-                                onPress={() => router.navigate(`/transaction/${item.id}` as Href)}
-                                style={{
-                                    backgroundColor: CATEGORY_COLORS[item.category],
-                                }}
-                            >
-                                <HStack
+        <SafeAreaView style={{
+            flex: 1,
+            backgroundColor: '#25292e',
+        }} edges={['bottom']}>
+            <ScrollView style={{
+                flex: 1,
+                backgroundColor: '#fff',
+            }}>
+                <VStack>
+                    {transactions && (filteredTransactions)
+                        .map((item, index) => {
+                            return (
+                                <TouchableOpacity
                                     key={index}
-                                    className='justify-between'
+                                    onPress={() => router.navigate(`/transaction/${item.id}` as Href)}
                                     style={{
-                                        marginHorizontal: 20,
-                                        marginVertical: 20,
+                                        backgroundColor: CATEGORY_COLORS[item.category],
                                     }}
                                 >
-                                    <VStack
+                                    <HStack
+                                        key={index}
+                                        className='justify-between'
                                         style={{
-                                            width: '30%',
+                                            marginHorizontal: 20,
+                                            marginVertical: 20,
                                         }}
                                     >
-                                        <View>
-                                            <Text style={styles.text}>{(item.date && dayjs(item.date).format('YYYY-MM-DD')) || (item.recurring_frequency && JSON.parse(item.recurring_frequency.toString()).frequency)}</Text>
-                                        </View>
-                                        <View
+                                        <VStack
                                             style={{
-                                                alignSelf: 'flex-start',
-                                            }}>
-                                            <Text style={styles.text}>{item.description}</Text>
-                                        </View>
-                                    </VStack>
+                                                width: '30%',
+                                            }}
+                                        >
+                                            <View>
+                                                <Text style={styles.text}>{(item.date && dayjs(item.date).format('YYYY-MM-DD')) || (item.recurring_frequency && JSON.parse(item.recurring_frequency.toString()).frequency)}</Text>
+                                            </View>
+                                            <View
+                                                style={{
+                                                    alignSelf: 'flex-start',
+                                                }}>
+                                                <Text style={styles.text}>{item.description}</Text>
+                                            </View>
+                                        </VStack>
 
-                                    <View style={[styles.centered, {
-                                        borderRadius: 8,
-                                        padding: 10,
-                                    }]}>
-                                        <Text style={styles.text}>{item.category}</Text>
-                                    </View>
-
-                                    <View
-                                        style={[styles.centered, {
-                                            width: '30%',
-                                            backgroundColor: TRANSACTION_TYPE_COLORS[item.type],
+                                        <View style={[styles.centered, {
                                             borderRadius: 8,
-                                        }]}
-                                    >
-                                        <Text style={styles.text}>{item.type === TransactionType.EXPENSE ? '-' : '+'} RM {item.amount.toFixed(2)}</Text>
-                                    </View>
-                                </HStack>
-                            </TouchableOpacity>
-                        );
-                    })}
-            </VStack>
-        </ScrollView>
+                                            padding: 10,
+                                        }]}>
+                                            <Text style={styles.text}>{item.category}</Text>
+                                        </View>
+
+                                        <View
+                                            style={[styles.centered, {
+                                                width: '30%',
+                                                backgroundColor: TRANSACTION_TYPE_COLORS[item.type],
+                                                borderRadius: 8,
+                                            }]}
+                                        >
+                                            <Text style={styles.text}>{item.type === TransactionType.EXPENSE ? '-' : '+'} RM {item.amount.toFixed(2)}</Text>
+                                        </View>
+                                    </HStack>
+                                </TouchableOpacity>
+                            );
+                        })}
+                </VStack>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 

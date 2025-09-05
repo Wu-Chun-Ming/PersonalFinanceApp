@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Gluestack UI
 import { ChevronDownIcon } from '@/components/ui/icon';
@@ -24,6 +25,8 @@ const SelectGroup = ({
     scrollViewStyle,
     children,
 }: any) => {
+    const insets = useSafeAreaInsets();
+
     return (
         <Select
             initialLabel={initialLabel}
@@ -37,7 +40,9 @@ const SelectGroup = ({
             </SelectTrigger>
             <SelectPortal>
                 <SelectBackdrop />
-                <SelectContent>
+                <SelectContent style={{
+                    paddingBottom: insets.bottom,
+                }}>
                     <SelectDragIndicatorWrapper>
                         <SelectDragIndicator />
                     </SelectDragIndicatorWrapper>

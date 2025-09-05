@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { router } from 'expo-router';
-import { FlatList, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
 import { HStack } from '@/components/ui/hstack';
@@ -25,8 +26,7 @@ const CustomDrawer = () => {
     <SafeAreaView style={{
       flex: 1,
       padding: 10,
-      paddingTop: 60,
-    }}>
+    }} edges={['top']}>
       <Text style={{
         fontSize: 20,
         fontWeight: 'bold',

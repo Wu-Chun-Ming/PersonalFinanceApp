@@ -5,6 +5,7 @@ import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useFormik } from 'formik';
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
 
 // Gluestack UI
@@ -212,335 +213,328 @@ const TransactionManager = () => {
     if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
     return (
-        <ScrollView style={{ flex: 1, }}>
-            <VStack className="flex-1 p-4">
-                {!transaction && <HStack
-                    style={[styles.centeredFlex, {
-                        flexDirection: 'row',
-                        minHeight: '10%',
-                    }]}
-                >
-                    <TouchableNativeFeedback onPress={() => setTransactionType(TransactionType.EXPENSE)}>
-                        <View style={[styles.centered, {
-                            minWidth: 120,
-                            padding: 20,
-                            marginHorizontal: 20,
-                            backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
-                            borderRadius: 20,
-                            borderWidth: transactionType === TransactionType.EXPENSE ? 3 : 0,
-                        },]}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
-                            }]}>Expense</Text>
-                        </View>
-                    </TouchableNativeFeedback>
-
-                    <Divider
-                        orientation="vertical"
-                        className="mx-5 h-full bg-black"
-                    />
-
-                    <TouchableNativeFeedback onPress={() => setTransactionType(TransactionType.INCOME)}>
-                        <View style={[styles.centered, {
-                            minWidth: 120,
-                            padding: 20,
-                            marginHorizontal: 20,
-                            backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
-                            borderRadius: 20,
-                            borderWidth: transactionType == TransactionType.INCOME ? 3 : 0,
-                        }]}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
-                            }]}>Income</Text>
-                        </View>
-                    </TouchableNativeFeedback>
-                </HStack>}
-                {/* Date */}
-                {!formik.values.recurring ? <FormGroup
-                    label='Date'
-                    isInvalid={formik.errors.date && formik.touched.date}
-                    isRequired={true}
-                    errorText={formik.errors.date}
-                >
-                    <Input
-                        className="text-center"
-                        isReadOnly={true}
+        <SafeAreaView style={{
+            flex: 1,
+            backgroundColor: '#25292e',
+        }} edges={['bottom']}>
+            <ScrollView style={{
+                flex: 1,
+                backgroundColor: '#fff',
+            }}>
+                <VStack className="flex-1 p-4">
+                    {!transaction && <HStack
+                        style={[styles.centeredFlex, {
+                            flexDirection: 'row',
+                            minHeight: '10%',
+                        }]}
                     >
-                        <TouchableOpacity
-                            onPress={() => setDateModalVisible(true)}
+                        <TouchableNativeFeedback onPress={() => setTransactionType(TransactionType.EXPENSE)}>
+                            <View style={[styles.centered, {
+                                minWidth: 120,
+                                padding: 20,
+                                marginHorizontal: 20,
+                                backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
+                                borderRadius: 20,
+                                borderWidth: transactionType === TransactionType.EXPENSE ? 3 : 0,
+                            },]}>
+                                <Text style={[styles.text, {
+                                    fontWeight: 'bold',
+                                }]}>Expense</Text>
+                            </View>
+                        </TouchableNativeFeedback>
+
+                        <Divider
+                            orientation="vertical"
+                            className="mx-5 h-full bg-black"
+                        />
+
+                        <TouchableNativeFeedback onPress={() => setTransactionType(TransactionType.INCOME)}>
+                            <View style={[styles.centered, {
+                                minWidth: 120,
+                                padding: 20,
+                                marginHorizontal: 20,
+                                backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
+                                borderRadius: 20,
+                                borderWidth: transactionType == TransactionType.INCOME ? 3 : 0,
+                            }]}>
+                                <Text style={[styles.text, {
+                                    fontWeight: 'bold',
+                                }]}>Income</Text>
+                            </View>
+                        </TouchableNativeFeedback>
+                    </HStack>}
+                    {/* Date */}
+                    {!formik.values.recurring ? <FormGroup
+                        label='Date'
+                        isInvalid={formik.errors.date && formik.touched.date}
+                        isRequired={true}
+                        errorText={formik.errors.date}
+                    >
+                        <Input
+                            className="text-center"
+                            isReadOnly={true}
                         >
+                            <TouchableOpacity
+                                onPress={() => setDateModalVisible(true)}
+                            >
+                                <InputField
+                                    type="text"
+                                    value={dayjs((formik.values.date)).format('YYYY-MM-DD')}
+                                    placeholder='YYYY-MM-DD'
+                                    inputMode='text'
+                                />
+                            </TouchableOpacity>
+                        </Input>
+                    </FormGroup>
+                        // Recurring Frequency
+                        : <>
+                            <FormGroup
+                                label='Recurring Frequency'
+                                isInvalid={
+                                    (formik.errors.recurring_frequency?.frequency && formik.touched.recurring_frequency?.frequency)
+                                    || ((typeof formik.errors.recurring_frequency?.time === 'string' ? formik.errors.recurring_frequency?.time : undefined) && formik.touched.recurring_frequency?.time)
+                                }
+                                isRequired={true}
+                                errorText={formik.errors.recurring_frequency?.frequency || (typeof formik.errors.recurring_frequency?.time === 'string' ? formik.errors.recurring_frequency?.time : undefined)}
+                            >
+                                <SelectGroup
+                                    initialLabel={formik.values.recurring_frequency.frequency ? formik.values.recurring_frequency.frequency[0].toUpperCase() + formik.values.recurring_frequency.frequency.slice(1) : ''}
+                                    selectedValue={formik.values.recurring_frequency.frequency}
+                                    onValueChange={formik.handleChange('recurring_frequency.frequency')}
+                                    placeholder="Select frequency"
+                                >
+                                    {(Object.values(RecurringFrequency)).map(
+                                        (label) => (
+                                            <SelectItem
+                                                key={label}
+                                                label={label[0].toUpperCase() + label.slice(1)}
+                                                value={label}
+                                            />
+                                        )
+                                    )}
+                                </SelectGroup>
+                            </FormGroup>
+
+                            <HStack>
+                                {/* Recurring Day/Month */}
+                                <FormGroup
+                                    isInvalid={
+                                        formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
+                                            ? formik.errors.recurring_frequency?.time?.month && formik.touched.recurring_frequency?.time?.month
+                                            : formik.errors.recurring_frequency?.time?.day && formik.touched.recurring_frequency?.time?.day
+                                    }
+                                    errorText={
+                                        formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
+                                            ? formik.errors.recurring_frequency?.time?.month
+                                            : formik.errors.recurring_frequency?.time?.day
+                                    }
+                                    style={{
+                                        width: '50%',
+                                    }}
+                                >
+                                    <SelectGroup
+                                        initialLabel={
+                                            ((
+                                                formik.values.recurring_frequency.frequency === RecurringFrequency.MONTHLY
+                                                || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
+                                            ) && (
+                                                    formik.values.recurring_frequency.time.day ? formik.values.recurring_frequency.time.day[0].toUpperCase() + formik.values.recurring_frequency.time.day.slice(1) : ''
+                                                ) || (
+                                                    formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
+                                                ) && (
+                                                    formik.values.recurring_frequency.time.month ? formik.values.recurring_frequency.time.month[0].toUpperCase() + formik.values.recurring_frequency.time.month.slice(1) : ''
+                                                ))
+                                        }
+                                        selectedValue={formik.values.recurring_frequency.time.day}
+                                        onValueChange={
+                                            formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
+                                                ? formik.handleChange('recurring_frequency.time.month')
+                                                : formik.handleChange('recurring_frequency.time.day')
+                                        }
+                                        isDisabled={
+                                            formik.values.recurring_frequency.frequency === ''
+                                            || formik.values.recurring_frequency.frequency === RecurringFrequency.DAILY
+                                        }
+                                        placeholder={'Select ' + (formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY ? 'month' : 'day')}
+                                    >
+                                        {(
+                                            ((
+                                                formik.values.recurring_frequency.frequency === RecurringFrequency.MONTHLY
+                                                || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
+                                            )
+                                                && [['Monday', RecurringDay.MONDAY], ['Tuesday', RecurringDay.TUESDAY], ['Wednesday', RecurringDay.WEDNESDAY], ['Thursday', RecurringDay.THURSDAY], ['Friday', RecurringDay.FRIDAY], ['Saturday', RecurringDay.SATURDAY], ['Sunday', RecurringDay.SUNDAY]]
+                                            )
+                                            ||
+                                            ((
+                                                formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
+                                            )
+                                                && [['January', 1], ['February', 2], ['March', 3], ['April', 4], ['May', 5], ['June', 6], ['July', 7], ['August', 8], ['September', 9], ['October', 10], ['November', 11], ['December', 12]]
+                                            )
+                                            || []
+                                        ).map(
+                                            (label) => (
+                                                <SelectItem
+                                                    key={label[1]}
+                                                    label={label[0].toString()}
+                                                    value={label[1].toString()}
+                                                />
+                                            )
+                                        )}
+                                    </SelectGroup>
+                                </FormGroup>
+
+                                {/* Recurring Date */}
+                                <FormGroup
+                                    isInvalid={formik.errors.recurring_frequency?.time?.date && formik.touched.recurring_frequency?.time?.date}
+                                    errorText={formik.errors.recurring_frequency?.time?.date}
+                                    style={{
+                                        width: '50%',
+                                    }}
+                                >
+                                    <SelectGroup
+                                        initialLabel={formik.values.recurring_frequency.time.date
+                                            ? `${formik.values.recurring_frequency.time.date}${[, "st", "nd", "rd"][Number(formik.values.recurring_frequency.time.date) % 10] &&
+                                                ![11, 12, 13].includes(Number(formik.values.recurring_frequency.time.date))
+                                                ? [, "st", "nd", "rd"][Number(formik.values.recurring_frequency.time.date) % 10]
+                                                : "th"
+                                            }`
+                                            : ''
+                                        }
+                                        selectedValue={formik.values.recurring_frequency.time.date}
+                                        onValueChange={formik.handleChange('recurring_frequency.time.date')}
+                                        isDisabled={
+                                            formik.values.recurring_frequency.frequency === ''
+                                            || formik.values.recurring_frequency.frequency === RecurringFrequency.DAILY
+                                            || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
+                                            || (transaction && formik.values.recurring_frequency.time.date === '')
+                                        }
+                                        placeholder='Select date'
+                                        scrollViewStyle={{ maxHeight: 200, overflow: 'scroll' }}
+                                    >
+                                        {(
+                                            Array.from({ length: 31 }, (_, i) => [`${i + 1} ${["st", "nd", "rd"][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ["st", "nd", "rd"][(i + 1) % 10 - 1] : "th"}`, i + 1])
+                                        ).map(
+                                            (label) => (
+                                                <SelectItem
+                                                    key={label[1]}
+                                                    label={label[0].toString()}
+                                                    value={label[1].toString()}
+                                                />
+                                            )
+                                        )}
+                                    </SelectGroup>
+                                </FormGroup>
+                            </HStack>
+                        </>}
+                    {dateModalVisible && <DateTimePicker
+                        value={new Date((formik.values.date))}
+                        mode='date'
+                        onChange={(event, selectedDate) => {
+                            if (event.type === 'set' && selectedDate) {
+                                setDateModalVisible(false);
+                                formik.setFieldValue('date', dayjs(selectedDate).format('YYYY-MM-DD'));
+                            } else if (event.type === 'dismissed') {
+                                setDateModalVisible(false);
+                            }
+                        }}
+                    />}
+
+                    {/* Type */}
+                    {transaction && <FormGroup
+                        label='Type'
+                        isInvalid={formik.errors.type && formik.touched.type}
+                        isRequired={true}
+                        errorText={formik.errors.type}
+                    >
+                        <SelectGroup
+                            initialLabel={transaction.type[0].toUpperCase() + transaction.type.slice(1)}
+                            selectedValue={formik.values.type}
+                            onValueChange={(value) => {
+                                setTransactionType(value as TransactionType);
+                                formik.setFieldValue('type', value);
+                            }}
+                        >
+                            {Object.values(TransactionType).map(
+                                (label) => (
+                                    <SelectItem
+                                        key={label}
+                                        label={label[0].toUpperCase() + label.slice(1)}
+                                        value={label}
+                                    />
+                                )
+                            )}
+                        </SelectGroup>
+                    </FormGroup>}
+
+                    {/* Category */}
+                    <FormGroup
+                        label='Category'
+                        isInvalid={formik.errors.category && formik.touched.category}
+                        isRequired={true}
+                        errorText={formik.errors.category}
+                    >
+                        <SelectGroup
+                            initialLabel={formik.values.category ? formik.values.category[0].toUpperCase() + formik.values.category.slice(1) : ''}
+                            selectedValue={formik.values.category}
+                            onValueChange={formik.handleChange('category')}
+                        >
+                            {(transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(
+                                (label) => (
+                                    <SelectItem
+                                        key={label}
+                                        label={label[0].toUpperCase() + label.slice(1)}
+                                        value={label}
+                                    />
+                                )
+                            )}
+                        </SelectGroup>
+                    </FormGroup>
+
+                    {/* Amount */}
+                    <FormGroup
+                        label='Amount (RM)'
+                        isInvalid={formik.errors.amount && formik.touched.amount}
+                        isRequired={true}
+                        errorText={formik.errors.amount}
+                    >
+                        <Input className="text-center">
                             <InputField
                                 type="text"
-                                value={dayjs((formik.values.date)).format('YYYY-MM-DD')}
-                                placeholder='YYYY-MM-DD'
+                                value={formik.values.amount}
+                                onChangeText={formik.handleChange('amount')}
+                                placeholder='Enter Amount'
+                                inputMode='numeric'
+                            />
+                        </Input>
+                    </FormGroup>
+
+                    {/* Description */}
+                    <FormGroup
+                        label='Description'
+                        isInvalid={formik.errors.description && formik.touched.description}
+                        isRequired={true}
+                        errorText={formik.errors.description}
+                    >
+                        <Textarea>
+                            <TextareaInput
+                                value={formik.values.description}
+                                placeholder="Enter Description"
+                                onChangeText={formik.handleChange('description')}
+                                style={{ textAlignVertical: 'top' }}
                                 inputMode='text'
                             />
-                        </TouchableOpacity>
-                    </Input>
-                </FormGroup>
-                    // Recurring Frequency
-                    : <>
-                        <FormGroup
-                            label='Recurring Frequency'
-                            isInvalid={
-                                (formik.errors.recurring_frequency?.frequency && formik.touched.recurring_frequency?.frequency)
-                                || ((typeof formik.errors.recurring_frequency?.time === 'string' ? formik.errors.recurring_frequency?.time : undefined) && formik.touched.recurring_frequency?.time)
-                            }
-                            isRequired={true}
-                            errorText={formik.errors.recurring_frequency?.frequency || (typeof formik.errors.recurring_frequency?.time === 'string' ? formik.errors.recurring_frequency?.time : undefined)}
-                        >
-                            <SelectGroup
-                                initialLabel={formik.values.recurring_frequency.frequency ? formik.values.recurring_frequency.frequency[0].toUpperCase() + formik.values.recurring_frequency.frequency.slice(1) : ''}
-                                selectedValue={formik.values.recurring_frequency.frequency}
-                                onValueChange={formik.handleChange('recurring_frequency.frequency')}
-                                placeholder="Select frequency"
-                            >
-                                {(Object.values(RecurringFrequency)).map(
-                                    (label) => (
-                                        <SelectItem
-                                            key={label}
-                                            label={label[0].toUpperCase() + label.slice(1)}
-                                            value={label}
-                                        />
-                                    )
-                                )}
-                            </SelectGroup>
-                        </FormGroup>
+                        </Textarea>
+                    </FormGroup>
 
-                        <HStack>
-                            {/* Recurring Day/Month */}
-                            <FormGroup
-                                isInvalid={
-                                    formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
-                                        ? formik.errors.recurring_frequency?.time?.month && formik.touched.recurring_frequency?.time?.month
-                                        : formik.errors.recurring_frequency?.time?.day && formik.touched.recurring_frequency?.time?.day
-                                }
-                                errorText={
-                                    formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
-                                        ? formik.errors.recurring_frequency?.time?.month
-                                        : formik.errors.recurring_frequency?.time?.day
-                                }
-                                style={{
-                                    width: '50%',
-                                }}
-                            >
-                                <SelectGroup
-                                    initialLabel={
-                                        ((
-                                            formik.values.recurring_frequency.frequency === RecurringFrequency.MONTHLY
-                                            || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
-                                        ) && (
-                                                formik.values.recurring_frequency.time.day ? formik.values.recurring_frequency.time.day[0].toUpperCase() + formik.values.recurring_frequency.time.day.slice(1) : ''
-                                            ) || (
-                                                formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
-                                            ) && (
-                                                formik.values.recurring_frequency.time.month ? formik.values.recurring_frequency.time.month[0].toUpperCase() + formik.values.recurring_frequency.time.month.slice(1) : ''
-                                            ))
-                                    }
-                                    selectedValue={formik.values.recurring_frequency.time.day}
-                                    onValueChange={
-                                        formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
-                                            ? formik.handleChange('recurring_frequency.time.month')
-                                            : formik.handleChange('recurring_frequency.time.day')
-                                    }
-                                    isDisabled={
-                                        formik.values.recurring_frequency.frequency === ''
-                                        || formik.values.recurring_frequency.frequency === RecurringFrequency.DAILY
-                                    }
-                                    placeholder={'Select ' + (formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY ? 'month' : 'day')}
-                                >
-                                    {(
-                                        ((
-                                            formik.values.recurring_frequency.frequency === RecurringFrequency.MONTHLY
-                                            || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
-                                        )
-                                            && [['Monday', RecurringDay.MONDAY], ['Tuesday', RecurringDay.TUESDAY], ['Wednesday', RecurringDay.WEDNESDAY], ['Thursday', RecurringDay.THURSDAY], ['Friday', RecurringDay.FRIDAY], ['Saturday', RecurringDay.SATURDAY], ['Sunday', RecurringDay.SUNDAY]]
-                                        )
-                                        ||
-                                        ((
-                                            formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
-                                        )
-                                            && [['January', 1], ['February', 2], ['March', 3], ['April', 4], ['May', 5], ['June', 6], ['July', 7], ['August', 8], ['September', 9], ['October', 10], ['November', 11], ['December', 12]]
-                                        )
-                                        || []
-                                    ).map(
-                                        (label) => (
-                                            <SelectItem
-                                                key={label[1]}
-                                                label={label[0].toString()}
-                                                value={label[1].toString()}
-                                            />
-                                        )
-                                    )}
-                                </SelectGroup>
-                            </FormGroup>
-
-                            {/* Recurring Date */}
-                            <FormGroup
-                                isInvalid={formik.errors.recurring_frequency?.time?.date && formik.touched.recurring_frequency?.time?.date}
-                                errorText={formik.errors.recurring_frequency?.time?.date}
-                                style={{
-                                    width: '50%',
-                                }}
-                            >
-                                <SelectGroup
-                                    initialLabel={formik.values.recurring_frequency.time.date
-                                        ? `${formik.values.recurring_frequency.time.date}${[, "st", "nd", "rd"][Number(formik.values.recurring_frequency.time.date) % 10] &&
-                                            ![11, 12, 13].includes(Number(formik.values.recurring_frequency.time.date))
-                                            ? [, "st", "nd", "rd"][Number(formik.values.recurring_frequency.time.date) % 10]
-                                            : "th"
-                                        }`
-                                        : ''
-                                    }
-                                    selectedValue={formik.values.recurring_frequency.time.date}
-                                    onValueChange={formik.handleChange('recurring_frequency.time.date')}
-                                    isDisabled={
-                                        formik.values.recurring_frequency.frequency === ''
-                                        || formik.values.recurring_frequency.frequency === RecurringFrequency.DAILY
-                                        || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
-                                        || (transaction && formik.values.recurring_frequency.time.date === '')
-                                    }
-                                    placeholder='Select date'
-                                    scrollViewStyle={{ maxHeight: 200, overflow: 'scroll' }}
-                                >
-                                    {(
-                                        Array.from({ length: 31 }, (_, i) => [`${i + 1} ${["st", "nd", "rd"][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ["st", "nd", "rd"][(i + 1) % 10 - 1] : "th"}`, i + 1])
-                                    ).map(
-                                        (label) => (
-                                            <SelectItem
-                                                key={label[1]}
-                                                label={label[0].toString()}
-                                                value={label[1].toString()}
-                                            />
-                                        )
-                                    )}
-                                </SelectGroup>
-                            </FormGroup>
-                        </HStack>
-                    </>}
-                {dateModalVisible && <DateTimePicker
-                    value={new Date((formik.values.date))}
-                    mode='date'
-                    onChange={(event, selectedDate) => {
-                        if (event.type === 'set' && selectedDate) {
-                            setDateModalVisible(false);
-                            formik.setFieldValue('date', dayjs(selectedDate).format('YYYY-MM-DD'));
-                        } else if (event.type === 'dismissed') {
-                            setDateModalVisible(false);
-                        }
-                    }}
-                />}
-
-                {/* Type */}
-                {transaction && <FormGroup
-                    label='Type'
-                    isInvalid={formik.errors.type && formik.touched.type}
-                    isRequired={true}
-                    errorText={formik.errors.type}
-                >
-                    <SelectGroup
-                        initialLabel={transaction.type[0].toUpperCase() + transaction.type.slice(1)}
-                        selectedValue={formik.values.type}
-                        onValueChange={(value) => {
-                            setTransactionType(value as TransactionType);
-                            formik.setFieldValue('type', value);
-                        }}
-                    >
-                        {Object.values(TransactionType).map(
-                            (label) => (
-                                <SelectItem
-                                    key={label}
-                                    label={label[0].toUpperCase() + label.slice(1)}
-                                    value={label}
-                                />
-                            )
-                        )}
-                    </SelectGroup>
-                </FormGroup>}
-
-                {/* Category */}
-                <FormGroup
-                    label='Category'
-                    isInvalid={formik.errors.category && formik.touched.category}
-                    isRequired={true}
-                    errorText={formik.errors.category}
-                >
-                    <SelectGroup
-                        initialLabel={formik.values.category ? formik.values.category[0].toUpperCase() + formik.values.category.slice(1) : ''}
-                        selectedValue={formik.values.category}
-                        onValueChange={formik.handleChange('category')}
-                    >
-                        {(transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(
-                            (label) => (
-                                <SelectItem
-                                    key={label}
-                                    label={label[0].toUpperCase() + label.slice(1)}
-                                    value={label}
-                                />
-                            )
-                        )}
-                    </SelectGroup>
-                </FormGroup>
-
-                {/* Amount */}
-                <FormGroup
-                    label='Amount (RM)'
-                    isInvalid={formik.errors.amount && formik.touched.amount}
-                    isRequired={true}
-                    errorText={formik.errors.amount}
-                >
-                    <Input className="text-center">
-                        <InputField
-                            type="text"
-                            value={formik.values.amount}
-                            onChangeText={formik.handleChange('amount')}
-                            placeholder='Enter Amount'
-                            inputMode='numeric'
-                        />
-                    </Input>
-                </FormGroup>
-
-                {/* Description */}
-                <FormGroup
-                    label='Description'
-                    isInvalid={formik.errors.description && formik.touched.description}
-                    isRequired={true}
-                    errorText={formik.errors.description}
-                >
-                    <Textarea>
-                        <TextareaInput
-                            value={formik.values.description}
-                            placeholder="Enter Description"
-                            onChangeText={formik.handleChange('description')}
-                            style={{ textAlignVertical: 'top' }}
-                            inputMode='text'
-                        />
-                    </Textarea>
-                </FormGroup>
-
-                {/* Icon Group */}
-                {!transaction && <HStack className='my-4 justify-between'>
-                    <TouchableNativeFeedback
-                        onPress={() => {
-                            formik.setValues({
-                                ...formik.values,
-                                recurring: !formik.values.recurring,
-                            });
-                        }}
-                    >
-                        <View
-                            style={[styles.centered, {
-                                height: 75,
-                                width: 75,
-                            }]}
-                        >
-                            {formik.values.recurring ? <MaterialCommunityIcons name="repeat" size={65} color="black" />
-                                : <MaterialCommunityIcons name="repeat-off" size={65} color="black" />}
-                        </View>
-                    </TouchableNativeFeedback>
-                    {transactionType === TransactionType.EXPENSE && (
+                    {/* Icon Group */}
+                    {!transaction && <HStack className='my-4 justify-between'>
                         <TouchableNativeFeedback
-                            onPress={() => router.navigate('/transaction/scan' as Href)}
+                            onPress={() => {
+                                formik.setValues({
+                                    ...formik.values,
+                                    recurring: !formik.values.recurring,
+                                });
+                            }}
                         >
                             <View
                                 style={[styles.centered, {
@@ -548,51 +542,66 @@ const TransactionManager = () => {
                                     width: 75,
                                 }]}
                             >
-                                <MaterialCommunityIcons name="camera-outline" size={80} color="black" />
+                                {formik.values.recurring ? <MaterialCommunityIcons name="repeat" size={65} color="black" />
+                                    : <MaterialCommunityIcons name="repeat-off" size={65} color="black" />}
                             </View>
-                        </TouchableNativeFeedback>)}
-                </HStack>}
+                        </TouchableNativeFeedback>
+                        {transactionType === TransactionType.EXPENSE && (
+                            <TouchableNativeFeedback
+                                onPress={() => router.navigate('/transaction/scan' as Href)}
+                            >
+                                <View
+                                    style={[styles.centered, {
+                                        height: 75,
+                                        width: 75,
+                                    }]}
+                                >
+                                    <MaterialCommunityIcons name="camera-outline" size={80} color="black" />
+                                </View>
+                            </TouchableNativeFeedback>)}
+                    </HStack>}
 
-                {/* Button Group */}
-                {transaction ? (
-                    <HStack className='mt-4 justify-between'>
-                        <Button
-                            size="lg"
-                            onPress={() => deleteMutation.mutate(Number(transaction.id))}
-                            action="negative"
-                        >
-                            <ButtonText>Delete</ButtonText>
-                        </Button>
+                    {/* Button Group */}
+                    {transaction ? (
+                        <HStack className='mt-4 justify-between'>
+                            <Button
+                                size="lg"
+                                onPress={() => deleteMutation.mutate(Number(transaction.id))}
+                                action="negative"
+                            >
+                                <ButtonText>Delete</ButtonText>
+                            </Button>
 
-                        <Button
-                            size="lg"
-                            onPress={() => {
-                                setFormAction("update");
-                                formik.handleSubmit();
-                            }}
-                            action="positive"
-                        >
-                            <ButtonText>Save</ButtonText>
-                        </Button>
-                    </HStack>
-                ) : (
-                    <View className='mt-4'>
-                        <Button
-                            className="self-center"
-                            size="lg"
-                            onPress={() => {
-                                setFormAction('create');
-                                formik.setFieldValue('type', transactionType)
-                                formik.handleSubmit();
-                            }}
-                            action="positive"
-                        >
-                            <ButtonText>Create</ButtonText>
-                        </Button>
-                    </View>
-                )}
-            </VStack>
-        </ScrollView >
+                            <Button
+                                size="lg"
+                                onPress={() => {
+                                    setFormAction("update");
+                                    formik.handleSubmit();
+                                }}
+                                action="positive"
+                            >
+                                <ButtonText>Save</ButtonText>
+                            </Button>
+                        </HStack>
+                    ) : (
+                        <View className='mt-4'>
+                            <Button
+                                className="self-center"
+                                size="lg"
+                                onPress={() => {
+                                    setFormAction('create');
+                                    formik.setFieldValue('type', transactionType)
+                                    formik.handleSubmit();
+                                }}
+                                action="positive"
+                            >
+                                <ButtonText>Create</ButtonText>
+                            </Button>
+                        </View>
+                    )}
+                </VStack>
+            </ScrollView >
+        </SafeAreaView>
     );
 };
 
