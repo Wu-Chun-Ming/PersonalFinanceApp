@@ -1,5 +1,5 @@
 import { useFont } from '@shopify/react-native-skia';
-import { Href, router } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { BarGroup, CartesianChart } from 'victory-native';
@@ -296,7 +296,7 @@ const TransactionScreen = () => {
             <Fab
                 size="lg"
                 placement="bottom right"
-                onPress={() => router.navigate(`/transaction/` as Href)}
+                onPress={() => router.navigate(`/transaction/new`)}
             >
                 <FabIcon as={AddIcon} size='xl' />
             </Fab>

@@ -187,7 +187,7 @@ const TransactionManager = () => {
             });
         }
         // Set the title for the screen
-        const isNewTransaction = !transactionId;
+        const isNewTransaction = (transactionId === 'new');
         navigation.setOptions({
             title: isNewTransaction ? 'Create New Transaction' : 'Edit Transaction',
         });

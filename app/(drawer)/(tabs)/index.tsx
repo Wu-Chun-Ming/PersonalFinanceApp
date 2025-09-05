@@ -1,4 +1,4 @@
-import { Href, router } from 'expo-router';
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
@@ -309,7 +309,7 @@ const App = () => {
       <Fab
         size="lg"
         placement="bottom right"
-        onPress={() => router.navigate(`/transaction/` as Href)}
+        onPress={() => router.navigate(`/transaction/new`)}
       >
         <FabIcon as={AddIcon} size='xl' />
       </Fab>
