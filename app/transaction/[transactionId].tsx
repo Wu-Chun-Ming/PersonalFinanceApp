@@ -30,6 +30,7 @@ import { useCreateTransaction, useDeleteTransaction, useTransaction, useUpdateTr
 
 const TransactionManager = () => {
     const { scannedData } = useContext(ScanContext);
+    const { scanNum = 0 } = useLocalSearchParams();
     const navigation = useNavigation();
     const showToast = useShowToast();       // Use the useShowToast hook (custom)
     const [formAction, setFormAction] = useState<"create" | "update" | "delete" | undefined>(undefined)
@@ -145,6 +146,10 @@ const TransactionManager = () => {
             switch (formAction) {
                 case 'create':
                     createMutation.mutate(transformedTransactionData);
+                    // Remove current scanned data from pending transactions
+                    if (scannedData && scannedData[scanNum]) {
+                        scannedData.splice(scanNum, 1);
+                    }
                     break;
                 case 'update':
                     updateMutation.mutate({
@@ -197,7 +202,14 @@ const TransactionManager = () => {
         if (!isNewTransaction && isSuccess && !transaction) {
             showToast({ action: 'info', messages: 'Transaction not found' });
         }
-    }, [transaction]);
+        // Fill in scanned data after scanning
+        if (scannedData && scannedData.length > 0 && isNewTransaction) {
+            formik.setValues({
+                ...scannedData[scanNum],
+                amount: scannedData[scanNum].amount.toString(),
+            });
+        }
+    }, [transaction, scannedData]);
 
     const queryState = (
         <QueryState

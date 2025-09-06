@@ -1,5 +1,6 @@
 import Fontisto from '@expo/vector-icons/build/Fontisto';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import dayjs from 'dayjs';
 import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -15,6 +16,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import { ScanContext } from '@/app/transaction/_layout';
 import ImageViewer from '@/components/ImageViewer';
+import { TransactionType } from '@/constants/Types';
 
 const ScanScreen = () => {
     const { setScannedData } = useContext(ScanContext);
@@ -120,11 +122,31 @@ const ScanScreen = () => {
                 return data.result;
             })
             .then((data) => {
-                setScannedData({
-                    amount: data.line_items.total,
-                    description: data.line_items.description,
-                });
-                router.back();
+                const lineItems = Array.isArray(data.line_items) ? data.line_items : [data.line_items];
+                setScannedData(lineItems.map((item) => ({
+                    date: dayjs().format('YYYY-MM-DD'),
+                    type: TransactionType.EXPENSE,
+                    category: '',
+                    amount: Number(item.total),
+                    description: item.description,
+                    recurring: false,
+                    recurring_frequency: {
+                        frequency: '',
+                        time: {
+                            month: '',
+                            date: '',
+                            day: '',
+                        },
+                    },
+                    currency: 'MYR',
+                })));
+                // Multiple items detected
+                if (lineItems.length > 1) {
+                    router.dismiss(1);
+                    router.replace(`/transaction/listing`);
+                } else {        // Single item detected
+                    router.back();
+                }
             })
             .catch((error) => {
                 clearTimeout(timeoutId); // clear timeout if error occurs

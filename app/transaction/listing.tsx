@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
-import { Href, router, useLocalSearchParams } from 'expo-router';
+import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useFormik } from 'formik';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
@@ -12,6 +12,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
+import { ScanContext } from '@/app/transaction/_layout';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionType } from '@/constants/Types';
@@ -19,6 +20,7 @@ import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const TransactionListScreen = () => {
+    const navigation = useNavigation();
     // Filters
     const {
         date,
@@ -28,6 +30,8 @@ const TransactionListScreen = () => {
         recurring,
         frequency,
     } = useLocalSearchParams();
+    const context = useContext(ScanContext);
+    const scannedData = context?.scannedData;
     // Transactions Data
     const {
         data: transactions,
@@ -88,6 +92,14 @@ const TransactionListScreen = () => {
 
     const [filteredTransactions, setFilteredTransactions] = useState(useFilteredTransactions(transactions ?? [], formik.values));
 
+    useEffect(() => {
+        if (scannedData && scannedData.length > 0) {
+            navigation.setOptions({
+                title: 'Pending Transactions',
+            });
+        }
+    }, [scannedData]);
+
     const queryState = (
         <QueryState
             isLoading={isLoading}
@@ -111,12 +123,15 @@ const TransactionListScreen = () => {
                 backgroundColor: '#fff',
             }}>
                 <VStack>
-                    {transactions && (filteredTransactions)
+                    {transactions && ((scannedData && scannedData.length > 0 ? scannedData : filteredTransactions))
                         .map((item, index) => {
                             return (
                                 <TouchableOpacity
                                     key={index}
-                                    onPress={() => router.navigate(`/transaction/${item.id}` as Href)}
+                                    onPress={(scannedData && scannedData.length > 0)
+                                        ? () => router.navigate(`/transaction/new?scanNum=${index}` as Href)
+                                        : () => router.navigate(`/transaction/${item.id}`)
+                                    }
                                     style={{
                                         backgroundColor: CATEGORY_COLORS[item.category],
                                     }}
@@ -131,7 +146,7 @@ const TransactionListScreen = () => {
                                     >
                                         <VStack
                                             style={{
-                                                width: '30%',
+                                                width: (scannedData && scannedData.length > 0 ? '60%' : '30%'),
                                             }}
                                         >
                                             <View>
