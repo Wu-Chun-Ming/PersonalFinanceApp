@@ -6,7 +6,7 @@ import { BudgetProps, EXPENSE_CATEGORIES, TransactionCategory, TransactionProps,
 let dbInstance: SQLite.SQLiteDatabase | null = null; // To store the singleton instance
 
 // Open local database
-export const getDatabaseInstance = async () => {
+const getDatabaseInstance = async () => {
     try {
         if (!dbInstance) {              // Open the database if no instance exists
             dbInstance = await SQLite.openDatabaseAsync('localDatabase.db');
@@ -47,10 +47,10 @@ amount                  DOUBLE
 */
 
 // Initialise database
-export const initializeDatabase = async () => {
+export const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
     try {
-        // Get db instance
-        const db = await getDatabaseInstance();
+        // Get the database instance
+        const db = dbInstance || (await getDatabaseInstance());
 
         // Define allowed values for transaction types and categories
         const allowedTransactionTypes = Object.values(TransactionType).map(type => `'${type}'`).join(', ');
@@ -95,10 +95,10 @@ export const initializeDatabase = async () => {
 }
 
 // Fetch all transaction
-export const getTransactions = async () => {
+export const getTransactions = async (dbInstance?: SQLite.SQLiteDatabase) => {
     try {
         // Get the database instance
-        const db = await getDatabaseInstance();
+        const db = dbInstance || (await getDatabaseInstance());
 
         // Fetch all the data from table
         const result = await db.getAllAsync(`SELECT * FROM transactions`);
@@ -120,10 +120,10 @@ export const getTransactions = async () => {
 }
 
 // Fetch specific transaction
-export const showTransaction = async (id: number) => {
+export const showTransaction = async (id: number, dbInstance?: SQLite.SQLiteDatabase) => {
     try {
         // Get the database instance
-        const db = await getDatabaseInstance();
+        const db = dbInstance || (await getDatabaseInstance());
 
         // Fetch the data
         const result = await db.getFirstAsync(`SELECT * FROM transactions WHERE id = ${id}`);
@@ -147,10 +147,10 @@ export const showTransaction = async (id: number) => {
 }
 
 // Store new transaction
-export const storeTransaction = async (transaction: TransactionProps) => {
+export const storeTransaction = async (transaction: TransactionProps, dbInstance?: SQLite.SQLiteDatabase) => {
     try {
         // Get the database instance
-        const db = await getDatabaseInstance();
+        const db = dbInstance || (await getDatabaseInstance());
 
         // Insert the transaction
         const result = await db.runAsync(
@@ -186,10 +186,10 @@ export const storeTransaction = async (transaction: TransactionProps) => {
 };
 
 // Update transaction details
-export const updateTransaction = async (transaction: TransactionProps, id: number) => {
+export const updateTransaction = async (transaction: TransactionProps, id: number, dbInstance?: SQLite.SQLiteDatabase) => {
     try {
         // Get the database instance
-        const db = await getDatabaseInstance();
+        const db = dbInstance || (await getDatabaseInstance());
 
         // Update the transaction
         const result = await db.runAsync(
@@ -226,10 +226,10 @@ export const updateTransaction = async (transaction: TransactionProps, id: numbe
 };
 
 // Delete transaction
-export const destroyTransaction = async (id: number) => {
+export const destroyTransaction = async (id: number, dbInstance?: SQLite.SQLiteDatabase) => {
     try {
         // Get the database instance
-        const db = await getDatabaseInstance();
+        const db = dbInstance || (await getDatabaseInstance());
 
         // Delete the specific transaction
         const result = await db.runAsync(`DELETE FROM transactions WHERE id = ?`, id);
@@ -257,10 +257,10 @@ export const destroyTransaction = async (id: number) => {
 
 
 // Fetch budgets
-export const getBudgets = async () => {
+export const getBudgets = async (dbInstance?: SQLite.SQLiteDatabase) => {
     try {
         // Get the database instance
-        const db = await getDatabaseInstance();
+        const db = dbInstance || (await getDatabaseInstance());
 
         // Fetch all the data from table
         const result = await db.getAllAsync(`SELECT * FROM budgets`);
@@ -282,10 +282,10 @@ export const getBudgets = async () => {
 }
 
 // Update budget amount
-export const updateBudget = async (amount: number, { year, month, category }: { year: number; month: number; category: string }) => {
+export const updateBudget = async (amount: number, { year, month, category }: { year: number; month: number; category: string }, dbInstance?: SQLite.SQLiteDatabase) => {
     try {
         // Get the database instance
-        const db = await getDatabaseInstance();
+        const db = dbInstance || (await getDatabaseInstance());
 
         // Update the budget
         const result = await db.runAsync(
