@@ -4,12 +4,12 @@ import { useMemo } from 'react';
 import { RecurringFrequency, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 
 interface FilterParams {
-    date?: Date | null;
-    startDate?: Date | null;
-    endDate?: Date | null;
+    date?: Date | string;
+    startDate?: Date | string;
+    endDate?: Date | string;
     type?: TransactionType | string;
     category?: TransactionCategory | string;
-    amount?: number | string;
+    amount?: number;
     recurring?: boolean;
     frequency?: RecurringFrequency | string;
 }
@@ -33,17 +33,16 @@ export const useFilteredTransactions = (
         if (!transactions || transactions.length === 0) return [];
 
         return transactions.filter(transaction =>
-            (date === undefined || transaction.date === date)
+            (!date || new Date(transaction.date).getTime() === new Date(date).getTime())
             &&
             (
-                transaction.date
-                && (!startDate || new Date(transaction.date) >= new Date(startDate))
+                (!startDate || new Date(transaction.date) >= new Date(startDate))
                 && (!endDate || new Date(transaction.date) < new Date(endDate))
             )
             && (!type || transaction.type === type)
             && (!category || transaction.category === category)
-            && (!amount || transaction.amount === Number(amount))
-            && (!recurring || transaction.recurring === (recurring === 'true'))
+            && (!amount || transaction.amount === amount)
+            && (!recurring || transaction.recurring === recurring)
             && (!frequency || transaction.recurring_frequency?.frequency === frequency)
         );
     }, [transactions, date, startDate, endDate, type, category, amount, recurring, frequency]);
