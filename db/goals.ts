@@ -73,7 +73,7 @@ export const editGoal = async (updatedGoalsData: {
             }
         };
     } catch (error) {
-        throw new Error(`Error updating goal: ${error}`);
+        throw new Error(`Error updating goal: ${(error as Error).message}`);
     }
 };
 

@@ -13,7 +13,7 @@ export const getDatabaseInstance = async () => {
         }
         return dbInstance;              // Return the existing or newly created instance
     } catch (error) {
-        throw new Error(`Error opening database: ${error}`);
+        throw new Error(`Error opening database: ${(error as Error).message}`);
     }
 };
 
@@ -90,7 +90,7 @@ export const initializeDatabase = async () => {
             values
         );
     } catch (error) {
-        throw new Error(`Error creating the database or table: ${error}`);
+        throw new Error(`Error creating the database or table: ${(error as Error).message}`);
     }
 }
 
@@ -115,7 +115,7 @@ export const getTransactions = async () => {
             data: null,
         };
     } catch (error) {
-        throw new Error(`Error fetching data from transactions table: ${error}`);
+        throw new Error(`Error fetching data from transactions table: ${(error as Error).message}`);
     }
 }
 
@@ -142,7 +142,7 @@ export const showTransaction = async (id: number) => {
             data: null,
         };
     } catch (error) {
-        throw new Error(`Error fetching transaction: ${error}`);
+        throw new Error(`Error fetching transaction: ${(error as Error).message}`);
     }
 }
 
@@ -181,7 +181,7 @@ export const storeTransaction = async (transaction: TransactionProps) => {
             }
         };
     } catch (error) {
-        throw new Error(`Error creating transaction: ${error}`);
+        throw new Error(`Error creating transaction: ${(error as Error).message}`);
     }
 };
 
@@ -221,7 +221,7 @@ export const updateTransaction = async (transaction: TransactionProps, id: numbe
             }
         };
     } catch (error) {
-        throw new Error(`Error updating transaction: ${error}`);
+        throw new Error(`Error updating transaction: ${(error as Error).message}`);
     }
 };
 
@@ -251,7 +251,7 @@ export const destroyTransaction = async (id: number) => {
             }
         };
     } catch (error) {
-        throw new Error(`Error deleting transaction: ${error}`);
+        throw new Error(`Error deleting transaction: ${(error as Error).message}`);
     }
 }
 
@@ -277,7 +277,7 @@ export const getBudgets = async () => {
             data: null,
         };
     } catch (error) {
-        throw new Error(`Error fetching data from budgets table: ${error}`);
+        throw new Error(`Error fetching data from budgets table: ${(error as Error).message}`);
     }
 }
 
@@ -313,6 +313,6 @@ export const updateBudget = async (amount: number, { year, month, category }: { 
             }
         };
     } catch (error) {
-        throw new Error(`Error updating budget: ${error}`);
+        throw new Error(`Error updating budget: ${(error as Error).message}`);
     }
 }
