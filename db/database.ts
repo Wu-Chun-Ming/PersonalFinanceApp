@@ -106,7 +106,12 @@ export const getTransactions = async (dbInstance?: SQLite.SQLiteDatabase) => {
         // Successful fetched
         if (result.length > 0) {
             return {
-                data: result as TransactionProps[],
+                data: result.map(transaction => ({
+                    ...transaction,
+                    date: transaction.date ? new Date(transaction.date) : null,
+                    recurring: Boolean(transaction.recurring),
+                    recurring_frequency: transaction.recurring_frequency ? JSON.parse(transaction.recurring_frequency) : null,
+                })) as TransactionProps[],
             };
         }
 
@@ -126,7 +131,7 @@ export const showTransaction = async (id: number, dbInstance?: SQLite.SQLiteData
         const db = dbInstance || (await getDatabaseInstance());
 
         // Fetch the data
-        const result = await db.getFirstAsync(`SELECT * FROM transactions WHERE id = ${id}`);
+        const result = await db.getFirstAsync(`SELECT * FROM transactions WHERE id = ?`, id);
 
         // Successful fetched
         if (result) {
@@ -134,6 +139,8 @@ export const showTransaction = async (id: number, dbInstance?: SQLite.SQLiteData
                 data: {
                     ...result,
                     date: result.date ? new Date(result.date) : null,
+                    recurring: Boolean(result.recurring),
+                    recurring_frequency: result.recurring_frequency ? JSON.parse(result.recurring_frequency) : null,
                 } as TransactionProps,
             };
         }
@@ -165,7 +172,7 @@ export const storeTransaction = async (transaction: TransactionProps, dbInstance
         );
 
         // Successful insertion
-        if (result) {
+        if (result && result.changes > 0) {
             return {
                 data: {
                     success: true,
@@ -205,7 +212,7 @@ export const updateTransaction = async (transaction: TransactionProps, id: numbe
         );
 
         // Successful update
-        if (result) {
+        if (result && result.changes > 0) {
             return {
                 data: {
                     success: true,
@@ -235,7 +242,7 @@ export const destroyTransaction = async (id: number, dbInstance?: SQLite.SQLiteD
         const result = await db.runAsync(`DELETE FROM transactions WHERE id = ?`, id);
 
         // Successful deletion
-        if (result) {
+        if (result && result.changes > 0) {
             return {
                 data: {
                     success: true,
@@ -297,7 +304,7 @@ export const updateBudget = async (amount: number, { year, month, category }: { 
         );
 
         // Successful update
-        if (result) {
+        if (result && result.changes > 0) {
             return {
                 data: {
                     success: true,
