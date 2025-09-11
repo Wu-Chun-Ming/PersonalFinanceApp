@@ -10,6 +10,8 @@ interface FilterParams {
     type?: TransactionType | string;
     category?: TransactionCategory | string;
     amount?: number;
+    minAmount?: number;
+    maxAmount?: number;
     recurring?: boolean;
     frequency?: RecurringFrequency | string;
 }
@@ -25,6 +27,8 @@ export const useFilteredTransactions = (
         type,
         category,
         amount,
+        minAmount,
+        maxAmount,
         recurring,
         frequency,
     } = filters;
@@ -42,6 +46,11 @@ export const useFilteredTransactions = (
             && (!type || transaction.type === type)
             && (!category || transaction.category === category)
             && (!amount || transaction.amount === amount)
+            &&
+            (
+                (!minAmount || transaction.amount >= minAmount)
+                && (!maxAmount || transaction.amount < maxAmount)
+            )
             && (!recurring || transaction.recurring === recurring)
             && (!frequency || transaction.recurring_frequency?.frequency === frequency)
         );
