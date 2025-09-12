@@ -26,6 +26,7 @@ import { useTransactions } from '@/hooks/useTransactions';
 
 const App = () => {
   const [dbInitialized, setDbInitialized] = useState(false);
+  const [lastOpenDate, setLastOpenDate] = useState<Date | undefined>();
   const {
     data: transactions,
     isLoading,
@@ -36,6 +37,11 @@ const App = () => {
     refetch
   } = useTransactions();
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
+  const recurringTransactionsFromLastOpen = useFilteredTransactions(transactions ?? [], {
+    recurring: true,
+    startDate: lastOpenDate,
+    endDate: new Date(),
+  });
 
   // Check if the database has been initialized
   const checkDatabaseInitialization = async () => {
@@ -53,33 +59,23 @@ const App = () => {
     }
   };
 
-  const recurringTransactions = useFilteredTransactions(transactions ?? [], {
-    recurring: true,
-    date: null,
-  });
-
   // Add transaction(s) based on recurring transactions in the database
   const handleRecurringTransactions = async (recurringTransactions: TransactionProps[]) => {
     try {
-      const lastOpenDateStr = await SecureStore.getItemAsync('lastOpenDate');
+      const todayDateObj = new Date();
 
-      // Check if the last open date is set
-      if (lastOpenDateStr) {
-        let lastOpenDateObj = new Date(lastOpenDateStr);
+      if (lastOpenDate) {
+        let lastOpenDateObj = new Date(lastOpenDate.getTime());
         lastOpenDateObj.setDate(lastOpenDateObj.getDate() + 1);     // Exclude last open date
 
-        // Format to `YYYYMMDDTHHmmss`
-        const lastOpenDate = lastOpenDateObj.toISOString().replace(/[-:]/g, '').split('.')[0];
-        const today = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
-
-        if (lastOpenDate != today) {
-          recurringTransactions.map((transaction) => {
-            if (!transaction.recurring_frequency) return;
-            const recurringFrequency = transaction.recurring_frequency;
-            const freq = recurringFrequency.frequency;
-            const month = recurringFrequency.time.month;
-            const day = recurringFrequency.time.day;
-            const date = recurringFrequency.time.date;
+        if (lastOpenDateObj < todayDateObj) {
+          // Format to `YYYYMMDDTHHmmss`
+          const lastOpenDate = lastOpenDateObj.toISOString().replace(/[-:]/g, '').split('.')[0];
+          const today = todayDateObj.toISOString().replace(/[-:]/g, '').split('.')[0];
+          for (const transaction of recurringTransactions) {
+            if (!transaction.recurring_frequency) continue;
+            const { frequency: freq, time } = transaction.recurring_frequency;
+            const { month, day, date } = time;
 
             let rruleStr = `DTSTART:${lastOpenDate}\nRRULE:`;
             if (freq) rruleStr += `FREQ=${freq};`;
@@ -89,15 +85,15 @@ const App = () => {
             rruleStr += `UNTIL=${today}`
 
             const rule = RRule.fromString(rruleStr);
-            rule.all().map((date) => {
-              createTransaction({
+            for (const recurringDate of rule.all()) {
+              await createTransaction({
                 ...transaction,
-                date: date,
+                date: recurringDate,
                 recurring: false,
                 recurring_frequency: null,
               });
-            });
-          });
+            }
+          }
         }
       }
     } catch (error) {
@@ -107,15 +103,22 @@ const App = () => {
 
   useEffect(() => {
     checkDatabaseInitialization();
+    const fetchLastOpen = async () => {
+      const lastOpenDateStr = await SecureStore.getItemAsync('lastOpenDate');
+      if (lastOpenDateStr) {
+        setLastOpenDate(new Date(lastOpenDateStr));
+      }
+    };
+    fetchLastOpen();
     const updateLastOpen = async () => {
       const today = new Date().toISOString();
       await SecureStore.setItemAsync('lastOpenDate', today);
     };
-    if (isSuccess && !isLoading && !isRefetching) {
-      handleRecurringTransactions(recurringTransactions);
+    if (isSuccess && !isLoading && !isRefetching && recurringTransactionsFromLastOpen.length > 0) {
+      handleRecurringTransactions(recurringTransactionsFromLastOpen);
       updateLastOpen();
     }
-  }, [dbInitialized, transactions, recurringTransactions]);
+  }, [dbInitialized, transactions]);
 
   // Filter the transactions by transaction type and category
   const filterTransactions = (transactions: TransactionProps[], type: TransactionType) => {
