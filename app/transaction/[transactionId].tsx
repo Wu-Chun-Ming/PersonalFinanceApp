@@ -162,8 +162,6 @@ const TransactionManager = () => {
     });
     useEffect(() => {
         if (transaction) {
-            // Parse recurring frequency
-            transaction.recurring_frequency = typeof (transaction.recurring_frequency) === 'string' ? JSON.parse(transaction.recurring_frequency) : null;
             // Set the current transaction type
             setTransactionType(transaction.type);
             // Set the formik values

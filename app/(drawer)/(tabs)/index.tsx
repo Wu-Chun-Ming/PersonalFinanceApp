@@ -78,7 +78,7 @@ const App = () => {
         if (lastOpenDate != today) {
           recurringTransactions.map((transaction) => {
             if (!transaction.recurring_frequency) return;
-            const recurringFrequency: RecurringFrequencyProps = JSON.parse(transaction.recurring_frequency);
+            const recurringFrequency = transaction.recurring_frequency;
             const freq = recurringFrequency.frequency;
             const month = recurringFrequency.time.month;
             const day = recurringFrequency.time.day;

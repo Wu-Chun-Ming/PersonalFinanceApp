@@ -15,7 +15,7 @@ import styles from '@/app/styles';
 import { ScanContext } from '@/app/transaction/_layout';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionType } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionProps, TransactionType } from '@/constants/Types';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
@@ -150,7 +150,7 @@ const TransactionListScreen = () => {
                                             }}
                                         >
                                             <View>
-                                                <Text style={styles.text}>{(item.date && dayjs(item.date).format('YYYY-MM-DD')) || (item.recurring_frequency && JSON.parse(item.recurring_frequency.toString()).frequency)}</Text>
+                                                <Text style={styles.text}>{(item.date && dayjs(item.date).format('YYYY-MM-DD')) || (item.recurring_frequency && item.recurring_frequency.frequency)}</Text>
                                             </View>
                                             <View
                                                 style={{
