@@ -28,7 +28,7 @@ export const fetchGoal = async (type: 'savings' | 'income') => {
         return {
             date,
             amount,
-        }
+        };
     } else if (type == 'income') {      // Income goals
         const incomeGoalPerDayStr = await SecureStore.getItemAsync('incomeGoalPerDay');
         const incomeGoalPerMonthStr = await SecureStore.getItemAsync('incomeGoalPerMonth');
@@ -42,7 +42,7 @@ export const fetchGoal = async (type: 'savings' | 'income') => {
             perDay,
             perMonth,
             perYear,
-        }
+        };
     } else {
         throw new Error('Invalid goal type');
     }
@@ -67,10 +67,8 @@ export const editGoal = async (updatedGoalsData: {
         }
 
         return {
-            data: {
-                success: true,
-                messages: 'Goals updated successfully',
-            }
+            success: true,
+            messages: 'Goals updated successfully',
         };
     } catch (error) {
         throw new Error(`Error updating goal: ${(error as Error).message}`);
@@ -92,9 +90,7 @@ export const resetGoal = async (type: 'savings' | 'income') => {
     }
 
     return {
-        data: {
-            success: true,
-            messages: 'Goals reset successfully',
-        }
-    }
+        success: true,
+        messages: 'Goals reset successfully',
+    };
 };

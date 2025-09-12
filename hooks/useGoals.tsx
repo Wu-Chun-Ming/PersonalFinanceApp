@@ -39,7 +39,7 @@ export const useUpdateGoal = () => {
     return useMutation({
         mutationFn: (updatedGoalsData: { savings: SavingsGoalProps, income: IncomeGoalProps }) => editGoal(updatedGoalsData),
         onSuccess: (response) => {
-            const { success, messages } = response.data;
+            const { success, messages } = response;
             const actionType = success ? 'success' : 'info';
             showToast({ action: actionType, messages: messages });
         },
