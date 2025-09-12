@@ -1,7 +1,7 @@
 import { useFont } from '@shopify/react-native-skia';
 import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import * as Progress from 'react-native-progress';
 import { Bar, CartesianChart, Line } from 'victory-native';
@@ -26,7 +26,8 @@ import { useTransactions } from '@/hooks/useTransactions';
 const GoalsScreen = () => {
     const font = useFont(inter, 12);
     const [savingsProgress, setSavingsProgress] = useState(0);
-    const [incomeProgress, setIncomeProgress] = useState(0);
+    const [incomeProgresses, setIncomeProgresses] = useState({ day: 0, month: 0, year: 0 });
+    const [incomeProgressMode, setIncomeProgressMode] = useState<'day' | 'month' | 'year'>('month');
     const [incomeGraphMode, setIncomeGraphMode] = useState<'day' | 'month' | 'year'>('month');
     const {
         data: goals,
@@ -69,7 +70,7 @@ const GoalsScreen = () => {
             if (incomeGoalPerMonth == 0) return;   // Prevent division by zero
             progress = currentMonthlyIncome / incomeGoalPerMonth;
         }
-        setIncomeProgress(progress);
+        setIncomeProgresses(prev => ({ ...prev, month: progress }));
     }
 
     useEffect(() => {
@@ -145,7 +146,10 @@ const GoalsScreen = () => {
     const GoalProgress = ({ goalType }: {
         goalType: "savings" | "income"
     }) => (
-        <View style={styles.centeredFlex}>
+        <View style={{
+            flex: 1,
+            alignItems: "center",
+        }}>
             <View style={{
                 backgroundColor: GOALS_COLOR[goalType],
                 borderRadius: 10,
@@ -159,16 +163,53 @@ const GoalsScreen = () => {
                 >{goalType.charAt(0).toUpperCase() + goalType.slice(1)} Goal</Heading>
             </View>
             {/* Progress Indicator */}
-            <Progress.Circle
-                size={150}
-                progress={goalType === 'savings' ? savingsProgress : incomeProgress}
-                thickness={10}
-                showsText={true}
-                strokeCap="round"
-                color={GOALS_COLOR[goalType]}
-                animated={false}
-                formatText={(progress) => (progress >= 1) ? `Achieved` : `${Math.round(progress * 100)}%`}
-            />
+            <TouchableNativeFeedback
+                onPress={() => {
+                    setIncomeProgressMode(goalType === 'income'
+                        ? (incomeProgressMode === 'day' ? 'month'
+                            : incomeProgressMode === 'month'
+                                ? 'year'
+                                : 'day')
+                        : incomeProgressMode);
+                    if (transactions && (goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear)) {
+                        calculateIncomeGoalProgress(transactions, incomeProgressMode);
+                    }
+                }}
+                disabled={goalType !== 'income'}
+            >
+                <Progress.Circle
+                    size={150}
+                    progress={goalType === 'savings' ? savingsProgress : incomeProgresses[incomeProgressMode]}
+                    thickness={10}
+                    showsText={true}
+                    strokeCap="round"
+                    color={GOALS_COLOR[goalType]}
+                    animated={false}
+                    formatText={(progress) => (progress >= 1) ? `Achieved` : `${Math.round(progress * 100)}%`
+                    }
+                    textStyle={{
+                        textAlign: 'center',
+                    }}
+                />
+            </TouchableNativeFeedback>
+            <Text style={[styles.text, {
+                marginTop: 10,
+                fontWeight: 'bold',
+                textAlign: 'center',
+                color: 'black',
+            }]}>
+                {goalType === 'savings'
+                    ? ((goals?.savings.date && goals?.savings.amount)
+                        ? `Target: RM${goals.savings.amount}\n`
+                        + `by ${new Date(goals.savings.date).toLocaleDateString()}`
+                        : 'No savings goal set')
+                    : ((goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear)
+                        ? `Target: RM${incomeProgressMode === 'day' ? goals.income.perDay
+                            : incomeProgressMode === 'month' ? goals.income.perMonth
+                                : goals.income.perYear}\n`
+                        + `per ${incomeProgressMode}`
+                        : 'No income goal set')}
+            </Text>
         </View>
     );
 
