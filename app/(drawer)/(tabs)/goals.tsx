@@ -81,7 +81,8 @@ const GoalsScreen = () => {
             // Calculate current savings rate
             const currentSavingsTotal = getSavingsPerMonth(transactions)[new Date().getMonth()].savings;
             const currentIncomeTotal = getIncomePerMonth(transactions)[new Date().getMonth()].income;
-            setCurrentSavingsRate(currentSavingsTotal / currentIncomeTotal * 100);
+            const currentSavingsRate = currentIncomeTotal === 0 ? 0 : (currentSavingsTotal / currentIncomeTotal * 100);
+            setCurrentSavingsRate(currentSavingsRate);
         }
     }, [goals]);
 
