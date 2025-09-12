@@ -15,6 +15,15 @@ pipeline {
                 }
             }
         }
+        stage('Test') {
+            steps {
+                script {
+                    bat 'npm run testFinal'
+                }
+                // Archive coverage report
+                archiveArtifacts artifacts: 'coverage/**', fingerprint: true
+            }
+        }
         stage('Build') {
             steps {
                 // Change to the android directory and run the Gradle build command
