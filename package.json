@@ -9,7 +9,10 @@
     "ios": "expo run:ios",
     "web": "DARK_MODE=media expo start --web",
     "lint": "expo lint",
-    "test": "jest --watchAll"
+    "test": "jest --watch --coverage=false",
+    "testDebug": "jest -o --watch --coverage=false",
+    "testFinal": "jest",
+    "updateSnapshots": "jest -u --coverage=false"
   },
   "dependencies": {
     "@expo/html-elements": "^0.4.2",
@@ -88,7 +91,19 @@
     "typescript": "~5.3.3"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg)"
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{ts,tsx,js,jsx}",
+      "!**/coverage/**",
+      "!**/node_modules/**",
+      "!**/babel.config.js",
+      "!**/expo-env.d.ts",
+      "!**/.expo/**"
+    ]
   },
   "private": true
 }

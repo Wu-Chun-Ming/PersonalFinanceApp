@@ -39,3 +39,5 @@ yarn-error.*
 app-example
 *.keystore
 !debug.keystore
+
+coverage/**/*
