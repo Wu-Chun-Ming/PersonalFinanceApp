@@ -18,16 +18,13 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequencyProps, TransactionProps, TransactionType } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
 import { initializeDatabase } from '@/db/database';
 import { createTransaction } from '@/db/transactions';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
-import useShowToast from '@/hooks/useShowToast';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const App = () => {
-  const showToast = useShowToast();     // Use custom hook
-
   const [dbInitialized, setDbInitialized] = useState(false);
   const {
     data: transactions,
@@ -52,7 +49,7 @@ const App = () => {
         setDbInitialized(true);
       }
     } catch (error) {
-      console.error('Error checking database initialization:', error);
+      console.error('Error checking database initialization:', (error as Error).message);
     }
   };
 
@@ -104,7 +101,7 @@ const App = () => {
         }
       }
     } catch (error) {
-      console.error('Error updating recurring transactions:', error);
+      console.error('Error updating recurring transactions:', (error as Error).message);
     }
   };
 

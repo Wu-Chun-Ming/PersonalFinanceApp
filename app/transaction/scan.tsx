@@ -62,7 +62,7 @@ const ScanScreen = () => {
                 await reqLibPerm();  // Request media library permission
             }
         } catch (error) {
-            console.error('Error while checking permissions:', error);
+            console.error('Error while checking permissions:', (error as Error).message);
             Alert.alert('An error occurred while checking permissions. Please try again.');
         } finally {
             setPermissionsChecked(true);  // Mark permissions as checked after the check process
@@ -83,7 +83,7 @@ const ScanScreen = () => {
             }
             setSelectedImage(photo.uri);
         } catch (error) {
-            console.error('Error taking picture:', error);
+            console.error('Error taking picture:', (error as Error).message);
             Alert.alert("Error", "Something went wrong while taking the picture.");
         }
 
