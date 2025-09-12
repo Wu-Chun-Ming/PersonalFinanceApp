@@ -1,7 +1,8 @@
+import { AntDesign } from '@expo/vector-icons';
 import { useFont } from '@shopify/react-native-skia';
 import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import * as Progress from 'react-native-progress';
 import { Bar, CartesianChart, Line } from 'victory-native';
@@ -20,6 +21,7 @@ import inter from "@/assets/inter-medium.ttf";
 import QueryState from '@/components/QueryState';
 import { GOALS_COLOR } from '@/constants/Colors';
 import { TransactionProps, TransactionType } from '@/constants/Types';
+import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useGoals } from '@/hooks/useGoals';
 import { useTransactions } from '@/hooks/useTransactions';
 
@@ -41,6 +43,12 @@ const GoalsScreen = () => {
         refetch: refetchTransactions
     } = useTransactions();
     const [currentSavingsRate, setCurrentSavingsRate] = useState<number>(0);       // Current savings rate = (income - expenses) / income * 100
+    const now = new Date();
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+    const selectedYearTransactions = useFilteredTransactions(transactions ?? [], {
+        startDate: new Date(selectedYear, 0, 1),
+        endDate: new Date(selectedYear, 11, 31),
+    });
 
     const calculateSavingsGoalProgress = (transactions: TransactionProps[]) => {
         const expenseTotal = transactions
@@ -280,15 +288,29 @@ const GoalsScreen = () => {
 
                 {/* Savings Chart */}
                 <View style={[styles.centered, {
-                    height: 250,
+                    height: 280,
                     paddingVertical: 10,
                 }]}>
+                    <HStack className="justify-between items-center mb-2">
+                        <TouchableOpacity onPress={() => setSelectedYear(selectedYear - 1)}>
+                            <AntDesign name="leftcircle" size={24} color={GOALS_COLOR['savings']} style={{ paddingHorizontal: 10 }} />
+                        </TouchableOpacity>
+
+                        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                            Year {selectedYear}
+                        </Text>
+
+                        <TouchableOpacity onPress={() => setSelectedYear(selectedYear + 1)}>
+                            <AntDesign name="rightcircle" size={24} color={GOALS_COLOR['savings']} style={{ paddingHorizontal: 10 }} />
+                        </TouchableOpacity>
+                    </HStack>
+
                     <View style={{
                         flex: 1,
                         width: '95%',
                     }}>
                         {transactions && <CartesianChart
-                            data={getSavingsPerMonth(transactions as TransactionProps[])}
+                            data={getSavingsPerMonth(selectedYearTransactions)}
                             xKey="month"
                             xAxis={{
                                 font,
