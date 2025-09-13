@@ -49,6 +49,20 @@ const GoalsScreen = () => {
         startDate: new Date(selectedYear, 0, 1),
         endDate: new Date(selectedYear, 11, 31),
     });
+    // Transactions in the selected period for income graph
+    // 'day' => current month
+    // 'month' => current year
+    // 'year' => last 12 years
+    const selectedPeriodIncomeTransactions = useFilteredTransactions(transactions ?? [], {
+        type: TransactionType.INCOME,
+        recurring: false,
+        startDate: incomeGraphMode === 'day' ? new Date(now.getFullYear(), now.getMonth(), 1)       // First day of current month
+            : incomeGraphMode === 'month' ? new Date(now.getFullYear(), 0, 1)                       // First day of current year
+                : new Date(now.getFullYear() - 11, 0, 1),                                           // First day of year (11 years ago)
+        endDate: incomeGraphMode === 'day' ? new Date(now.getFullYear(), now.getMonth() + 1, 0)     // Last day of current month
+            : incomeGraphMode === 'month' ? new Date(now.getFullYear() + 1, 0, 0)                   // Last day of current year
+                : new Date(now.getFullYear() + 1, 0, 0),                                            // Last day of current year
+    });
 
     const calculateSavingsGoalProgress = (transactions: TransactionProps[]) => {
         const expenseTotal = transactions
@@ -88,7 +102,7 @@ const GoalsScreen = () => {
             calculateIncomeGoalProgress(transactions as TransactionProps[]);
             // Calculate current savings rate
             const currentSavingsTotal = getSavingsPerMonth(transactions)[new Date().getMonth()].savings;
-            const currentIncomeTotal = getIncomePerMonth(transactions)[new Date().getMonth()].income;
+            const currentIncomeTotal = getIncomeByPeriod(transactions.filter(t => t.type === TransactionType.INCOME), 'month')[new Date().getMonth()].income;
             const currentSavingsRate = currentIncomeTotal === 0 ? 0 : (currentSavingsTotal / currentIncomeTotal * 100);
             setCurrentSavingsRate(currentSavingsRate);
         }
@@ -128,28 +142,50 @@ const GoalsScreen = () => {
         return transactionByMonthArray;
     }
 
-    // Income per month
-    const getIncomePerMonth = (transactions: TransactionProps[]) => {
+    // Income by selected period (day/month/year)
+    const getIncomeByPeriod = (selectedPeriodIncomeTransactions: TransactionProps[], period: 'day' | 'month' | 'year') => {
+        let transactionByPeriodArray: { period: number, income: number }[] = [];
+        let incomeByPeriod: Record<number, number> = {};
+
+        const days_num: number[] = Array.from({ length: 31 }, (_, i) => i + 1);
         const months_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        const incomeTransactions = transactions.filter(transaction => transaction.type === TransactionType.INCOME);
+        const years_num = Array.from({ length: 12 }, (_, i) => now.getFullYear() - 11 + i);
+        if (period === 'day') {
+            incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
+                const day = new Date(t.date).getDate();
+                acc[day] = (acc[day] || 0) + t.amount;      // Add transaction amount to the respective day based on current month
+                return acc;
+            }, {});
+        } else if (period === 'year') {
+            incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
+                const year = new Date(t.date).getFullYear();
+                acc[year] = (acc[year] || 0) + t.amount;        // Add transaction amount to the respective year
+                return acc;
+            }, {});
+        } else {
+            incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
+                const month = new Date(t.date).getMonth() + 1;
+                acc[month] = (acc[month] || 0) + t.amount;      // Add transaction amount to the respective month
+                return acc;
+            }, {});
+        }
+        console.log(`Income by ${period}: `, transactionByPeriodArray);
 
-        const transactionByMonthArray = months_num.map((month) => {
-            const incomeTotalByMonth = incomeTransactions
-                .filter((transaction) => {
-                    if (!transaction.date) return false;
+        const period_num = period === 'day' ? days_num : period === 'year' ? years_num : months_num;
+        transactionByPeriodArray = period_num.map(period => ({
+            period: period,
+            income: incomeByPeriod[period] || 0
+        }));
 
-                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
-                    return transactionMonth === month;
-                })
-                .reduce((sum, transaction) => sum + transaction.amount, 0);
+        // Add an entry for 31st if not present (for months with less than 31 days)
+        if (period === 'day' && transactionByPeriodArray.length !== 31) {
+            transactionByPeriodArray.push({
+                period: 31,
+                income: 0,
+            });
+        }
 
-            return {
-                month: month,
-                income: incomeTotalByMonth,
-            };
-        });
-
-        return transactionByMonthArray;
+        return transactionByPeriodArray;
     }
 
     const GoalProgress = ({ goalType }: {
@@ -388,14 +424,20 @@ const GoalsScreen = () => {
                         width: '95%',
                     }}>
                         {transactions && <CartesianChart
-                            data={getIncomePerMonth(transactions as TransactionProps[])}
-                            xKey="month"
+                            data={getIncomeByPeriod(selectedPeriodIncomeTransactions, incomeGraphMode)}
+                            xKey="period"
                             xAxis={{
                                 font,
-                                tickCount: 12,
+                                tickCount: incomeGraphMode === 'day' ? 31 : 12,
                                 formatXLabel: (value) => {
-                                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                                    return monthNames[(value - 1) % 12];
+                                    if (incomeGraphMode === "day") {
+                                        return value % 5 === 0 || value === 1 ? String(value) : "";
+                                    } else if (incomeGraphMode === "year") {
+                                        return value % 2 === 0 ? String(value) : "";
+                                    } else {
+                                        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                        return months[value - 1] || "";
+                                    }
                                 },
                             }}
                             yKeys={["income"]}
