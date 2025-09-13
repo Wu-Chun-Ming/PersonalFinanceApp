@@ -1,7 +1,8 @@
+import { AntDesign } from '@expo/vector-icons';
 import { useFont } from '@shopify/react-native-skia';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { BarGroup, CartesianChart } from 'victory-native';
 
 // Gluestack UI
@@ -17,6 +18,7 @@ import inter from "@/assets/inter-medium.ttf";
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
+import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const TransactionScreen = () => {
@@ -31,6 +33,11 @@ const TransactionScreen = () => {
     } = useTransactions();
     const [expenseTotal, setExpenseTotal] = useState<number>(0);
     const [incomeTotal, setIncomeTotal] = useState<number>(0);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const selectedYearTransactions = useFilteredTransactions(transactions ?? [], {
+        startDate: new Date(selectedYear, 0, 1),
+        endDate: new Date(selectedYear, 11, 31),
+    });
 
     // Calculate the total amount based on transaction type and category
     const getTransactionBreakdownByType = (categories: TransactionCategory[], transactionType: TransactionType) => (
@@ -98,10 +105,10 @@ const TransactionScreen = () => {
         );
     };
 
-    const transactionsByMonth = (transactions: TransactionProps[]) => {
+    const transactionsByMonth = (selectedYearTransactions: TransactionProps[]) => {
         const months_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        const expenseTransactions = transactions.filter(transaction => transaction.type === TransactionType.EXPENSE);
-        const incomeTransactions = transactions.filter(transaction => transaction.type === TransactionType.INCOME);
+        const expenseTransactions = selectedYearTransactions.filter(transaction => transaction.type === TransactionType.EXPENSE);
+        const incomeTransactions = selectedYearTransactions.filter(transaction => transaction.type === TransactionType.INCOME);
 
         const transactionByMonthArray = months_num.map((month) => {
             const expenseTotalByMonth = expenseTransactions
@@ -155,6 +162,20 @@ const TransactionScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <HStack className="justify-center items-center m-2">
+                <TouchableOpacity onPress={() => setSelectedYear(selectedYear - 1)}>
+                    <AntDesign name="leftcircle" size={24} color='black' style={{ paddingHorizontal: 10 }} />
+                </TouchableOpacity>
+
+                <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                    Year {selectedYear}
+                </Text>
+
+                <TouchableOpacity onPress={() => setSelectedYear(selectedYear + 1)}>
+                    <AntDesign name="rightcircle" size={24} color='black' style={{ paddingHorizontal: 10 }} />
+                </TouchableOpacity>
+            </HStack>
+
             {/* Bar Chart */}
             <View style={[styles.centered, {
                 height: "40%",
@@ -170,7 +191,7 @@ const TransactionScreen = () => {
                         }}
                     >
                         <CartesianChart data={
-                            transactionsByMonth(transactions as TransactionProps[])
+                            transactionsByMonth(selectedYearTransactions)
                         }
                             xKey="month"
                             xAxis={{

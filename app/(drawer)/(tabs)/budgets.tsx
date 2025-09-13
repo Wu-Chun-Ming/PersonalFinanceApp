@@ -1,3 +1,4 @@
+import { AntDesign } from '@expo/vector-icons';
 import { useFont } from '@shopify/react-native-skia';
 import { useQueryClient } from '@tanstack/react-query';
 import { useFormik } from 'formik';
@@ -33,6 +34,7 @@ import SelectGroup from '@/components/SelectGroup';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { BudgetProps, EXPENSE_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 import { useBudgets, useUpdateBudget } from '@/hooks/useBudgets';
+import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import useShowToast from '@/hooks/useShowToast';
 import { useTransactions } from '@/hooks/useTransactions';
 
@@ -53,6 +55,14 @@ const BudgetScreen = () => {
         isLoading: isTransactionsLoading,
         isError: isTransactionsError,
     } = useTransactions();
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const selectedYearExpenseTransactions = useFilteredTransactions(transactions ?? [], {
+        type: TransactionType.EXPENSE,
+        recurring: false,
+        startDate: new Date(selectedYear, 0, 1),
+        endDate: new Date(selectedYear, 11, 31),
+    });
+    const selectedYearBudgets = (budgets as BudgetProps[])?.filter(budget => budget.year === selectedYear);
     const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
     const updateMutation = useUpdateBudget();
@@ -145,19 +155,32 @@ const BudgetScreen = () => {
             {/* Bar Chart */}
             <View style={[styles.centered, {
                 height: "40%",
-                paddingVertical: 10,
             }]}>
                 <View style={{
                     width: '95%',
                     height: "100%",
                 }}>
+                    <HStack className="justify-center items-center m-2">
+                        <TouchableOpacity onPress={() => setSelectedYear(selectedYear - 1)}>
+                            <AntDesign name="leftcircle" size={24} color='black' style={{ paddingHorizontal: 10 }} />
+                        </TouchableOpacity>
+
+                        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                            Year {selectedYear}
+                        </Text>
+
+                        <TouchableOpacity onPress={() => setSelectedYear(selectedYear + 1)}>
+                            <AntDesign name="rightcircle" size={24} color='black' style={{ paddingHorizontal: 10 }} />
+                        </TouchableOpacity>
+                    </HStack>
+
                     {expenses ? <VStack
                         style={{
                             flex: 1,
                         }}
                     >
                         <CartesianChart data={
-                            expensesAndBudgetsByMonth(expenses as TransactionProps[], budgets as BudgetProps[])
+                            expensesAndBudgetsByMonth(selectedYearExpenseTransactions, selectedYearBudgets)
                         }
                             xKey="month"
                             xAxis={{
