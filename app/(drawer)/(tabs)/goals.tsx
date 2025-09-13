@@ -157,12 +157,8 @@ const GoalsScreen = () => {
     useEffect(() => {
         if (transactions) {
             // Calculate goals progress
-            if (goals?.savings.date && goals?.savings.amount) {
-                calculateSavingsGoalProgress();
-            }
-            if (goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear) {
-                calculateIncomeGoalProgress(incomeProgressMode);
-            }
+            calculateSavingsGoalProgress();
+            calculateIncomeGoalProgress(incomeProgressMode);
             // Calculate current savings rate
             const currentSavingsTotal = getSavingsPerMonth(transactions)[new Date().getMonth()].savings;
             const currentIncomeTotal = getIncomeByPeriod(incomeTransactions, 'month')[new Date().getMonth()].income;
