@@ -74,7 +74,7 @@ const TransactionScreen = () => {
                                     }}
                                 >
                                     <TouchableNativeFeedback
-                                        onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}`)}
+                                        onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}&recurring=false`)}
                                     >
                                         <View style={{
                                             width: '50%',
@@ -268,7 +268,7 @@ const TransactionScreen = () => {
                             textDecorationLine: 'underline',
                         }]}>Top 5 Expense Categories</Text>
                         <TouchableNativeFeedback
-                            onPress={() => router.navigate(`/transaction/listing?type=expense`)}
+                            onPress={() => router.navigate(`/transaction/listing?type=expense&recurring=false`)}
                         >
                             <Text style={[styles.text, {
                                 backgroundColor: '#2bae2bff',
@@ -296,7 +296,7 @@ const TransactionScreen = () => {
                             textDecorationLine: 'underline',
                         }]}>Top 5 Income Categories</Text>
                         <TouchableNativeFeedback
-                            onPress={() => router.navigate(`/transaction/listing?type=income`)}
+                            onPress={() => router.navigate(`/transaction/listing?type=income&recurring=false`)}
                         >
                             <Text style={[styles.text, {
                                 padding: 8,

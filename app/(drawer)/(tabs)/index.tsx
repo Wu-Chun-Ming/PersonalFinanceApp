@@ -178,7 +178,7 @@ const App = () => {
                     backgroundColor: CATEGORY_COLORS[item.category],
                   }} />
                 <TouchableNativeFeedback
-                  onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}`)}
+                  onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}&recurring=false`)}
                 >
                   {/* Category Label */}
                   <View style={[styles.centered, {
