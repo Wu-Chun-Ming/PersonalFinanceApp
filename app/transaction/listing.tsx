@@ -15,7 +15,7 @@ import styles from '@/app/styles';
 import { ScanContext } from '@/app/transaction/_layout';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionProps, TransactionType } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionType } from '@/constants/Types';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
@@ -86,11 +86,21 @@ const TransactionListScreen = () => {
         },
         validationSchema: validationSchema,
         onSubmit: (values) => {
-            setFilteredTransactions(useFilteredTransactions(transactions ?? [], values));
-        },
+            setFilteredTransactions(useFilteredTransactions(transactions ?? [], {
+                date: values.date ? new Date(values.date) : undefined,
+                type: values.type ? values.type as TransactionType : undefined,
+                category: values.category ? values.category as (typeof EXPENSE_CATEGORIES[number] | typeof INCOME_CATEGORIES[number]) : undefined,
+                recurring: values.recurring ? (values.recurring === 'true' ? true : false) : undefined,
+            }));
+        }
     });
 
-    const [filteredTransactions, setFilteredTransactions] = useState(useFilteredTransactions(transactions ?? [], formik.values));
+    const [filteredTransactions, setFilteredTransactions] = useState(useFilteredTransactions(transactions ?? [], {
+        date: formik.values.date ? new Date(formik.values.date) : undefined,
+        type: formik.values.type ? formik.values.type as TransactionType : undefined,
+        category: formik.values.category ? formik.values.category as (typeof EXPENSE_CATEGORIES[number] | typeof INCOME_CATEGORIES[number]) : undefined,
+        recurring: formik.values.recurring ? (formik.values.recurring === 'true' ? true : false) : undefined,
+    }));
 
     useEffect(() => {
         if (scannedData && scannedData.length > 0) {
