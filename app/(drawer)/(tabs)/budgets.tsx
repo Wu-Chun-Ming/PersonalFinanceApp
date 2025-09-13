@@ -56,17 +56,21 @@ const BudgetScreen = () => {
         isError: isTransactionsError,
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const expensesTransactions = useFilteredTransactions(transactions ?? [], {
-        type: TransactionType.EXPENSE,
-        recurring: false,
-    });
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
     const selectedYearExpenseTransactions = useFilteredTransactions(transactions ?? [], {
         type: TransactionType.EXPENSE,
         recurring: false,
         startDate: new Date(selectedYear, 0, 1),
         endDate: new Date(selectedYear, 11, 31),
     });
+    const selectedMonthExpenseTransactions = useFilteredTransactions(transactions ?? [], {
+        type: TransactionType.EXPENSE,
+        recurring: false,
+        startDate: new Date(selectedYear, selectedMonth - 1, 1),
+        endDate: new Date(selectedYear, selectedMonth, 0),
+    });
     const selectedYearBudgets = (budgets as BudgetProps[])?.filter(budget => budget.year === selectedYear);
+    const selectedMonthBudgets = (budgets as BudgetProps[])?.filter(budget => budget.year === selectedYear && budget.month === selectedMonth);
     const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
     const updateMutation = useUpdateBudget();
@@ -233,14 +237,45 @@ const BudgetScreen = () => {
                 </View>
             </View>
 
+            <View style={styles.centered}>
+                <View style={{
+                    backgroundColor: BUDGET_COLOR,
+                    borderRadius: 20,
+                    margin: 10,
+                    width: '60%',
+                }}>
+                    <HStack className="justify-between items-center m-2">
+                        <TouchableOpacity
+                            disabled={selectedMonth <= 1}
+                            onPress={() => setSelectedMonth(selectedMonth - 1)}
+                        >
+                            <AntDesign name="leftcircle" size={24} color={selectedMonth <= 1 ? 'gray' : 'white'} style={{ paddingHorizontal: 10 }} />
+                        </TouchableOpacity>
+
+                        <Text style={{ fontSize: 18, fontWeight: "bold", color: 'white' }}>
+                            {new Date(selectedYear, selectedMonth - 1).toLocaleString('en-US', { month: 'long' })}
+                        </Text>
+
+                        <TouchableOpacity
+                            disabled={selectedMonth >= 12}
+                            onPress={() => setSelectedMonth(selectedMonth + 1)}
+                        >
+                            <AntDesign name="rightcircle" size={24} color={selectedMonth >= 12 ? 'gray' : 'white'} style={{ paddingHorizontal: 10 }} />
+                        </TouchableOpacity>
+                    </HStack>
+                </View>
+            </View>
+
             <ScrollView>
                 <View style={{
                     margin: 10,
                 }}>
                     {budgets && EXPENSE_CATEGORIES.map((category) => {
-                        const expense = selectedYearExpenseTransactions.find(transaction => transaction.category === category);
-                        const budget = budgets.find(budget => budget.category === category);
-                        const progress = (expense?.amount || 0) / (budget?.amount || 1) * 100; // Calculate progress as a percentage
+                        const expenseTotal = selectedMonthExpenseTransactions
+                            .filter(transaction => transaction.category === category)
+                            .reduce((sum, transaction) => sum + transaction.amount, 0);
+                        const budget = selectedMonthBudgets.find(budget => budget.category === category);
+                        const progress = (expenseTotal) / (budget?.amount || 1) * 100; // Calculate progress as a percentage
 
                         return (
                             <TouchableOpacity
@@ -252,7 +287,7 @@ const BudgetScreen = () => {
                                             year: budget.year.toString(),
                                             month: budget.month.toString(),
                                             category: budget.category,
-                                            amount: budget.amount.toString(),
+                                            amount: (budget.amount || 0).toString(),
                                         });
                                     } else {
                                         formik.setFieldValue('category', category);
@@ -280,7 +315,7 @@ const BudgetScreen = () => {
                                                 color: progress > 100 ? "red" : "black",
                                                 marginLeft: 5,
                                             }]}>
-                                                {Math.ceil(expense?.amount || 0)}/{budget?.amount || 0}
+                                                {Math.ceil(expenseTotal)}/{budget?.amount || 0}
                                             </Text>
                                         </View>
                                     </HStack>
@@ -315,10 +350,10 @@ const BudgetScreen = () => {
                                 errorText={formik.errors.year}
                             >
                                 <SelectGroup
-                                    selectedValue={formik.values.year}
+                                    selectedValue={selectedYear.toString() || formik.values.year}
                                     onValueChange={formik.handleChange('year')}
                                 >
-                                    {(['2024', '2025']).map(
+                                    {(Array.from({ length: 7 }, (_, i) => String(selectedYear - 3 + i))).map(
                                         (label) => (
                                             <SelectItem
                                                 key={label}
@@ -338,10 +373,10 @@ const BudgetScreen = () => {
                                 errorText={formik.errors.month}
                             >
                                 <SelectGroup
-                                    initialLabel={formik.values.month ? ['January', 'February', 'March', 'April', 'May', 'June',
+                                    initialLabel={(selectedMonth || formik.values.month) ? ['January', 'February', 'March', 'April', 'May', 'June',
                                         'July', 'August', 'September', 'October', 'November', 'December'
-                                    ][Number(formik.values.month) - 1] : ''}
-                                    selectedValue={formik.values.month}
+                                    ][Number(selectedMonth || formik.values.month) - 1] : ''}
+                                    selectedValue={selectedMonth.toString() || formik.values.month}
                                     onValueChange={formik.handleChange('month')}
                                 >
                                     {([['January', 1], ['February', 2], ['March', 3], ['April', 4], ['May', 5], ['June', 6], ['July', 7], ['August', 8], ['September', 9], ['October', 10], ['November', 11], ['December', 12]]).map(
