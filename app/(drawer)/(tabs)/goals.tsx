@@ -49,6 +49,10 @@ const GoalsScreen = () => {
         startDate: new Date(selectedYear, 0, 1),
         endDate: new Date(selectedYear, 11, 31),
     });
+    const incomeTransactions = useFilteredTransactions(transactions ?? [], {
+        type: TransactionType.INCOME,
+        recurring: false,
+    });
     // Transactions in the selected period for income graph
     // 'day' => current month
     // 'month' => current year
@@ -81,25 +85,79 @@ const GoalsScreen = () => {
         setSavingsProgress(progress);
     };
 
-    const calculateIncomeGoalProgress = (transactions: TransactionProps[]) => {
-        const currentMonthlyIncome = (transactions
-            .filter(transaction => transaction.type === TransactionType.INCOME)
-            .reduce((sum, transaction) => sum + transaction.amount, 0)) / 12;
+    // Calculate income goal progress for the selected period
+    // 'day'    => average daily income / target daily income
+    // 'month'  => average monthly income / target monthly income
+    // 'year'   => average yearly income / target yearly income
+    const calculateIncomeGoalProgress = (period: 'day' | 'month' | 'year') => {
+        if (incomeTransactions.length === 0 || !goals) return 0;
 
+        // Sort income transactions by date
+        const sortedIncomeTransactions = incomeTransactions.sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+        // Get the first and last transaction dates
+        const firstDate = sortedIncomeTransactions[0].date;
+        const lastDate = sortedIncomeTransactions[sortedIncomeTransactions.length - 1].date;
+        if (!firstDate || !lastDate) return 0;
+
+        // Calculate total income
+        const totalIncome = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+        let avgIncomeByPeriod = 0;
         let progress = 0;
-        if (goals?.income && goals.income.perMonth) {      // Income goals
-            const incomeGoalPerMonth = Number(goals.income.perMonth) || 0;
-            if (incomeGoalPerMonth == 0) return;   // Prevent division by zero
-            progress = currentMonthlyIncome / incomeGoalPerMonth;
+
+        if (period === 'day') {
+            // Average daily income over the years
+            avgIncomeByPeriod = (() => {
+                const daysDiff = Math.floor((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                return totalIncome / daysDiff;
+            })();
+
+            if (goals.income.perDay) {
+                const incomeGoalPerDay = Number(goals.income.perDay) || 0;
+                if (incomeGoalPerDay == 0) return;   // Prevent division by zero
+                progress = avgIncomeByPeriod / incomeGoalPerDay;
+            }
+        } else if (period === 'year') {
+            // Average yearly income over the years
+            avgIncomeByPeriod = (() => {
+                const yearsDiff = lastDate.getFullYear() - firstDate.getFullYear() + 1;
+                return totalIncome / yearsDiff;
+            })();
+
+            if (goals.income.perYear) {
+                const incomeGoalPerYear = Number(goals.income.perYear) || 0;
+                if (incomeGoalPerYear == 0) return;   // Prevent division by zero
+                progress = avgIncomeByPeriod / incomeGoalPerYear;
+            }
+        } else {
+            // Average monthly income over the years
+            avgIncomeByPeriod = (() => {
+                const monthsDiff = (lastDate.getFullYear() - firstDate.getFullYear()) * 12 + (lastDate.getMonth() - firstDate.getMonth()) + 1;
+                return totalIncome / monthsDiff;
+            })();
+
+            if (goals.income.perMonth) {
+                const incomeGoalPerMonth = Number(goals.income.perMonth) || 0;
+                if (incomeGoalPerMonth == 0) return;   // Prevent division by zero
+                progress = avgIncomeByPeriod / incomeGoalPerMonth;
+            }
         }
-        setIncomeProgresses(prev => ({ ...prev, month: progress }));
+
+        // Set progress based on the selected period
+        setIncomeProgresses(prev => ({
+            ...prev,
+            [period]: progress,
+        }));
     }
 
     useEffect(() => {
         if (transactions) {
             // Calculate goals progress
             calculateSavingsGoalProgress(transactions as TransactionProps[]);
-            calculateIncomeGoalProgress(transactions as TransactionProps[]);
+            if (incomeTransactions && (goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear)) {
+                calculateIncomeGoalProgress(incomeProgressMode);
+            }
             // Calculate current savings rate
             const currentSavingsTotal = getSavingsPerMonth(transactions)[new Date().getMonth()].savings;
             const currentIncomeTotal = getIncomeByPeriod(transactions.filter(t => t.type === TransactionType.INCOME), 'month')[new Date().getMonth()].income;
@@ -216,8 +274,8 @@ const GoalsScreen = () => {
                                 ? 'year'
                                 : 'day')
                         : incomeProgressMode);
-                    if (transactions && (goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear)) {
-                        calculateIncomeGoalProgress(transactions, incomeProgressMode);
+                    if (incomeTransactions && (goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear)) {
+                        calculateIncomeGoalProgress(incomeProgressMode);
                     }
                 }}
                 disabled={goalType !== 'income'}
