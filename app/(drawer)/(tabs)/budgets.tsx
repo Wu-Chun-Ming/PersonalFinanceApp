@@ -56,6 +56,10 @@ const BudgetScreen = () => {
         isError: isTransactionsError,
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const expensesTransactions = useFilteredTransactions(transactions ?? [], {
+        type: TransactionType.EXPENSE,
+        recurring: false,
+    });
     const selectedYearExpenseTransactions = useFilteredTransactions(transactions ?? [], {
         type: TransactionType.EXPENSE,
         recurring: false,
@@ -103,38 +107,29 @@ const BudgetScreen = () => {
         }
     });
 
-    // Filter expenses from transactions
-    const expenses = transactions ? transactions.filter(transaction => transaction.type === TransactionType.EXPENSE) : [];
+    // Calculate total expenses and budgets per month for the selected year
+    const expensesAndBudgetsByMonth = (selectedYearExpenseTransactions: TransactionProps[], selectedYearBudgets: BudgetProps[]) => {
+        const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
 
-    const expensesAndBudgetsByMonth = (expenses: TransactionProps[], budgets: BudgetProps[]) => {
-        const months_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        const expenseTransactions = expenses.filter(expense => expense.type === TransactionType.EXPENSE);
+        const expenseTotalByMonth = selectedYearExpenseTransactions.reduce<Record<number, number>>((acc, t) => {
+            const month = new Date(t.date).getMonth() + 1;
+            acc[month] = (acc[month] || 0) + t.amount;      // Add transaction amount to the respective month
+            return acc;
+        }, {});
 
-        const expensesAndBudgetsByMonthArray = months_num.map((month) => {
-            const expenseTotalByMonth = expenseTransactions
-                .filter((t) => {
-                    if (!t.date) return false;
+        const budgetTotalByMonth = selectedYearBudgets.reduce<Record<number, number>>((acc, t) => {
+            const month = t.month;
+            acc[month] = (acc[month] || 0) + t.amount;      // Add budget amount to the respective month
+            return acc;
+        }, {});
 
-                    const transactionMonth = new Date(t.date.toString()).getMonth() + 1;
-                    return transactionMonth === month;
-                })
-                .reduce((sum, t) => sum + t.amount, 0);
+        const expensesAndBudgetsByMonth = months_num.map((month) => ({
+            month: month,
+            expensePerMonth: expenseTotalByMonth[month] || 0,
+            budgetPerMonth: budgetTotalByMonth[month] || 0,
+        }));
 
-            const budgetTotalByMonth = budgets
-                .filter((t) => {
-                    const budgetMonth = t.month;
-                    return budgetMonth === month;
-                })
-                .reduce((sum, t) => sum + t.amount, 0);
-
-            return {
-                month: month,
-                expensePerMonth: expenseTotalByMonth,
-                budgetPerMonth: budgetTotalByMonth,
-            };
-        });
-
-        return expensesAndBudgetsByMonthArray;
+        return expensesAndBudgetsByMonth;
     }
 
     const queryState = (
@@ -174,7 +169,7 @@ const BudgetScreen = () => {
                         </TouchableOpacity>
                     </HStack>
 
-                    {expenses ? <VStack
+                    {(selectedYearExpenseTransactions.length > 0 || selectedYearBudgets.length > 0) ? <VStack
                         style={{
                             flex: 1,
                         }}
@@ -243,8 +238,8 @@ const BudgetScreen = () => {
                     margin: 10,
                 }}>
                     {budgets && EXPENSE_CATEGORIES.map((category) => {
-                        const expense = (expenses as TransactionProps[]).find(transaction => transaction.category === category);
-                        const budget = (budgets as BudgetProps[]).find(budget => budget.category === category);
+                        const expense = selectedYearExpenseTransactions.find(transaction => transaction.category === category);
+                        const budget = budgets.find(budget => budget.category === category);
                         const progress = (expense?.amount || 0) / (budget?.amount || 1) * 100; // Calculate progress as a percentage
 
                         return (
