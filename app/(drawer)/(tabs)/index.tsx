@@ -36,6 +36,9 @@ const App = () => {
     isRefetching,
     refetch
   } = useTransactions();
+  const nonRecurringTransactions = useFilteredTransactions(transactions ?? [], {
+    recurring: false,
+  });
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
   const recurringTransactionsFromLastOpen = useFilteredTransactions(transactions ?? [], {
     recurring: true,
@@ -144,7 +147,7 @@ const App = () => {
   // Calculate the total amount based on transaction type and category
   const TransactionBreakdown = ({ type }: { type: 'expense' | 'income' }) => {
     const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-    const transactionsByType = (transactions as TransactionProps[]).filter((transaction) => transaction.type === type);
+    const transactionsByType = nonRecurringTransactions.filter((transaction) => transaction.type === type);
     const grandTotal = transactionsByType.reduce((sum, t) => sum + t.amount, 0);
 
     const transactionBreakdownByType = categories.map((category) => {
@@ -256,7 +259,7 @@ const App = () => {
       }}>
         {transactions ?
           <PolarChart
-            data={filterTransactions(transactions as TransactionProps[], transactionType)}
+            data={filterTransactions(nonRecurringTransactions, transactionType)}
             labelKey={"label"}
             valueKey={"value"}
             colorKey={"color"}
