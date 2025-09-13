@@ -49,6 +49,10 @@ const GoalsScreen = () => {
         startDate: new Date(selectedYear, 0, 1),
         endDate: new Date(selectedYear, 11, 31),
     });
+    const expenseTransactions = useFilteredTransactions(transactions ?? [], {
+        type: TransactionType.EXPENSE,
+        recurring: false,
+    });
     const incomeTransactions = useFilteredTransactions(transactions ?? [], {
         type: TransactionType.INCOME,
         recurring: false,
@@ -68,16 +72,15 @@ const GoalsScreen = () => {
                 : new Date(now.getFullYear() + 1, 0, 0),                                            // Last day of current year
     });
 
-    const calculateSavingsGoalProgress = (transactions: TransactionProps[]) => {
-        const expenseTotal = transactions
-            .filter(transaction => transaction.type === TransactionType.EXPENSE)
-            .reduce((sum, transaction) => sum + transaction.amount, 0);
-        const incomeTotal = transactions
-            .filter(transaction => transaction.type === TransactionType.INCOME)
-            .reduce((sum, transaction) => sum + transaction.amount, 0);
+    // Calculate savings goal progress
+    // savings goal progress = (total income - total expenses) / target savings amount
+    const calculateSavingsGoalProgress = () => {
+        if (expenseTransactions.length === 0 || incomeTransactions.length === 0 || !goals) return 0;
+        const expenseTotal = expenseTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+        const incomeTotal = incomeTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
 
         let progress = 0;
-        if (goals?.savings && goals.savings.amount) {        // Savings goal
+        if (goals.savings.date && goals.savings.amount) {         // If savings goal is set
             const savingsGoalAmount = Number(goals.savings.amount) || 0;
             if (savingsGoalAmount == 0) return;   // Prevent division by zero
             progress = (incomeTotal - expenseTotal) / savingsGoalAmount;
@@ -154,13 +157,15 @@ const GoalsScreen = () => {
     useEffect(() => {
         if (transactions) {
             // Calculate goals progress
-            calculateSavingsGoalProgress(transactions as TransactionProps[]);
-            if (incomeTransactions && (goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear)) {
+            if (goals?.savings.date && goals?.savings.amount) {
+                calculateSavingsGoalProgress();
+            }
+            if (goals?.income.perDay || goals?.income.perMonth || goals?.income.perYear) {
                 calculateIncomeGoalProgress(incomeProgressMode);
             }
             // Calculate current savings rate
             const currentSavingsTotal = getSavingsPerMonth(transactions)[new Date().getMonth()].savings;
-            const currentIncomeTotal = getIncomeByPeriod(transactions.filter(t => t.type === TransactionType.INCOME), 'month')[new Date().getMonth()].income;
+            const currentIncomeTotal = getIncomeByPeriod(incomeTransactions, 'month')[new Date().getMonth()].income;
             const currentSavingsRate = currentIncomeTotal === 0 ? 0 : (currentSavingsTotal / currentIncomeTotal * 100);
             setCurrentSavingsRate(currentSavingsRate);
         }
@@ -227,7 +232,6 @@ const GoalsScreen = () => {
                 return acc;
             }, {});
         }
-        console.log(`Income by ${period}: `, transactionByPeriodArray);
 
         const period_num = period === 'day' ? days_num : period === 'year' ? years_num : months_num;
         transactionByPeriodArray = period_num.map(period => ({
