@@ -6,10 +6,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
 import { Button } from '@/components/ui/button';
+import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
@@ -44,6 +46,7 @@ const ScanScreen = () => {
     const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
     const [permissionsChecked, setPermissionsChecked] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [selectedMode, setSelectedMode] = useState<'receipt' | 'online_shopping'>('receipt');
 
     const checkPermissions = async () => {
         try {
@@ -96,11 +99,17 @@ const ScanScreen = () => {
         }
 
         const formData = new FormData();
+        formData.append('image_type', selectedMode);
         formData.append('image', {
             uri: selectedImage,
-            name: 'receipt.jpg',
+            name: 'image.jpg',
             type: 'image/jpeg',
         } as any);
+
+        // Choose the endpoint based on the selected mode
+        const endpoint = (selectedMode === 'online_shopping')
+                ? `${process.env.EXPO_PUBLIC_SCAN_IMAGE_API_URL}/online-shopping`
+                : `${process.env.EXPO_PUBLIC_SCAN_IMAGE_API_URL}/receipt`;
 
         setLoading(true);
         let didTimeout = false;
@@ -112,7 +121,7 @@ const ScanScreen = () => {
             Alert.alert('Error', 'The request timed out. Please try again.');
         }, 30000);
 
-        await fetch(`${process.env.EXPO_PUBLIC_SCAN_IMAGE_API_URL}`, {
+        await fetch(endpoint, {
             method: 'POST',
             body: formData,
         })
@@ -184,7 +193,7 @@ const ScanScreen = () => {
                 </View>
             )}
 
-            <VStack space='md' style={{
+            <VStack space='xs' style={{
                 flex: 1,
                 backgroundColor: '#fff',
             }}>
@@ -199,12 +208,41 @@ const ScanScreen = () => {
                         fontSize: 20,
                         fontWeight: 'bold',
                     }}>Scan or Upload Image</Text>
+                    <HStack style={styles.centered}>
+                        <Text style={[styles.text, {
+                            fontWeight: 'bold',
+                        }]}>Mode:</Text>
+                        <Dropdown
+                            data={[
+                                { label: 'Receipt', value: 'receipt' },
+                                { label: 'Online Shopping', value: 'online_shopping' },
+                            ]}
+                            labelField="label"
+                            valueField="value"
+                            value={selectedMode}
+                            onChange={(item) => setSelectedMode(item.value)}
+                            style={{
+                                marginTop: 5,
+                                marginLeft: 5,
+                                padding: 5,
+                                borderWidth: 1,
+                                borderRadius: 10,
+                                minWidth: 150,
+                            }}
+                            selectedTextStyle={{
+                                textAlign: 'center',
+                            }}
+                            itemTextStyle={[styles.text, {
+                                textAlign: 'center',
+                            }]}
+                        />
+                    </HStack>
                 </View>
                 <View
                     className='justify-center self-center border'
                     style={{
                         width: '80%',
-                        height: '70%',
+                        height: '65%',
                     }}
                 >
                     {selectedImage
