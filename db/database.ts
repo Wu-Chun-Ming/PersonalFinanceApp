@@ -78,17 +78,6 @@ export const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => 
                 PRIMARY KEY (year, month, category)
             );
         `);
-        // Initialize budgets table with default budgets for current year andmonth
-        const currentYear = new Date().getFullYear();
-        const currentMonth = new Date().getMonth() + 1;
-        const values = EXPENSE_CATEGORIES.flatMap((category) => [
-            currentYear, currentMonth, category, 0.0
-        ]);
-        const placeholders = EXPENSE_CATEGORIES.map(() => '(?, ?, ?, ?)').join(', ');
-        await db.runAsync(`
-            INSERT OR REPLACE INTO budgets (year, month, category, amount) VALUES ${placeholders}`,
-            values
-        );
     } catch (error) {
         throw new Error(`Error creating the database or table: ${(error as Error).message}`);
     }
@@ -295,12 +284,14 @@ export const updateBudget = async (amount: number, { year, month, category }: { 
         const db = dbInstance || (await getDatabaseInstance());
 
         // Update the budget
-        const result = await db.runAsync(
-            'UPDATE budgets SET amount = ? WHERE year = ? AND month = ? AND category = ?',
-            amount,
+        const result = await db.runAsync(`
+            INSERT INTO budgets (year, month, category, amount) VALUES (?, ?, ?, ?) 
+            ON DUPLICATE KEY UPDATE amount = VALUES(amount);
+            `,
             year,
             month,
             category,
+            amount
         );
 
         // Successful update
