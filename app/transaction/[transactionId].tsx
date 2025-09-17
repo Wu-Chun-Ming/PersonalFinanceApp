@@ -149,6 +149,10 @@ const TransactionManager = () => {
                     // Remove current scanned data from pending transactions
                     if (scannedData && scannedData[scanNum]) {
                         scannedData.splice(scanNum, 1);
+                        if (scannedData.length == 0) {
+                            router.dismiss(1);
+                            router.replace('/');
+                        }
                     }
                     break;
                 case 'update':
@@ -416,13 +420,12 @@ const TransactionManager = () => {
                                             formik.values.recurring_frequency.frequency === ''
                                             || formik.values.recurring_frequency.frequency === RecurringFrequency.DAILY
                                             || formik.values.recurring_frequency.frequency === RecurringFrequency.WEEKLY
-                                            || (transaction && formik.values.recurring_frequency.time.date === '')
                                         }
                                         placeholder='Select date'
                                         scrollViewStyle={{ maxHeight: 200, overflow: 'scroll' }}
                                     >
                                         {(
-                                            Array.from({ length: 31 }, (_, i) => [`${i + 1} ${["st", "nd", "rd"][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ["st", "nd", "rd"][(i + 1) % 10 - 1] : "th"}`, i + 1])
+                                            Array.from({ length: 31 }, (_, i) => [`${i + 1}${["st", "nd", "rd"][((i + 1) % 10) - 1] && ![11, 12, 13].includes(i + 1) ? ["st", "nd", "rd"][(i + 1) % 10 - 1] : "th"}`, i + 1])
                                         ).map(
                                             (label) => (
                                                 <SelectItem
@@ -457,7 +460,7 @@ const TransactionManager = () => {
                         errorText={formik.errors.type}
                     >
                         <SelectGroup
-                            initialLabel={transaction.type[0].toUpperCase() + transaction.type.slice(1)}
+                            initialLabel={formik.values.type[0].toUpperCase() + formik.values.type.slice(1)}
                             selectedValue={formik.values.type}
                             onValueChange={(value) => {
                                 setTransactionType(value as TransactionType);
@@ -542,6 +545,7 @@ const TransactionManager = () => {
                             onPress={() => {
                                 formik.setValues({
                                     ...formik.values,
+                                    date: formik.values.date ? '' : new Date().toString(),
                                     recurring: !formik.values.recurring,
                                 });
                             }}
@@ -556,7 +560,7 @@ const TransactionManager = () => {
                                     : <MaterialCommunityIcons name="repeat-off" size={65} color="black" />}
                             </View>
                         </TouchableNativeFeedback>
-                        {transactionType === TransactionType.EXPENSE && (
+                        {transactionType === TransactionType.EXPENSE && !formik.values.recurring && (
                             <TouchableNativeFeedback
                                 onPress={() => router.navigate('/transaction/scan' as Href)}
                             >
@@ -610,7 +614,7 @@ const TransactionManager = () => {
                         </View>
                     )}
                 </VStack>
-            </ScrollView >
+            </ScrollView>
         </SafeAreaView>
     );
 };
