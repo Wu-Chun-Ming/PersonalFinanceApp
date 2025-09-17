@@ -51,10 +51,10 @@ export const useFilteredTransactions = (
                 (!minAmount || transaction.amount >= minAmount)
                 && (!maxAmount || transaction.amount < maxAmount)
             )
-            && (!recurring || transaction.recurring === recurring)
+            && (recurring === undefined || transaction.recurring === recurring)
             && (!frequency || transaction.recurring_frequency?.frequency === frequency)
         );
-    }, [transactions, date, startDate, endDate, type, category, amount, recurring, frequency]);
+    }, [transactions, date, startDate, endDate, type, category, amount, minAmount, maxAmount, recurring, frequency]);
 
     return filteredTransactions;
 };
