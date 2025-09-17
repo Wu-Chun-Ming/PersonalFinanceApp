@@ -119,7 +119,7 @@ const ScanScreen = () => {
             didTimeout = true;
             setLoading(false);
             Alert.alert('Error', 'The request timed out. Please try again.');
-        }, 30000);
+        }, 40000);
 
         await fetch(endpoint, {
             method: 'POST',
@@ -149,12 +149,10 @@ const ScanScreen = () => {
                     },
                     currency: 'MYR',
                 })));
-                // Multiple items detected
-                if (lineItems.length > 1) {
+                // If items detected
+                if (lineItems.length > 0) {
                     router.dismiss(1);
                     router.replace(`/transaction/listing`);
-                } else {        // Single item detected
-                    router.back();
                 }
             })
             .catch((error) => {
