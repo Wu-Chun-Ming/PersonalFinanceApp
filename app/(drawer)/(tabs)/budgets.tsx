@@ -69,8 +69,8 @@ const BudgetScreen = () => {
         startDate: new Date(selectedYear, selectedMonth - 1, 1),
         endDate: new Date(selectedYear, selectedMonth, 0),
     });
-    const selectedYearBudgets = (budgets as BudgetProps[])?.filter(budget => budget.year === selectedYear);
-    const selectedMonthBudgets = (budgets as BudgetProps[])?.filter(budget => budget.year === selectedYear && budget.month === selectedMonth);
+    const selectedYearBudgets = (budgets ?? [])?.filter(budget => budget.year === selectedYear);
+    const selectedMonthBudgets = (budgets ?? [])?.filter(budget => budget.year === selectedYear && budget.month === selectedMonth);
     const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
     const updateMutation = useUpdateBudget();
