@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useFormik } from 'formik';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Yup from 'yup';
@@ -86,21 +86,15 @@ const TransactionListScreen = () => {
         },
         validationSchema: validationSchema,
         onSubmit: (values) => {
-            setFilteredTransactions(useFilteredTransactions(transactions ?? [], {
-                date: values.date ? new Date(values.date) : undefined,
-                type: values.type ? values.type as TransactionType : undefined,
-                category: values.category ? values.category as (typeof EXPENSE_CATEGORIES[number] | typeof INCOME_CATEGORIES[number]) : undefined,
-                recurring: values.recurring ? (values.recurring === 'true' ? true : false) : undefined,
-            }));
         }
     });
 
-    const [filteredTransactions, setFilteredTransactions] = useState(useFilteredTransactions(transactions ?? [], {
+    const filteredTransactions = useFilteredTransactions(transactions ?? [], {
         date: formik.values.date ? new Date(formik.values.date) : undefined,
         type: formik.values.type ? formik.values.type as TransactionType : undefined,
         category: formik.values.category ? formik.values.category as (typeof EXPENSE_CATEGORIES[number] | typeof INCOME_CATEGORIES[number]) : undefined,
         recurring: formik.values.recurring ? (formik.values.recurring === 'true' ? true : false) : undefined,
-    }));
+    });
 
     useEffect(() => {
         if (scannedData && scannedData.length > 0) {
