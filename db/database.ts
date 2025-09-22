@@ -285,8 +285,7 @@ export const updateBudget = async (amount: number, { year, month, category }: { 
 
         // Update the budget
         const result = await db.runAsync(`
-            INSERT INTO budgets (year, month, category, amount) VALUES (?, ?, ?, ?) 
-            ON DUPLICATE KEY UPDATE amount = VALUES(amount);
+            INSERT INTO budgets (year, month, category, amount) VALUES (?, ?, ?, ?) ON CONFLICT(year, month, category) DO UPDATE SET amount = excluded.amount;
             `,
             year,
             month,
