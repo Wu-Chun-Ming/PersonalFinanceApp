@@ -109,7 +109,7 @@ describe('useUpdateBudget', () => {
 				action: 'info',
 				messages: 'Failed to update budget',
 			});
-			expect(invalidateSpy).not.toHaveBeenCalled();
+			expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['budgets'] });
 		});
 	});
 

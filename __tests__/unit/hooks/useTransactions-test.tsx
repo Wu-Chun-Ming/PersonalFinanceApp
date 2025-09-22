@@ -165,7 +165,7 @@ describe('useCreateTransaction', () => {
 				action: 'info',
 				messages: 'Failed to create transaction',
 			});
-			expect(invalidateSpy).not.toHaveBeenCalled();
+			expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['transactions'] });
 		});
 	});
 
@@ -246,7 +246,8 @@ describe('useUpdateTransaction', () => {
 				action: 'info',
 				messages: 'Failed to update transaction',
 			});
-			expect(invalidateSpy).not.toHaveBeenCalled();
+			expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['transaction', 1] });
+			expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['transactions'] });
 		});
 	});
 
@@ -305,7 +306,7 @@ describe('useDeleteTransaction', () => {
 		});
 	});
 
-	test("should fail to edit transaction", async () => {
+	test("should fail to delete transaction", async () => {
 		const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 		const mockShowToast = jest.fn();
 		(useShowToast as jest.Mock).mockReturnValue(mockShowToast);
@@ -324,7 +325,7 @@ describe('useDeleteTransaction', () => {
 				action: 'info',
 				messages: 'Failed to delete transaction',
 			});
-			expect(invalidateSpy).not.toHaveBeenCalled();
+			expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['transactions'] });
 		});
 	});
 
