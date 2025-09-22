@@ -97,7 +97,7 @@ const BudgetScreen = () => {
             year: (new Date().getFullYear()).toString(),
             month: (new Date().getMonth() + 1).toString(),
             category: '',
-            amount: '',
+            amount: '0',
         },
         validationSchema: validationSchema,
         onSubmit: (values) => {
@@ -270,7 +270,7 @@ const BudgetScreen = () => {
                 <View style={{
                     margin: 10,
                 }}>
-                    {budgets && EXPENSE_CATEGORIES.map((category) => {
+                    {EXPENSE_CATEGORIES.map((category) => {
                         const expenseTotal = selectedMonthExpenseTransactions
                             .filter(transaction => transaction.category === category)
                             .reduce((sum, transaction) => sum + transaction.amount, 0);
