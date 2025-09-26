@@ -131,7 +131,7 @@ const TransactionListScreen = () => {
             backgroundColor: '#25292e',
         }} edges={['bottom']}>
             {/* Button to toggle filter visibility */}
-            <Button
+            {(scannedData && scannedData.length === 0) && <Button
                 onPress={() => setIsFiltersCollapsed(prevState => !prevState)}
                 style={{
                     margin: 5,
@@ -144,7 +144,7 @@ const TransactionListScreen = () => {
                 }]}>
                     {isFiltersCollapsed ? 'Show Filters' : 'Hide Filters'}
                 </Text>
-            </Button>
+            </Button>}
 
             {/* Date Picker Modal */}
             {dateModalVisible && <DateTimePicker
@@ -419,63 +419,65 @@ const TransactionListScreen = () => {
                 backgroundColor: '#fff',
             }}>
                 <VStack>
-                    {transactions && ((scannedData && scannedData.length > 0 ? scannedData : filteredTransactions))
-                        .map((item, index) => {
-                            return (
-                                <TouchableOpacity
+                    {filteredTransactions && ((scannedData && scannedData.length > 0)
+                        ? scannedData
+                        : filteredTransactions
+                    ).map((item, index) => {
+                        return (
+                            <TouchableOpacity
+                                key={index}
+                                onPress={(scannedData && scannedData.length > 0)
+                                    ? () => router.navigate(`/transaction/new?scanNum=${index}` as Href)
+                                    : () => router.navigate(`/transaction/${item.id}`)
+                                }
+                                style={{
+                                    backgroundColor: CATEGORY_COLORS[item.category],
+                                }}
+                            >
+                                <HStack
                                     key={index}
-                                    onPress={(scannedData && scannedData.length > 0)
-                                        ? () => router.navigate(`/transaction/new?scanNum=${index}` as Href)
-                                        : () => router.navigate(`/transaction/${item.id}`)
-                                    }
+                                    className='justify-between'
                                     style={{
-                                        backgroundColor: CATEGORY_COLORS[item.category],
+                                        marginHorizontal: 20,
+                                        marginVertical: 20,
                                     }}
                                 >
-                                    <HStack
-                                        key={index}
-                                        className='justify-between'
+                                    <VStack
                                         style={{
-                                            marginHorizontal: 20,
-                                            marginVertical: 20,
+                                            width: '30%',
                                         }}
                                     >
-                                        <VStack
-                                            style={{
-                                                width: (scannedData && scannedData.length > 0 ? '60%' : '30%'),
-                                            }}
-                                        >
-                                            <View>
-                                                <Text style={styles.text}>{(item.date && dayjs(item.date).format('YYYY-MM-DD')) || (item.recurring_frequency && item.recurring_frequency.frequency)}</Text>
-                                            </View>
-                                            <View
-                                                style={{
-                                                    alignSelf: 'flex-start',
-                                                }}>
-                                                <Text style={styles.text}>{item.description}</Text>
-                                            </View>
-                                        </VStack>
-
-                                        <View style={[styles.centered, {
-                                            borderRadius: 8,
-                                            padding: 10,
-                                        }]}>
-                                            <Text style={styles.text}>{item.category}</Text>
+                                        <View>
+                                            <Text style={styles.text}>{(item.date && dayjs(item.date).format('YYYY-MM-DD')) || (item.recurring_frequency && item.recurring_frequency.frequency)}</Text>
                                         </View>
-
                                         <View
-                                            style={[styles.centered, {
-                                                width: '30%',
-                                                backgroundColor: TRANSACTION_TYPE_COLORS[item.type],
-                                                borderRadius: 8,
-                                            }]}
-                                        >
-                                            <Text style={styles.text}>{item.type === TransactionType.EXPENSE ? '-' : '+'} RM {item.amount.toFixed(2)}</Text>
+                                            style={{
+                                                alignSelf: 'flex-start',
+                                            }}>
+                                            <Text style={styles.text}>{item.description}</Text>
                                         </View>
-                                    </HStack>
-                                </TouchableOpacity>
-                            );
-                        })}
+                                    </VStack>
+
+                                    <View style={[styles.centered, {
+                                        borderRadius: 8,
+                                        padding: 10,
+                                    }]}>
+                                        <Text style={styles.text}>{item.category}</Text>
+                                    </View>
+
+                                    <View
+                                        style={[styles.centered, {
+                                            width: '30%',
+                                            backgroundColor: TRANSACTION_TYPE_COLORS[item.type],
+                                            borderRadius: 8,
+                                        }]}
+                                    >
+                                        <Text style={styles.text}>{item.type === TransactionType.EXPENSE ? '-' : '+'} RM {item.amount.toFixed(2)}</Text>
+                                    </View>
+                                </HStack>
+                            </TouchableOpacity>
+                        );
+                    })}
                 </VStack>
             </ScrollView>
         </SafeAreaView>
