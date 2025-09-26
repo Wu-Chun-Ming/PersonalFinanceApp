@@ -149,7 +149,7 @@ const TransactionManager = () => {
                     // Remove current scanned data from pending transactions
                     if (scannedData && scannedData[scanNum]) {
                         scannedData.splice(scanNum, 1);
-                        if (scannedData.length == 0) {
+                        if (scannedData.length === 0) {
                             router.dismiss(1);
                             router.replace('/');
                         }
@@ -269,7 +269,7 @@ const TransactionManager = () => {
                                 marginHorizontal: 20,
                                 backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
                                 borderRadius: 20,
-                                borderWidth: transactionType == TransactionType.INCOME ? 3 : 0,
+                                borderWidth: transactionType === TransactionType.INCOME ? 3 : 0,
                             }]}>
                                 <Text style={[styles.text, {
                                     fontWeight: 'bold',

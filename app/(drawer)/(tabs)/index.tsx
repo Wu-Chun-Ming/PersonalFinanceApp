@@ -171,7 +171,7 @@ const App = () => {
     return (
       <VStack>
         {transactionBreakdownByType.map((item, index) => {
-          if (item.total != 0) {
+          if (item.total !== 0) {
             return (
               <HStack
                 key={index}

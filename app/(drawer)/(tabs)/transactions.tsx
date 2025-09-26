@@ -68,7 +68,7 @@ const TransactionScreen = () => {
                     .sort((a, b) => b.total - a.total)  // Sort in descending order by 'amount'
                     .slice(0, 5)  // Limit to the top 5 categories
                     .map((item, index) => {
-                        if (item.total != 0) {
+                        if (item.total !== 0) {
                             return (
                                 <HStack
                                     key={index}

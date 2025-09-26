@@ -82,7 +82,7 @@ const GoalsScreen = () => {
         let progress = 0;
         if (goals.savings.date && goals.savings.amount) {         // If savings goal is set
             const savingsGoalAmount = Number(goals.savings.amount) || 0;
-            if (savingsGoalAmount == 0) return;   // Prevent division by zero
+            if (savingsGoalAmount === 0) return;   // Prevent division by zero
             progress = (incomeTotal - expenseTotal) / savingsGoalAmount;
         }
         setSavingsProgress(progress);
@@ -118,7 +118,7 @@ const GoalsScreen = () => {
 
             if (goals.income.perDay) {
                 const incomeGoalPerDay = Number(goals.income.perDay) || 0;
-                if (incomeGoalPerDay == 0) return;   // Prevent division by zero
+                if (incomeGoalPerDay === 0) return;   // Prevent division by zero
                 progress = avgIncomeByPeriod / incomeGoalPerDay;
             }
         } else if (period === 'year') {
@@ -130,7 +130,7 @@ const GoalsScreen = () => {
 
             if (goals.income.perYear) {
                 const incomeGoalPerYear = Number(goals.income.perYear) || 0;
-                if (incomeGoalPerYear == 0) return;   // Prevent division by zero
+                if (incomeGoalPerYear === 0) return;   // Prevent division by zero
                 progress = avgIncomeByPeriod / incomeGoalPerYear;
             }
         } else {
@@ -142,7 +142,7 @@ const GoalsScreen = () => {
 
             if (goals.income.perMonth) {
                 const incomeGoalPerMonth = Number(goals.income.perMonth) || 0;
-                if (incomeGoalPerMonth == 0) return;   // Prevent division by zero
+                if (incomeGoalPerMonth === 0) return;   // Prevent division by zero
                 progress = avgIncomeByPeriod / incomeGoalPerMonth;
             }
         }
