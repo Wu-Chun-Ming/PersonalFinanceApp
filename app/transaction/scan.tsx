@@ -263,7 +263,6 @@ const ScanScreen = () => {
                 >
                     <Button className='h-auto flex-1' size="md" variant="link" action="secondary" onPress={async () => {
                         await pickImageAsync();
-                        scanImage();
                     }} >
                         <Fontisto name="picture" size={55} color="black" />
                     </Button>
