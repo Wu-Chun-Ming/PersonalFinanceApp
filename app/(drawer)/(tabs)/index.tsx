@@ -127,40 +127,43 @@ const App = () => {
   const filterTransactions = (transactions: TransactionProps[], type: TransactionType) => {
     const categories = type === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
     const transactionsByType = transactions.filter((transaction) => transaction.type === type);
+    const totalsMap: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
 
-    const transactionByCategoryArray = categories.map((category) => {
-      // Calculate total amount for each category
-      const total = transactionsByType
-        .filter((t) => t.category === category)
-        .reduce((sum, t) => sum + t.amount, 0);
+    // Calculate totals for each category
+    for (const transaction of transactionsByType) {
+      const category = transaction.category;
+      if (!totalsMap[category]) {
+        totalsMap[category] = 0;
+      }
+      totalsMap[category] += transaction.amount;
+    }
 
-      return {
-        label: category,
-        value: total,
-        color: CATEGORY_COLORS[category],
-      };
-    });
-
-    return transactionByCategoryArray;
+    return categories.map(category => ({
+      label: category,
+      value: totalsMap[category] || 0,
+      color: CATEGORY_COLORS[category],
+    }));
   }
 
   // Calculate the total amount based on transaction type and category
   const TransactionBreakdown = ({ type }: { type: 'expense' | 'income' }) => {
     const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
     const transactionsByType = nonRecurringTransactions.filter((transaction) => transaction.type === type);
+
     const grandTotal = transactionsByType.reduce((sum, t) => sum + t.amount, 0);
+    // Calculate total amount for each category
+    const transactionTotalByCategory = transactionsByType.reduce<Record<string, number>>((acc, t) => {
+      acc[t.category] = (acc[t.category] || 0) + t.amount;      // Add transaction amount to the respective category
+      return acc;
+    }, {});
 
     const transactionBreakdownByType = categories.map((category) => {
-      // Calculate total amount for each category
-      const total = transactionsByType
-        .filter((t) => t.category === category)
-        .reduce((sum, t) => sum + t.amount, 0);
       // Calculate percentage of total
-      const percentage = grandTotal ? (total / grandTotal) * 100 : 0;
+      const percentage = grandTotal ? (transactionTotalByCategory[category] / grandTotal) * 100 : 0;
 
       return {
         category,
-        total,
+        total: transactionTotalByCategory[category] || 0,
         percentage,
       };
     });

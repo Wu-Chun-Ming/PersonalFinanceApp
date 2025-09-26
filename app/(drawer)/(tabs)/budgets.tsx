@@ -71,6 +71,14 @@ const BudgetScreen = () => {
     });
     const selectedYearBudgets = (budgets ?? [])?.filter(budget => budget.year === selectedYear);
     const selectedMonthBudgets = (budgets ?? [])?.filter(budget => budget.year === selectedYear && budget.month === selectedMonth);
+    const expenseTotalsByCategory = selectedMonthExpenseTransactions.reduce<Record<string, number>>((acc, transaction) => {
+        acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
+        return acc;
+    }, {});
+    const budgetByCategory = selectedMonthBudgets.reduce<Record<string, BudgetProps>>((acc, budget) => {
+        acc[budget.category] = budget;
+        return acc;
+    }, {});
     const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
     const updateMutation = useUpdateBudget();
@@ -271,10 +279,8 @@ const BudgetScreen = () => {
                     margin: 10,
                 }}>
                     {EXPENSE_CATEGORIES.map((category) => {
-                        const expenseTotal = selectedMonthExpenseTransactions
-                            .filter(transaction => transaction.category === category)
-                            .reduce((sum, transaction) => sum + transaction.amount, 0);
-                        const budget = selectedMonthBudgets.find(budget => budget.category === category);
+                        const expenseTotal = expenseTotalsByCategory[category] || 0;
+                        const budget = budgetByCategory[category];
                         const progress = (expenseTotal) / (budget?.amount || 1) * 100; // Calculate progress as a percentage
 
                         return (

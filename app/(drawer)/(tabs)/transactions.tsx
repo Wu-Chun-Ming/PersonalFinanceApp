@@ -1,7 +1,7 @@
 import { AntDesign } from '@expo/vector-icons';
 import { useFont } from '@shopify/react-native-skia';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { BarGroup, CartesianChart } from 'victory-native';
 
@@ -31,27 +31,32 @@ const TransactionScreen = () => {
         isRefetching,
         refetch
     } = useTransactions();
-    const [expenseTotal, setExpenseTotal] = useState<number>(0);
-    const [incomeTotal, setIncomeTotal] = useState<number>(0);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const selectedYearTransactions = useFilteredTransactions(transactions ?? [], {
+        recurring: false,
         startDate: new Date(selectedYear, 0, 1),
         endDate: new Date(selectedYear, 11, 31),
     });
 
     // Calculate the total amount based on transaction type and category
-    const getTransactionBreakdownByType = (categories: TransactionCategory[], transactionType: TransactionType) => (
-        categories.map((category) => {
-            const total = (transactions as TransactionProps[]).filter(transaction => transaction.type === transactionType)
-                .filter((transaction) => transaction.category === category)
-                .reduce((sum, transaction) => sum + transaction.amount, 0);
+    const getTransactionBreakdownByType = (selectedYearTransactions: TransactionProps[], categories: TransactionCategory[], transactionType: TransactionType) => {
+        const filteredTransactions = selectedYearTransactions.filter(transaction => transaction.type === transactionType);
+        const totalsMap: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
 
-            return {
-                category,
-                total,
-            };
-        })
-    );
+        // Calculate totals for each category
+        for (const transaction of filteredTransactions) {
+            const category = transaction.category;
+            if (!totalsMap[category]) {
+                totalsMap[category] = 0;
+            }
+            totalsMap[category] += transaction.amount;
+        }
+
+        return categories.map(category => ({
+            category,
+            total: totalsMap[category] || 0,
+        }));
+    };
 
     const TransactionsListing = ({ type }: { type: "expense" | "income" }) => {
         const transactionType = type === 'expense' ? TransactionType.EXPENSE : TransactionType.INCOME;
@@ -59,7 +64,7 @@ const TransactionScreen = () => {
 
         return (
             <VStack>
-                {(getTransactionBreakdownByType(categories, transactionType))
+                {(getTransactionBreakdownByType(selectedYearTransactions, categories, transactionType))
                     .sort((a, b) => b.total - a.total)  // Sort in descending order by 'amount'
                     .slice(0, 5)  // Limit to the top 5 categories
                     .map((item, index) => {
@@ -106,46 +111,31 @@ const TransactionScreen = () => {
     };
 
     const transactionsByMonth = (selectedYearTransactions: TransactionProps[]) => {
-        const months_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        const expenseTransactions = selectedYearTransactions.filter(transaction => transaction.type === TransactionType.EXPENSE);
-        const incomeTransactions = selectedYearTransactions.filter(transaction => transaction.type === TransactionType.INCOME);
+        const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
+        const { incomeTotalByMonth, expenseTotalByMonth } = selectedYearTransactions.reduce<{
+            incomeTotalByMonth: Record<number, number>,
+            expenseTotalByMonth: Record<number, number>,
+        }>((acc, transaction) => {
+            const month = new Date(transaction.date).getMonth() + 1;
+            const amount = transaction.amount;
 
-        const transactionByMonthArray = months_num.map((month) => {
-            const expenseTotalByMonth = expenseTransactions
-                .filter((transaction) => {
-                    if (!transaction.date) return false;
+            if (transaction.type === TransactionType.INCOME) {
+                acc.incomeTotalByMonth[month] = (acc.incomeTotalByMonth[month] || 0) + amount;
+            } else if (transaction.type === TransactionType.EXPENSE) {
+                acc.expenseTotalByMonth[month] = (acc.expenseTotalByMonth[month] || 0) + amount;
+            }
 
-                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
-                    return transactionMonth === month;
-                })
-                .reduce((sum, transaction) => sum + transaction.amount, 0);
+            return acc;
+        }, { incomeTotalByMonth: {}, expenseTotalByMonth: {} });
 
-            const incomeTotalByMonth = incomeTransactions
-                .filter((transaction) => {
-                    if (!transaction.date) return false;
-
-                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
-                    return transactionMonth === month;
-                })
-                .reduce((sum, transaction) => sum + transaction.amount, 0);
-
-            return {
-                month: month,
-                expensePerMonth: expenseTotalByMonth,
-                incomePerMonth: incomeTotalByMonth,
-            };
-        });
+        const transactionByMonthArray = months_num.map((month) => ({
+            month: month,
+            expensePerMonth: expenseTotalByMonth[month] || 0,
+            incomePerMonth: incomeTotalByMonth[month] || 0,
+        }));
 
         return transactionByMonthArray;
     }
-
-    useEffect(() => {
-        // Calculate total for expense and income categories
-        if (transactions) {
-            setExpenseTotal(getTransactionBreakdownByType(EXPENSE_CATEGORIES, TransactionType.EXPENSE).reduce((sum, { total }) => sum + total, 0));
-            setIncomeTotal(getTransactionBreakdownByType(INCOME_CATEGORIES, TransactionType.INCOME).reduce((sum, { total }) => sum + total, 0));
-        }
-    }, [transactions]);
 
     const queryState = (
         <QueryState

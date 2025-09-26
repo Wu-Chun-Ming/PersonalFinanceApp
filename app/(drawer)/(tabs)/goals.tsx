@@ -168,35 +168,28 @@ const GoalsScreen = () => {
     }, [goals]);
 
     // Savings per month (savings = income - expenses)
-    const getSavingsPerMonth = (transactions: TransactionProps[]) => {
-        const months_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        const expenseTransactions = transactions.filter(transaction => transaction.type === TransactionType.EXPENSE);
-        const incomeTransactions = transactions.filter(transaction => transaction.type === TransactionType.INCOME);
+    const getSavingsPerMonth = (selectedYearTransactions: TransactionProps[]) => {
+        const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
+        const { incomeTotalByMonth, expenseTotalByMonth } = selectedYearTransactions.reduce<{
+            incomeTotalByMonth: Record<number, number>,
+            expenseTotalByMonth: Record<number, number>,
+        }>((acc, transaction) => {
+            const month = new Date(transaction.date).getMonth() + 1;
+            const amount = transaction.amount;
 
-        const transactionByMonthArray = months_num.map((month) => {
-            const expenseTotalByMonth = expenseTransactions
-                .filter((transaction) => {
-                    if (!transaction.date) return false;
+            if (transaction.type === TransactionType.INCOME) {
+                acc.incomeTotalByMonth[month] = (acc.incomeTotalByMonth[month] || 0) + amount;
+            } else if (transaction.type === TransactionType.EXPENSE) {
+                acc.expenseTotalByMonth[month] = (acc.expenseTotalByMonth[month] || 0) + amount;
+            }
 
-                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
-                    return transactionMonth === month;
-                })
-                .reduce((sum, transaction) => sum + transaction.amount, 0);
+            return acc;
+        }, { incomeTotalByMonth: {}, expenseTotalByMonth: {} });
 
-            const incomeTotalByMonth = incomeTransactions
-                .filter((transaction) => {
-                    if (!transaction.date) return false;
-
-                    const transactionMonth = new Date(transaction.date.toString()).getMonth() + 1;
-                    return transactionMonth === month;
-                })
-                .reduce((sum, transaction) => sum + transaction.amount, 0);
-
-            return {
-                month: month,
-                savings: incomeTotalByMonth - expenseTotalByMonth,
-            };
-        });
+        const transactionByMonthArray = months_num.map((month) => ({
+            month: month,
+            savings: (incomeTotalByMonth[month] || 0) - (expenseTotalByMonth[month] || 0),
+        }));
 
         return transactionByMonthArray;
     }
@@ -207,12 +200,12 @@ const GoalsScreen = () => {
         let incomeByPeriod: Record<number, number> = {};
 
         const days_num: number[] = Array.from({ length: 31 }, (_, i) => i + 1);
-        const months_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
         const years_num = Array.from({ length: 12 }, (_, i) => now.getFullYear() - 11 + i);
         if (period === 'day') {
             incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
                 const day = new Date(t.date).getDate();
-                acc[day] = (acc[day] || 0) + t.amount;      // Add transaction amount to the respective day based on current month
+                acc[day] = (acc[day] || 0) + t.amount;          // Add transaction amount to the respective day based on current month
                 return acc;
             }, {});
         } else if (period === 'year') {
