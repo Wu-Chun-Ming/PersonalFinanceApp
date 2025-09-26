@@ -474,7 +474,7 @@ const GoalsScreen = () => {
                         flex: 1,
                         width: '95%',
                     }}>
-                        {transactions && <CartesianChart
+                        {selectedPeriodIncomeTransactions && <CartesianChart
                             data={getIncomeByPeriod(selectedPeriodIncomeTransactions, incomeGraphMode)}
                             xKey="period"
                             xAxis={{

@@ -181,7 +181,10 @@ const BudgetScreen = () => {
                         </TouchableOpacity>
                     </HStack>
 
-                    {(selectedYearExpenseTransactions.length > 0 || selectedYearBudgets.length > 0) ? <VStack
+                    {(
+                        (selectedYearExpenseTransactions && selectedYearExpenseTransactions.length > 0)
+                        || (selectedYearBudgets && selectedYearBudgets.length > 0)
+                    ) ? <VStack
                         style={{
                             flex: 1,
                         }}

@@ -175,7 +175,7 @@ const TransactionScreen = () => {
                     width: '95%',
                     height: "100%",
                 }}>
-                    {transactions ? <VStack
+                    {(selectedYearTransactions && selectedYearTransactions.length > 0) ? <VStack
                         style={{
                             flex: 1,
                         }}
