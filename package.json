@@ -13,7 +13,7 @@
     "test:precommit": "jest --coverage=false --verbose",
     "test:unit": "jest --watch --coverage=false --verbose __tests__/unit",
     "testDebug": "jest -o --watch --coverage=false",
-    "testFinal": "jest --verbose",
+    "testFinal": "jest --verbose --forceExit",
     "testFinal:unit": "jest --verbose __tests__/unit --coverageDirectory=coverage/unit",
     "updateSnapshots": "jest -u --coverage=false"
   },
