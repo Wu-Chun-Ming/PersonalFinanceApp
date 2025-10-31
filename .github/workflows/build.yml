@@ -21,7 +21,6 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
             node_modules
           key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
@@ -40,14 +39,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+        # Restore Node Modules cache to avoid reinstalling dependencies
+      - name: Cache Node Modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: npm ci
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
@@ -61,6 +63,8 @@ jobs:
         with:
           path: |
             ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/daemon
             android/.cxx
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
