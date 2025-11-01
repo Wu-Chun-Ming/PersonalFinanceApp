@@ -42,14 +42,6 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      # Restore Node Modules cache to avoid reinstalling dependencies
-      - name: Cache Node Modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: node-${{ runner.os }}-
-
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
