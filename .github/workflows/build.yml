@@ -91,6 +91,19 @@ jobs:
           restore-keys: |
             app-native-${{ runner.os }}-
 
+      - name: Cache Native Build Outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            android/app/build/intermediates/cmake/release
+            android/app/build/intermediates/merged_native_libs
+            android/app/build/intermediates/stripped_native_libs
+            ~/.gradle/caches/modules-2
+            ~/.gradle/caches/transforms-3
+          key: native-libs-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cpp', '**/*.h', 'package-lock.json') }}
+          restore-keys: |
+            native-libs-${{ runner.os }}-
+
       - name: Cache Native Module .cxx
         uses: actions/cache@v4
         with:
@@ -117,6 +130,9 @@ jobs:
             "android/app/build/generated/res"
             "android/app/build/intermediates"
             "android/app/.cxx"
+            "android/app/build/intermediates/cmake"
+            "android/app/build/intermediates/merged_native_libs"
+            "android/app/build/intermediates/stripped_native_libs"
             "node_modules/@shopify/react-native-skia/android/.cxx"
             "node_modules/expo-modules-core/android/.cxx"
             "node_modules/react-native-gesture-handler/android/.cxx"
@@ -178,7 +194,7 @@ jobs:
             SKIP_TASKS=""
           fi
 
-          ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon
+          ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
