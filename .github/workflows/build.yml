@@ -64,17 +64,6 @@ jobs:
             build-tools;35.0.0
             ndk;27.1.12297006
 
-      - name: Cache JS Bundle
-        uses: actions/cache@v4
-        with:
-          path: |
-            android/app/build/generated/assets
-            android/app/build/generated/res
-            android/app/build/intermediates
-          key: metro-bundle-${{ runner.os }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', 'package-lock.json') }}
-          restore-keys: |
-            metro-bundle-${{ runner.os }}-
-
       - name: Cache Native Module .cxx
         uses: actions/cache@v4
         with:
