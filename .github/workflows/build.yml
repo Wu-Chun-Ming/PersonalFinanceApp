@@ -144,8 +144,7 @@ jobs:
         working-directory: android
         run: chmod +x ./gradlew
 
-      - name: Build Release APK
-        working-directory: android
+      - name: Check .cxx folders
         run: |
           # List of native modules that require .cxx folders
           NATIVE_MODULES=(
@@ -170,6 +169,11 @@ jobs:
             fi
           done
 
+          echo "ALL_CXX_EXIST=$ALL_CXX_EXIST" >> $GITHUB_ENV
+
+      - name: Build Release APK
+        working-directory: android
+        run: |
           if [ "$ALL_CXX_EXIST" = true ]; then
             echo "✅ All .cxx folders exist — skipping CMake tasks"
             SKIP_TASKS=$(./gradlew tasks --all | grep -e buildCMakeRelWithDebInfo | awk '{print "-x "$1}' | tr '\n' ' ')
