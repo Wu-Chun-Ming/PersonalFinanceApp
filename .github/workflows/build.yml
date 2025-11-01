@@ -59,29 +59,6 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      - name: Verify important cache folders
-        run: |
-          echo "=== Verifying cache folders ==="
-
-          # List the folders you expect to be cached
-          FOLDERS=(
-            "$HOME/.gradle/caches"
-            "$HOME/.gradle/wrapper"
-            "android/.cxx"
-          )
-
-          for folder in "${FOLDERS[@]}"; do
-            if [ -d "$folder" ]; then
-              SIZE=$(du -sh "$folder" 2>/dev/null | cut -f1)
-              FILE_COUNT=$(find "$folder" -type f | wc -l)
-              echo "✅ $folder exists — size: $SIZE ($FILE_COUNT files)"
-            else
-              echo "⚠️  $folder not found — cache might have missed it"
-            fi
-          done
-
-          echo "=== Cache verification complete ==="
-
       - name: Cache Android SDK & NDK
         uses: actions/cache@v4
         with:
@@ -109,6 +86,34 @@ jobs:
           key: metro-bundle-${{ runner.os }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', 'package-lock.json') }}
           restore-keys: |
             metro-bundle-${{ runner.os }}-
+
+      - name: Verify important cache folders
+        run: |
+          echo "=== Verifying cache folders ==="
+
+          # List the folders you expect to be cached
+          FOLDERS=(
+            "$HOME/.gradle/caches"
+            "$HOME/.gradle/wrapper"
+            "android/.cxx"
+            "/usr/local/lib/android/sdk/ndk"
+            "/usr/local/lib/android/sdk/build-tools"
+            "android/app/build/generated/assets"
+            "android/app/build/generated/res"
+            "android/app/build/intermediates"
+          )
+
+          for folder in "${FOLDERS[@]}"; do
+            if [ -d "$folder" ]; then
+              SIZE=$(du -sh "$folder" 2>/dev/null | cut -f1)
+              FILE_COUNT=$(find "$folder" -type f | wc -l)
+              echo "✅ $folder exists — size: $SIZE ($FILE_COUNT files)"
+            else
+              echo "⚠️  $folder not found — cache might have missed it"
+            fi
+          done
+
+          echo "=== Cache verification complete ==="
 
       - name: Make Gradle executable
         working-directory: android
