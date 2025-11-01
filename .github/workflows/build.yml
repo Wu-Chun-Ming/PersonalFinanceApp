@@ -129,12 +129,34 @@ jobs:
       - name: Build Release APK
         working-directory: android
         run: |
-          # Check if .cxx exists
-          if [ -d "app/.cxx" ]; then
-            echo "✅ Detected existing .cxx directory — skipping native rebuild"
+          # List of native modules that require .cxx folders
+          NATIVE_MODULES=(
+            "android/app"
+            "node_modules/@shopify/react-native-skia/android"
+            "node_modules/expo-modules-core/android"
+            "node_modules/react-native-gesture-handler/android"
+            "node_modules/react-native-reanimated/android"
+            "node_modules/react-native-screens/android"
+          )
+
+          # Initialize flag
+          ALL_CXX_EXIST=true
+
+          # Check each folder
+          for MOD in "${NATIVE_MODULES[@]}"; do
+            if [ ! -d "$MOD/.cxx" ]; then
+              echo "⚠️ .cxx missing for $MOD"
+              ALL_CXX_EXIST=false
+            else
+              echo "✅ .cxx exists for $MOD"
+            fi
+          done
+
+          if [ "$ALL_CXX_EXIST" = true ]; then
+            echo "✅ All .cxx folders exist — skipping CMake tasks"
             SKIP_TASKS=$(./gradlew tasks --all | grep -e buildCMakeRelWithDebInfo | awk '{print "-x "$1}' | tr '\n' ' ')
           else
-            echo "⚠️ No .cxx directory found — rebuilding native code"
+           echo "⚠️ Some .cxx folders are missing — running all CMake tasks"
             SKIP_TASKS=""
           fi
           ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
