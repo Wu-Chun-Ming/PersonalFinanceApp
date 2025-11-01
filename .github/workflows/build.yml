@@ -54,9 +54,33 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
+            android/.cxx
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
+
+      - name: Verify important cache folders
+        run: |
+          echo "=== Verifying cache folders ==="
+
+          # List the folders you expect to be cached
+          FOLDERS=(
+            "$HOME/.gradle/caches"
+            "$HOME/.gradle/wrapper"
+            "android/.cxx"
+          )
+
+          for folder in "${FOLDERS[@]}"; do
+            if [ -d "$folder" ]; then
+              SIZE=$(du -sh "$folder" 2>/dev/null | cut -f1)
+              FILE_COUNT=$(find "$folder" -type f | wc -l)
+              echo "✅ $folder exists — size: $SIZE ($FILE_COUNT files)"
+            else
+              echo "⚠️  $folder not found — cache might have missed it"
+            fi
+          done
+
+          echo "=== Cache verification complete ==="
 
       - name: Cache Android SDK & NDK
         uses: actions/cache@v4
