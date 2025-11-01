@@ -94,6 +94,19 @@ jobs:
           restore-keys: |
             metro-bundle-${{ runner.os }}-
 
+      - name: Cache Native Module .cxx
+        uses: actions/cache@v4
+        with:
+          path: |
+            android/app/.cxx
+            node_modules/@shopify/react-native-skia/android/.cxx
+            node_modules/expo-modules-core/android/.cxx
+            node_modules/react-native-gesture-handler/android/.cxx
+            node_modules/react-native-reanimated/android/.cxx
+            node_modules/react-native-screens/android/.cxx
+          key: cxx-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: cxx-${{ runner.os }}-
+
       - name: Verify important cache folders
         run: |
           echo "=== Verifying cache folders ==="
@@ -102,12 +115,17 @@ jobs:
           FOLDERS=(
             "$HOME/.gradle/caches"
             "$HOME/.gradle/wrapper"
-            "android/app/.cxx"
             "/usr/local/lib/android/sdk/ndk"
             "/usr/local/lib/android/sdk/build-tools"
             "android/app/build/generated/assets"
             "android/app/build/generated/res"
             "android/app/build/intermediates"
+            "android/app/.cxx"
+            "node_modules/@shopify/react-native-skia/android/.cxx"
+            "node_modules/expo-modules-core/android/.cxx"
+            "node_modules/react-native-gesture-handler/android/.cxx"
+            "node_modules/react-native-reanimated/android/.cxx"
+            "node_modules/react-native-screens/android/.cxx"
           )
 
           for folder in "${FOLDERS[@]}"; do
@@ -159,6 +177,7 @@ jobs:
            echo "⚠️ Some .cxx folders are missing — running all CMake tasks"
             SKIP_TASKS=""
           fi
+
           ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
 
       - name: Upload Release APK
