@@ -83,11 +83,18 @@ jobs:
           restore-keys: |
             metro-bundle-${{ runner.os }}-
 
+      - name: Cache App Native Build Artifacts
+        uses: actions/cache@v4
+        with:
+          path: android/app/.cxx
+          key: app-native-${{ runner.os }}-${{ hashFiles('**/android/app/*.cpp') }}
+          restore-keys: |
+            app-native-${{ runner.os }}-
+
       - name: Cache Native Module .cxx
         uses: actions/cache@v4
         with:
           path: |
-            android/app/.cxx
             node_modules/@shopify/react-native-skia/android/.cxx
             node_modules/expo-modules-core/android/.cxx
             node_modules/react-native-gesture-handler/android/.cxx
