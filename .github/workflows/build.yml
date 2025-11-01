@@ -157,7 +157,7 @@ jobs:
         run: |
           if [ "$ALL_CXX_EXIST" = true ]; then
             echo "✅ All .cxx folders exist — skipping CMake tasks"
-            SKIP_TASKS=$(./gradlew tasks --all | grep -e buildCMakeRelWithDebInfo -e bundleReleaseJsAndAssets | awk '{print "-x "$1}' | tr '\n' ' ')
+            SKIP_TASKS=$(./gradlew tasks --all | grep -e buildCMakeRelWithDebInfo -e bundleReleaseJsAndAssets -e externalNativeBuildRelease | awk '{print "-x "$1}' | tr '\n' ' ')
           else
            echo "⚠️ Some .cxx folders are missing — running all CMake tasks"
             SKIP_TASKS=""
