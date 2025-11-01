@@ -54,7 +54,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            android/.cxx
+            android/app/.cxx
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
@@ -95,7 +95,7 @@ jobs:
           FOLDERS=(
             "$HOME/.gradle/caches"
             "$HOME/.gradle/wrapper"
-            "android/.cxx"
+            "android/app/.cxx"
             "/usr/local/lib/android/sdk/ndk"
             "/usr/local/lib/android/sdk/build-tools"
             "android/app/build/generated/assets"
