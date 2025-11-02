@@ -160,12 +160,22 @@ jobs:
       - name: Build Release APK
         working-directory: android
         run: |
-          if [ "$ALL_CXX_EXIST" = true ]; then
-            echo "✅ All .cxx folders exist — skipping CMake tasks"
-            SKIP_TASKS=$(./gradlew tasks --all | grep -e buildCMakeRelWithDebInfo -e externalNativeBuildRelease -e bundleReleaseJsAndAssets -e mergeReleaseResources -e mergeReleaseAssets | awk '{print "-x "$1}' | tr '\n' ' ')
+          HAS_CXX=false
+          HAS_METRO=false
+          SKIP_TASKS=""
+
+          if [ -d "android/app/.cxx" ]; then
+            echo "✅ Detected .cxx native build cache"
+            SKIP_TASKS+=" -x buildCMakeRelWithDebInfo -x externalNativeBuildRelease"
           else
-           echo "⚠️ Some .cxx folders are missing — running all CMake tasks"
-            SKIP_TASKS=""
+            echo "⚠️ No .cxx cache found — native builds will run"
+          fi
+
+          if [ -d "android/app/build/generated/assets" ]; then
+            echo "✅ Detected Metro (JS bundle) cache"
+            SKIP_TASKS+=" -x bundleReleaseJsAndAssets -x mergeReleaseResources -x mergeReleaseAssets"
+          else
+            echo "⚠️ No Metro cache found — JS bundle will be rebuilt"
           fi
 
           ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
