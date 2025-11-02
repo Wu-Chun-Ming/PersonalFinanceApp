@@ -43,12 +43,16 @@ jobs:
           node-version: 20
           cache: "npm"
 
-      - name: Cache Node Modules
+      - name: Cache Dependencies & Metro Bundles
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: node-${{ runner.os }}-
+          path: |
+            node_modules
+            android/app/build/generated/assets
+            android/app/build/generated/res
+            android/app/build/intermediates
+          key: build-cache-${{ runner.os }}-${{ hashFiles('package-lock.json', '**/*.[tj]s*') }}
+          restore-keys: build-cache-${{ runner.os }}-
 
       - name: Install Dependencies
         run: npm install
@@ -67,17 +71,6 @@ jobs:
             platforms;android-35
             build-tools;35.0.0
             ndk;27.1.12297006
-
-      - name: Cache JS Bundle
-        uses: actions/cache@v4
-        with:
-          path: |
-            android/app/build/generated/assets
-            android/app/build/generated/res
-            android/app/build/intermediates
-          key: metro-bundle-${{ runner.os }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', 'package-lock.json') }}
-          restore-keys: |
-            metro-bundle-${{ runner.os }}-
 
       - name: Cache Native Build Artifacts (.cxx)
         uses: actions/cache@v4
