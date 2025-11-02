@@ -130,22 +130,33 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Check for .cxx and Metro caches
+        working-directory: android
         run: |
+          ALL_TASKS=$(./gradlew tasks --all)
           SKIP_TASKS=""
 
-          if [ -d "android/app/.cxx" ]; then
+          if [ -d "$GITHUB_WORKSPACE/android/app/.cxx" ]; then
             echo "✅ Detected .cxx native build cache"
-            SKIP_TASKS+=" -x buildCMakeRelWithDebInfo -x externalNativeBuildRelease"
+            SKIP_TASKS+=" $(echo "$ALL_TASKS" | grep -E 'buildCMakeRelWithDebInfo|externalNativeBuildRelease' | awk '{print "-x "$1}' | tr '\n' ' ')"
           else
             echo "⚠️ No .cxx cache found — native builds will run"
           fi
 
-          if [ -d "android/app/build/generated/assets" ]; then
+          if [ -d "$GITHUB_WORKSPACE/android/app/build/generated/assets" ]; then
             echo "✅ Detected Metro (JS bundle) cache"
-            SKIP_TASKS+=" -x mergeReleaseResources -x mergeReleaseAssets"
+            SKIP_TASKS+=" $(echo "$ALL_TASKS" | grep -E 'mergeReleaseResources|mergeReleaseAssets' | awk '{print "-x "$1}' | tr '\n' ' ')"
           else
             echo "⚠️ No Metro cache found — JS bundle will be rebuilt"
           fi
+
+          echo "---------------------------------------------------"
+          echo "⏩  Skipping Gradle tasks:"
+          if [ -n "$SKIP_TASKS" ]; then
+            echo "  $SKIP_TASKS"
+          else
+            echo "  (none)"
+          fi
+          echo "---------------------------------------------------"
 
           echo "SKIP_TASKS=$SKIP_TASKS" >> $GITHUB_ENV
 
