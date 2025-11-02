@@ -142,7 +142,7 @@ jobs:
 
           if [ -d "android/app/build/generated/assets" ]; then
             echo "✅ Detected Metro (JS bundle) cache"
-            SKIP_TASKS+=" -x createBundleReleaseJsAndAssets -x mergeReleaseResources -x mergeReleaseAssets"
+            SKIP_TASKS+=" -x mergeReleaseResources -x mergeReleaseAssets"
           else
             echo "⚠️ No Metro cache found — JS bundle will be rebuilt"
           fi
