@@ -129,45 +129,29 @@ jobs:
         working-directory: android
         run: chmod +x ./gradlew
 
-      - name: Check .cxx folders
+      - name: Check for .cxx and Metro caches
         run: |
-          # List of native modules that require .cxx folders
-          NATIVE_MODULES=(
-            "android/app"
-            "node_modules/@shopify/react-native-skia/android"
-            "node_modules/expo-modules-core/android"
-            "node_modules/react-native-gesture-handler/android"
-            "node_modules/react-native-reanimated/android"
-            "node_modules/react-native-screens/android"
-          )
+          SKIP_TASKS=""
 
-          # Initialize flag
-          ALL_CXX_EXIST=true
+          if [ -d "android/app/.cxx" ]; then
+            echo "✅ Detected .cxx native build cache"
+            SKIP_TASKS+=" -x buildCMakeRelWithDebInfo -x externalNativeBuildRelease"
+          else
+            echo "⚠️ No .cxx cache found — native builds will run"
+          fi
 
-          # Check each folder
-          for MOD in "${NATIVE_MODULES[@]}"; do
-            if [ ! -d "$MOD/.cxx" ]; then
-              echo "⚠️ .cxx missing for $MOD"
-              ALL_CXX_EXIST=false
-              break
-            else
-              echo "✅ .cxx exists for $MOD"
-            fi
-          done
+          if [ -d "android/app/build/generated/assets" ]; then
+            echo "✅ Detected Metro (JS bundle) cache"
+            SKIP_TASKS+=" -x createBundleReleaseJsAndAssets -x mergeReleaseResources -x mergeReleaseAssets"
+          else
+            echo "⚠️ No Metro cache found — JS bundle will be rebuilt"
+          fi
 
-          echo "ALL_CXX_EXIST=$ALL_CXX_EXIST" >> $GITHUB_ENV
+          echo "SKIP_TASKS=$SKIP_TASKS" >> $GITHUB_ENV
 
       - name: Build Release APK
         working-directory: android
         run: |
-          if [ "$ALL_CXX_EXIST" = true ]; then
-            echo "✅ All .cxx folders exist — skipping CMake tasks"
-            SKIP_TASKS=$(./gradlew tasks --all | grep -e buildCMakeRelWithDebInfo -e externalNativeBuildRelease -e bundleReleaseJsAndAssets -e mergeReleaseResources -e mergeReleaseAssets | awk '{print "-x "$1}' | tr '\n' ' ')
-          else
-           echo "⚠️ Some .cxx folders are missing — running all CMake tasks"
-            SKIP_TASKS=""
-          fi
-
           ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
 
       - name: Upload Release APK
