@@ -51,7 +51,7 @@ jobs:
           restore-keys: node-${{ runner.os }}-
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
