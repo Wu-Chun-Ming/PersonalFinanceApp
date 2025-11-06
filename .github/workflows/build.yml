@@ -160,6 +160,16 @@ jobs:
 
           echo "SKIP_TASKS=$SKIP_TASKS" >> $GITHUB_ENV
 
+      - name: Decode keystore
+        run: echo "${{ secrets.MYAPP_UPLOAD_STORE_FILE_BASE64 }}" | base64 --decode > my-upload-key.keystore
+
+      - name: Set up Gradle properties
+        run: |
+          echo "MYAPP_UPLOAD_STORE_FILE=my-upload-key.keystore" >> ~/.gradle/gradle.properties
+          echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.MYAPP_UPLOAD_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.MYAPP_UPLOAD_KEY_ALIAS }}" >> ~/.gradle/gradle.properties
+          echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.MYAPP_UPLOAD_KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
+
       - name: Build Release APK
         working-directory: android
         run: |
