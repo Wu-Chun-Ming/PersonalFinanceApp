@@ -129,10 +129,24 @@ jobs:
         working-directory: android
         run: chmod +x ./gradlew
 
+      - name: Cache Gradle task list
+        id: cache-tasks
+        uses: actions/cache@v4
+        with:
+          path: gradle_tasks.txt
+          key: gradle-tasks-${{ runner.os }}-${{ hashFiles('**/build.gradle*') }}
+
       - name: Check for .cxx and Metro caches
         working-directory: android
         run: |
-          ALL_TASKS=$(./gradlew tasks --all)
+          if [ -f ../gradle_tasks.txt ]; then
+            echo "✅ Using cached Gradle task list"
+            ALL_TASKS=$(cat ../gradle_tasks.txt)
+          else
+            echo "⚙️ Generating Gradle task list (first run only)"
+            ./gradlew tasks --all > ../gradle_tasks.txt
+            ALL_TASKS=$(cat ../gradle_tasks.txt)
+          fi
           SKIP_TASKS=""
 
           if [ -d "$GITHUB_WORKSPACE/android/app/.cxx" ]; then
