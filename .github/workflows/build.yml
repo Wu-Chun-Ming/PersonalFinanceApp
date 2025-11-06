@@ -179,6 +179,7 @@ jobs:
 
       - name: Set up Gradle properties
         run: |
+          mkdir -p ~/.gradle
           echo "MYAPP_UPLOAD_STORE_FILE=my-upload-key.keystore" >> ~/.gradle/gradle.properties
           echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.MYAPP_UPLOAD_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
           echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.MYAPP_UPLOAD_KEY_ALIAS }}" >> ~/.gradle/gradle.properties
