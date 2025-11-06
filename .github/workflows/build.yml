@@ -58,7 +58,17 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-          cache: gradle
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            android/.gradle
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/build.gradle', 'android/settings.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Cache JS Bundle
         uses: actions/cache@v4
@@ -127,6 +137,7 @@ jobs:
         with:
           path: gradle_tasks.txt
           key: gradle-tasks-${{ runner.os }}-${{ hashFiles('**/build.gradle*') }}
+          restore-keys: gradle-tasks-${{ runner.os }}-
 
       - name: Check for .cxx and Metro caches
         working-directory: android
