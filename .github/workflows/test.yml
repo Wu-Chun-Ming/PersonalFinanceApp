@@ -25,4 +25,4 @@ jobs:
         run: npm ci
 
       - name: Run Tests
-        run: npx jest --verbose --detectOpenHandles
+        run: npx --trace-warnings --expose-gc jest -- --all --verbose --coverage --detectOpenHandles --runInBand --forceExit --logHeapUsage --workerIdleMemoryLimit=512MB
