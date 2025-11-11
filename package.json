@@ -10,7 +10,7 @@
     "web": "DARK_MODE=media expo start --web",
     "lint": "expo lint",
     "test": "jest --watch --coverage=false --verbose",
-    "test:precommit": "jest --coverage=false --verbose",
+    "test:precommit": "jest --coverage=false",
     "test:unit": "jest --watch --coverage=false --verbose __tests__/unit",
     "testDebug": "jest -o --watch --coverage=false",
     "testFinal": "jest --verbose",
