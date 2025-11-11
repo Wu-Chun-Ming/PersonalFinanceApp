@@ -22,8 +22,8 @@ export const fetchGoal = async (type: 'savings' | 'income') => {
         const savingsGoalDateStr = await SecureStore.getItemAsync('savingsGoalDate');
         const savingsGoalAmountStr = await SecureStore.getItemAsync('savingsGoalAmount');
 
-        const date = savingsGoalDateStr ? new Date(savingsGoalDateStr) : null;
-        const amount = savingsGoalAmountStr ? parseFloat(savingsGoalAmountStr) : null;
+        const date = savingsGoalDateStr ? new Date(savingsGoalDateStr) : undefined;
+        const amount = savingsGoalAmountStr ? parseFloat(savingsGoalAmountStr) : undefined;
 
         return {
             date,
@@ -34,9 +34,9 @@ export const fetchGoal = async (type: 'savings' | 'income') => {
         const incomeGoalPerMonthStr = await SecureStore.getItemAsync('incomeGoalPerMonth');
         const incomeGoalPerYearStr = await SecureStore.getItemAsync('incomeGoalPerYear');
 
-        const perDay = incomeGoalPerDayStr ? parseFloat(incomeGoalPerDayStr) : null;
-        const perMonth = incomeGoalPerMonthStr ? parseFloat(incomeGoalPerMonthStr) : null;
-        const perYear = incomeGoalPerYearStr ? parseFloat(incomeGoalPerYearStr) : null;
+        const perDay = incomeGoalPerDayStr ? parseFloat(incomeGoalPerDayStr) : undefined;
+        const perMonth = incomeGoalPerMonthStr ? parseFloat(incomeGoalPerMonthStr) : undefined;
+        const perYear = incomeGoalPerYearStr ? parseFloat(incomeGoalPerYearStr) : undefined;
 
         return {
             perDay,

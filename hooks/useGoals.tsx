@@ -1,56 +1,39 @@
 import { IncomeGoalProps, SavingsGoalProps } from "@/constants/Types";
 import { editGoal, fetchGoal } from "@/db/goals";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import useShowToast from "./useShowToast";
+import { useCustomMutation } from "./useAppMutation";
+import { useCustomQuery } from "./useAppQuery";
 
 // Custom hook to fetch goals
 export const useGoals = () => {
-    return useQuery({
+    return useCustomQuery<{
+        savings: Partial<SavingsGoalProps>,
+        income: Partial<IncomeGoalProps>,
+    }>({
         queryKey: ['goals'],
         queryFn: async () => {
-            try {
-                return {
-                    savings: await fetchGoal('savings'),
-                    income: await fetchGoal('income'),
-                }
-            } catch (error) {
-                console.error(error);
-                return {
-                    savings: {
-                        date: null,
-                        amount: null,
-                    },
-                    income: {
-                        perDay: null,
-                        perMonth: null,
-                        perYear: null,
-                    },
-                };
-            }
+            return {
+                savings: await fetchGoal('savings'),
+                income: await fetchGoal('income'),
+            };
+        },
+        fallbackValue: {
+            savings: {
+                date: undefined,
+                amount: undefined,
+            },
+            income: {
+                perDay: undefined,
+                perMonth: undefined,
+                perYear: undefined,
+            },
         }
     });
 };
 
 // Custom hook to update a goal
 export const useUpdateGoal = () => {
-    const queryClient = useQueryClient();
-    const showToast = useShowToast();
-
-    return useMutation({
+    return useCustomMutation({
         mutationFn: (updatedGoalsData: { savings: SavingsGoalProps, income: IncomeGoalProps }) => editGoal(updatedGoalsData),
-        onSuccess: (response) => {
-            const { success, messages } = response;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['goals'] });
-            }
-        },
+        invalidateKeys: () => [['goals']],    // Invalidate goals query on success
     });
 }

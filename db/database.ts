@@ -106,7 +106,7 @@ export const getTransactions = async (dbInstance?: SQLite.SQLiteDatabase) => {
 
         // No data fetched
         return {
-            data: null,
+            data: [],
         };
     } catch (error) {
         throw new Error(`Error fetching data from transactions table: ${(error as Error).message}`);
@@ -270,7 +270,7 @@ export const getBudgets = async (dbInstance?: SQLite.SQLiteDatabase) => {
 
         // No data fetched
         return {
-            data: null,
+            data: [],
         };
     } catch (error) {
         throw new Error(`Error fetching data from budgets table: ${(error as Error).message}`);

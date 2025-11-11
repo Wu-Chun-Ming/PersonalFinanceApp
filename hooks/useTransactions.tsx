@@ -1,112 +1,62 @@
 import { TransactionProps } from "@/constants/Types";
-import { createTransaction, deleteTransaction, editTransaction, fetchTransaction, fetchTransactions } from "@/db/transactions";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+    createTransaction,
+    deleteTransaction,
+    editTransaction,
+    fetchTransaction,
+    fetchTransactions,
+} from "@/db/transactions";
 import { router } from "expo-router";
-import useShowToast from "./useShowToast";
+import { useCustomMutation } from "./useAppMutation";
+import { useCustomQuery } from "./useAppQuery";
 
 // Custom hook to fetch transactions
 export const useTransactions = () => {
-    return useQuery({
+    return useCustomQuery<TransactionProps[]>({
         queryKey: ['transactions'],
-        queryFn: async () => {
-            try {
-                return await fetchTransactions();
-            } catch (error) {
-                console.error(error);
-                return [];
-            }
-        }
+        queryFn: fetchTransactions,
+        fallbackValue: [],
     });
 };
 
 // Custom hook to fetch a single transaction
 export const useTransaction = (transactionId: number) => {
-    return useQuery({
+    return useCustomQuery<TransactionProps | null>({
         queryKey: ['transaction', transactionId],
-        queryFn: async () => {
-            try {
-                return await fetchTransaction(Number(transactionId));
-            } catch (error) {
-                console.error(error);
-                router.back(); // Navigate to previous page if error occurs
-                return null;
-            }
+        queryFn: () => fetchTransaction(Number(transactionId)),
+        fallbackValue: null,
+        onError: () => router.back(),   // Navigate back if error occurs
+        options: {
+            enabled: !!transactionId,
         },
-        enabled: !!transactionId,
     });
 };
 
 // Custom hook to create a transaction
 export const useCreateTransaction = () => {
-    const queryClient = useQueryClient();
-    const showToast = useShowToast();
-
-    return useMutation({
+    return useCustomMutation({
         mutationFn: (newTransactionData: TransactionProps) => createTransaction(newTransactionData),
-        onSuccess: (response) => {
-            const { success, messages } = response;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['transactions'] });      // Refresh transaction data after creating new transaction
-                router.back(); // Navigate to previous page after creating transaction
-            }
-        },
+        invalidateKeys: () => [['transactions']],       // Invalidate transactions query on success
+        onInvalidationComplete: () => router.back(),    // Navigate to previous page after creating transaction
     });
 }
 
 // Custom hook to update a transaction
 export const useUpdateTransaction = () => {
-    const queryClient = useQueryClient();
-    const showToast = useShowToast();
-
-    return useMutation({
+    return useCustomMutation({
         mutationFn: ({ id, updatedTransactionData }: { id: number, updatedTransactionData: TransactionProps }) => editTransaction(id, updatedTransactionData),
-        onSuccess: (response) => {
-            const { success, messages } = response;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error, variables) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['transaction', variables.id] });
-                queryClient.invalidateQueries({ queryKey: ['transactions'] });
-            }
-        },
+        invalidateKeys: (variables) => [
+            ['transaction', variables?.id],
+            ['transactions'],   // Invalidate transaction and transactions queries on success
+        ],
     });
 }
 
 // Custom hook to delete a transaction
 export const useDeleteTransaction = () => {
-    const queryClient = useQueryClient();
-    const showToast = useShowToast();
-
-    return useMutation({
+    return useCustomMutation({
         mutationFn: (id: number) => deleteTransaction(id),
-        onSuccess: (response) => {
-            const { success, messages } = response;
-            const actionType = success ? 'success' : 'info';
-            showToast({ action: actionType, messages: messages });
-        },
-        onError: (error) => {
-            const error_message = error.message;
-            showToast({ action: 'warning', messages: error_message });
-        },
-        onSettled: (_data, error) => {
-            if (!error) {
-                queryClient.invalidateQueries({ queryKey: ['transactions'] });     // Refresh transactions after delete transaction
-                router.back(); // Navigate to previous page after deleting transaction
-            }
-        },
+        invalidateKeys: () => [['transactions']],       // Invalidate transactions query on success
+        onInvalidationComplete: () => router.back(),    // Navigate to previous page after deleting transaction
     });
 }
