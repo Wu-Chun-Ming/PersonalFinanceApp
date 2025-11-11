@@ -129,7 +129,7 @@ describe('Transaction operations', () => {
             const response = await getTransactions(mockedDb);
 
             expect(mockedDb.getAllAsync).toHaveBeenCalledWith("SELECT * FROM transactions");
-            expect(response.data).toEqual(null);
+            expect(response.data).toEqual([]);
         });
 
         test("should fail to fetch transaction", async () => {

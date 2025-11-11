@@ -51,7 +51,7 @@ describe('Budget operations', () => {
         const response = await getBudgets(mockedDb);
 
         expect(mockedDb.getAllAsync).toHaveBeenCalledWith("SELECT * FROM budgets");
-        expect(response.data).toEqual(null);
+        expect(response.data).toEqual([]);
     });
 
     test("should update budget successfully", async () => {

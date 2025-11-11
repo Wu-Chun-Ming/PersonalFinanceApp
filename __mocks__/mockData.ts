@@ -175,13 +175,13 @@ export const mockBudgets = [
 
 export const mockDefaultGoals = {
     savings: {
-        date: null,
-        amount: null,
+        date: undefined,
+        amount: undefined,
     },
     income: {
-        perDay: null,
-        perMonth: null,
-        perYear: null,
+        perDay: undefined,
+        perMonth: undefined,
+        perYear: undefined,
     },
 };
 
