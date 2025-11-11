@@ -1,0 +1,14 @@
+#!/bin/sh
+# Run tests before allowing commit
+echo "Running tests before commit..."
+
+# Run npm test and check if the tests pass
+npm run test:precommit
+
+# Check the result of npm test; if it fails, exit with non-zero status
+if [ $? -ne 0 ]; then
+  echo "Tests failed. Commit aborted."
+  exit 1
+fi
+
+echo "Tests passed. Proceeding with commit."
