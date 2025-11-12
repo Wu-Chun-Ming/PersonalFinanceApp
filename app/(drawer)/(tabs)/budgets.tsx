@@ -6,7 +6,6 @@ import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 import { BarGroup, CartesianChart } from 'victory-native';
-import * as Yup from 'yup';
 
 // Gluestack UI
 import { Box } from '@/components/ui/box';
@@ -37,6 +36,7 @@ import { useBudgets, useUpdateBudget } from '@/hooks/useBudgets';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import useShowToast from '@/hooks/useShowToast';
 import { useTransactions } from '@/hooks/useTransactions';
+import { budgetSchema } from '@/validation/budgetSchema';
 
 const BudgetScreen = () => {
     const queryClient = useQueryClient();
@@ -83,21 +83,6 @@ const BudgetScreen = () => {
 
     const updateMutation = useUpdateBudget();
 
-    // Validation Schema
-    const validationSchema = Yup.object().shape({
-        year: Yup.string()
-            .matches(/^\d{4}$/, 'Year must be a 4-digit number')
-            .required('Year is required'),
-        month: Yup.string()
-            .matches(/^(0?[1-9]|1[0-2])$/, 'Month must be a number between 1 and 12')
-            .required('Month is required'),
-        category: Yup.string()
-            .oneOf(EXPENSE_CATEGORIES, 'Invalid Category')
-            .required('Category is required'),
-        amount: Yup.number().typeError("Must be a number")
-            .positive('Amount must be positive')
-            .required('Amount is required'),
-    });
 
     // Formik setup
     const formik = useFormik({
@@ -107,7 +92,7 @@ const BudgetScreen = () => {
             category: '',
             amount: '0',
         },
-        validationSchema: validationSchema,
+        validationSchema: budgetSchema,
         onSubmit: (values) => {
             updateMutation.mutate({
                 year: Number(values.year),

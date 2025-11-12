@@ -7,7 +7,6 @@ import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import Collapsible from 'react-native-collapsible';
 import { Dropdown } from 'react-native-element-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Yup from 'yup';
 
 // Gluestack UI
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,7 @@ import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionCategory, TransactionType } from '@/constants/Types';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
+import { transactionSchema } from '@/validation/transactionSchema';
 
 const TransactionListScreen = () => {
     const navigation = useNavigation();
@@ -48,38 +48,6 @@ const TransactionListScreen = () => {
         refetch
     } = useTransactions();
 
-    // Validation Schema
-    const validationSchema = Yup.object().shape({
-        date: Yup.date()
-            .optional(),
-        type: Yup.string()
-            .oneOf(Object.values(TransactionType))
-            .optional(),
-        category: Yup.string()
-            .when('type', (transactionType: any, schema) => {
-                if (transactionType === TransactionType.EXPENSE) {
-                    return schema
-                        .oneOf(EXPENSE_CATEGORIES, 'Invalid Category')
-                        .optional();
-                }
-                if (transactionType === TransactionType.INCOME) {
-                    return schema
-                        .oneOf(INCOME_CATEGORIES, 'Invalid Category')
-                        .optional();
-                }
-                return schema.optional();
-            }),
-        amount: Yup.number()
-            .typeError("Must be a number")
-            .positive('Amount must be positive')
-            .optional(),
-        recurring: Yup.boolean()
-            .optional(),
-        frequency: Yup.string()
-            .oneOf(Object.values(RecurringFrequency))
-            .optional(),
-    });
-
     // Formik setup
     const formik = useFormik({
         initialValues: {
@@ -90,7 +58,7 @@ const TransactionListScreen = () => {
             recurring: recurring || '',
             frequency: frequency || '',
         },
-        validationSchema: validationSchema,
+        validationSchema: transactionSchema,
         onSubmit: (values) => {
         }
     });

@@ -5,7 +5,6 @@ import { useFormik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Yup from 'yup';
 
 // Gluestack UI
 import FormGroup from '@/components/FormGroup';
@@ -22,6 +21,7 @@ import { GOALS_COLOR } from '@/constants/Colors';
 import { useGoals, useUpdateGoal } from '@/hooks/useGoals';
 import useShowToast from '@/hooks/useShowToast';
 import { resetGoal } from '@/services/goals';
+import { goalSchema } from '@/validation/goalSchema';
 
 const GoalSettingsScreen = () => {
     const queryClient = useQueryClient();
@@ -40,42 +40,6 @@ const GoalSettingsScreen = () => {
     const [savingsGoalExists, setSavingsGoalExists] = useState(false);
     const [incomeGoalExists, setIncomeGoalExists] = useState(false);
 
-    // Validation Schema
-    const validationSchema = Yup.object().shape({
-        savings: Yup.object().shape({
-            date: Yup.date()
-                .optional()
-                .test('date-or-amount', 'Date is required for savings goal', function (value) {
-                    const { amount } = this.parent;
-                    // If amount exists, date must be provided
-                    return !amount || (amount && value);
-                }),
-            amount: Yup.number()
-                .typeError('Amount must be a number')
-                .min(0, 'Minimum amount is 0')
-                .optional()
-                .test('amount-or-date', 'Amount is required for savings goal', function (value) {
-                    const { date } = this.parent;
-                    // If date exists, amount must be provided
-                    return !date || (date && value);
-                }),
-        }),
-        income: Yup.object().shape({
-            perDay: Yup.number()
-                .typeError('Must be a number')
-                .min(0, 'Minimum amount is 0')
-                .optional(),
-            perMonth: Yup.number()
-                .typeError('Must be a number')
-                .min(0, 'Minimum amount is 0')
-                .optional(),
-            perYear: Yup.number()
-                .typeError('Must be a number')
-                .min(0, 'Minimum amount is 0')
-                .optional(),
-        }),
-    });
-
     // Formik setup
     const formik = useFormik({
         initialValues: {
@@ -89,7 +53,7 @@ const GoalSettingsScreen = () => {
                 perYear: goals?.income.perYear ? goals.income.perYear.toString() : '',
             }
         },
-        validationSchema: validationSchema,
+        validationSchema: goalSchema,
         onSubmit: (values) => {
             const transformedGoalsData = {
                 savings: {

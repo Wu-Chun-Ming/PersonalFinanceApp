@@ -3,10 +3,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useFormik } from 'formik';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Yup from 'yup';
 
 // Gluestack UI
 import { Button, ButtonText } from "@/components/ui/button";
@@ -27,6 +26,7 @@ import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringDay, RecurringFrequency, TransactionCategory, TransactionType } from '@/constants/Types';
 import useShowToast from '@/hooks/useShowToast';
 import { useCreateTransaction, useDeleteTransaction, useTransaction, useUpdateTransaction } from '@/hooks/useTransactions';
+import { getTransactionSchema } from '@/validation/transactionSchema';
 
 const TransactionManager = () => {
     const { scannedData } = useContext(ScanContext);
@@ -50,63 +50,6 @@ const TransactionManager = () => {
     const updateMutation = useUpdateTransaction();
     const deleteMutation = useDeleteTransaction();
 
-    // Validation Schema
-    const validationSchema = Yup.object().shape({
-        date: Yup.date()
-            .when(['recurring'], ([recurring], schema) => {
-                return recurring === false
-                    ? schema.required('Date is required')
-                    : schema.notRequired();
-            }),
-        type: Yup.string()
-            .oneOf(Object.values(TransactionType), 'Invalid type')
-            .required('Transaction type is required'),
-        category: Yup.string()
-            .oneOf((transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES), 'Invalid Category')
-            .required('Category is required'),
-        amount: Yup.number().typeError("Must be a number")
-            .positive('Amount must be positive')
-            .required('Amount is required'),
-        description: Yup.string()
-            .required('Description is required'),
-        recurring: Yup.boolean(),
-        recurring_frequency: Yup.object().shape({
-            frequency: Yup.string()
-                .oneOf(Object.values(RecurringFrequency), 'Invalid frequency')
-                .when('$recurring', ([recurring], schema) => {
-                    return recurring === true
-                        ? schema.required('Frequency is required')
-                        : schema.notRequired();
-                }),
-            time: Yup.object().shape({
-                month: Yup.string()
-                    .when('$recurring_frequency.frequency', ([frequency], schema) => {
-                        return (frequency === RecurringFrequency.YEARLY)
-                            ? schema.required('Month is required')
-                            : schema.notRequired();
-                    }),
-                date: Yup.string(),
-                day: Yup.string()
-                    .oneOf(Object.values(RecurringDay), 'Invalid day')
-                    .when('$recurring_frequency.frequency', ([frequency], schema) => {
-                        return frequency === RecurringFrequency.WEEKLY
-                            ? schema.required('Day is required')
-                            : schema.notRequired();
-                    }),
-            }).test(
-                'monthly-day-or-date',
-                'Either day or date must be provided',
-                function (value) {
-                    const frequency = this.options.context?.recurring_frequency?.frequency;
-                    if (frequency === RecurringFrequency.MONTHLY) {
-                        return !!(value?.day || value?.date);
-                    }
-                    return true;
-                }
-            ),
-        })
-    });
-
     // Formik setup
     const formik = useFormik({
         initialValues: {
@@ -125,7 +68,10 @@ const TransactionManager = () => {
                 },
             },
         },
-        validationSchema: validationSchema,
+        validationSchema: useMemo(
+            () => getTransactionSchema(transactionType),
+            [transactionType]
+        ),
         onSubmit: (values) => {
             const transformedTransactionData = {
                 ...values,
