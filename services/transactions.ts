@@ -1,16 +1,22 @@
 import { TransactionProps } from "@/constants/Types";
-import { destroyTransaction, getTransactions, showTransaction, storeTransaction, updateTransaction } from "./database";
+import {
+    destroyTransaction,
+    getTransactions,
+    showTransaction,
+    storeTransaction,
+    updateTransaction,
+} from "@/database/transactionDatabase";
 
 // Fetch transactions
 export const fetchTransactions = async () => {
-  const response = await getTransactions();
-  return response.data;
+    const response = await getTransactions();
+    return response.data;
 };
 
 // Fetch single transaction
 export const fetchTransaction = async (id: number) => {
-  const response = await showTransaction(id);
-  return response.data;
+    const response = await showTransaction(id);
+    return response.data;
 };
 
 // Create transaction

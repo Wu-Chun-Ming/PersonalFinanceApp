@@ -18,33 +18,34 @@ incomeGoalPerYear       number
 
 // Fetch single goal
 export const fetchGoal = async (type: 'savings' | 'income') => {
-    if (type == 'savings') {        // Savings goal
-        const savingsGoalDateStr = await SecureStore.getItemAsync('savingsGoalDate');
-        const savingsGoalAmountStr = await SecureStore.getItemAsync('savingsGoalAmount');
+    switch (type) {
+        case 'savings':        // Savings goal
+            const savingsGoalDateStr = await SecureStore.getItemAsync('savingsGoalDate');
+            const savingsGoalAmountStr = await SecureStore.getItemAsync('savingsGoalAmount');
 
-        const date = savingsGoalDateStr ? new Date(savingsGoalDateStr) : undefined;
-        const amount = savingsGoalAmountStr ? parseFloat(savingsGoalAmountStr) : undefined;
+            const date = savingsGoalDateStr ? new Date(savingsGoalDateStr) : undefined;
+            const amount = savingsGoalAmountStr ? parseFloat(savingsGoalAmountStr) : undefined;
 
-        return {
-            date,
-            amount,
-        };
-    } else if (type == 'income') {      // Income goals
-        const incomeGoalPerDayStr = await SecureStore.getItemAsync('incomeGoalPerDay');
-        const incomeGoalPerMonthStr = await SecureStore.getItemAsync('incomeGoalPerMonth');
-        const incomeGoalPerYearStr = await SecureStore.getItemAsync('incomeGoalPerYear');
+            return {
+                date,
+                amount,
+            };
+        case 'income':      // Income goals
+            const incomeGoalPerDayStr = await SecureStore.getItemAsync('incomeGoalPerDay');
+            const incomeGoalPerMonthStr = await SecureStore.getItemAsync('incomeGoalPerMonth');
+            const incomeGoalPerYearStr = await SecureStore.getItemAsync('incomeGoalPerYear');
 
-        const perDay = incomeGoalPerDayStr ? parseFloat(incomeGoalPerDayStr) : undefined;
-        const perMonth = incomeGoalPerMonthStr ? parseFloat(incomeGoalPerMonthStr) : undefined;
-        const perYear = incomeGoalPerYearStr ? parseFloat(incomeGoalPerYearStr) : undefined;
+            const perDay = incomeGoalPerDayStr ? parseFloat(incomeGoalPerDayStr) : undefined;
+            const perMonth = incomeGoalPerMonthStr ? parseFloat(incomeGoalPerMonthStr) : undefined;
+            const perYear = incomeGoalPerYearStr ? parseFloat(incomeGoalPerYearStr) : undefined;
 
-        return {
-            perDay,
-            perMonth,
-            perYear,
-        };
-    } else {
-        throw new Error('Invalid goal type');
+            return {
+                perDay,
+                perMonth,
+                perYear,
+            };
+        default:
+            throw new Error('Invalid goal type');
     }
 };
 
@@ -77,16 +78,18 @@ export const editGoal = async (updatedGoalsData: {
 
 // Reset Goal
 export const resetGoal = async (type: 'savings' | 'income') => {
-    // try {
-    if (type === 'savings') {           // Savings goal           
-        await SecureStore.deleteItemAsync('savingsGoalDate');
-        await SecureStore.deleteItemAsync('savingsGoalAmount');
-    } else if (type === 'income') {      // Income goals
-        await SecureStore.deleteItemAsync('incomeGoalPerDay');
-        await SecureStore.deleteItemAsync('incomeGoalPerMonth');
-        await SecureStore.deleteItemAsync('incomeGoalPerYear');
-    } else {
-        throw new Error('Invalid goal type');
+    switch (type) {
+        case 'savings':     // Savings goal           
+            await SecureStore.deleteItemAsync('savingsGoalDate');
+            await SecureStore.deleteItemAsync('savingsGoalAmount');
+            break;
+        case 'income':      // Income goals
+            await SecureStore.deleteItemAsync('incomeGoalPerDay');
+            await SecureStore.deleteItemAsync('incomeGoalPerMonth');
+            await SecureStore.deleteItemAsync('incomeGoalPerYear');
+            break;
+        default:
+            throw new Error('Invalid goal type');
     }
 
     return {
