@@ -7,7 +7,6 @@ import { BarGroup, CartesianChart } from 'victory-native';
 
 // Gluestack UI
 import { Box } from '@/components/ui/box';
-import { Fab, FabIcon } from '@/components/ui/fab';
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
 import { VStack } from '@/components/ui/vstack';
@@ -15,6 +14,7 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
+import { ActionFab } from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
@@ -300,17 +300,14 @@ const TransactionScreen = () => {
                 </View>
 
                 {/* Reserve Space for Floating Action Button */}
-                <View style={{ minHeight: 60 }}/>
+                <View style={{ minHeight: 60 }} />
             </ScrollView>
 
             {/* Floating action button to add new transaction */}
-            <Fab
-                size="lg"
-                placement="bottom right"
-                onPress={() => router.navigate(`/transaction/new`)}
-            >
-                <FabIcon as={AddIcon} size='xl' />
-            </Fab>
+            <ActionFab
+                href={`/transaction/new`}
+                icon={AddIcon}
+            />
         </SafeAreaView>
     );
 };

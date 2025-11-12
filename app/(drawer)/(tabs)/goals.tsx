@@ -1,6 +1,5 @@
 import { AntDesign } from '@expo/vector-icons';
 import { useFont } from '@shopify/react-native-skia';
-import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -9,7 +8,6 @@ import { Bar, CartesianChart, Line } from 'victory-native';
 
 // Gluestack UI
 import { Divider } from '@/components/ui/divider';
-import { Fab, FabIcon } from '@/components/ui/fab';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
@@ -18,6 +16,7 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
+import { ActionFab } from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import { GOALS_COLOR } from '@/constants/Colors';
 import { TransactionProps, TransactionType } from '@/constants/Types';
@@ -346,8 +345,8 @@ const GoalsScreen = () => {
                         padding: 10,
                     }}>
                         <Heading style={{
-                                color: 'white',
-                            }}
+                            color: 'white',
+                        }}
                         >Savings</Heading>
                     </View>
 
@@ -514,13 +513,10 @@ const GoalsScreen = () => {
             </ScrollView>
 
             {/* Floating action button to edit goals */}
-            <Fab
-                size="lg"
-                placement="bottom right"
-                onPress={() => router.navigate(`/goal/goal_settings` as Href)}
-            >
-                <FabIcon as={AddIcon} size='xl' />
-            </Fab>
+            <ActionFab
+                href={`/goal/goal_settings`}
+                icon={AddIcon}
+            />
         </SafeAreaView>
     );
 };

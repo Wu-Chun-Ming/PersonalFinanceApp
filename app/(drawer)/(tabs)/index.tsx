@@ -8,7 +8,6 @@ import { Pie, PolarChart } from 'victory-native';
 
 // Gluestack UI
 import { Box } from '@/components/ui/box';
-import { Fab, FabIcon } from '@/components/ui/fab';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
@@ -16,6 +15,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
+import { ActionFab } from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
@@ -267,7 +267,7 @@ const App = () => {
             valueKey={"value"}
             colorKey={"color"}
           >
-            <Pie.Chart/>
+            <Pie.Chart />
           </PolarChart>
           : <View style={styles.centeredFlex}>
             <Text style={[styles.text, {
@@ -308,17 +308,14 @@ const App = () => {
         </View>
 
         {/* Reserve Space for Floating Action Button */}
-        <View style={{ minHeight: 60 }}/>
+        <View style={{ minHeight: 60 }} />
       </ScrollView>
 
       {/* Floating action button to add new transaction */}
-      <Fab
-        size="lg"
-        placement="bottom right"
-        onPress={() => router.navigate(`/transaction/new`)}
-      >
-        <FabIcon as={AddIcon} size='xl' />
-      </Fab>
+      <ActionFab
+        href={`/transaction/new`}
+        icon={AddIcon}
+      />
     </SafeAreaView>
   );
 };
