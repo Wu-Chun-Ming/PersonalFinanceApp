@@ -1,5 +1,5 @@
 import { IncomeGoalProps, SavingsGoalProps } from "@/constants/Types";
-import { editGoal, fetchGoal } from "@/db/goals";
+import { editGoal, fetchGoal } from "@/services/goals";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";
 

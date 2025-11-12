@@ -5,7 +5,7 @@ import {
     editTransaction,
     fetchTransaction,
     fetchTransactions,
-} from "@/db/transactions";
+} from "@/services/transactions";
 import { router } from "expo-router";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";

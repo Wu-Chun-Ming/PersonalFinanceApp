@@ -19,10 +19,10 @@ import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
-import { initializeDatabase } from '@/db/database';
-import { createTransaction } from '@/db/transactions';
+import { initializeDatabase } from '@/database/init';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
+import { createTransaction } from '@/services/transactions';
 
 const App = () => {
   const [dbInitialized, setDbInitialized] = useState(false);

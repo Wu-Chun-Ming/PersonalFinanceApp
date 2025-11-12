@@ -19,9 +19,9 @@ import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
 import { HStack } from '@/components/ui/hstack';
 import { GOALS_COLOR } from '@/constants/Colors';
-import { resetGoal } from '@/db/goals';
 import { useGoals, useUpdateGoal } from '@/hooks/useGoals';
 import useShowToast from '@/hooks/useShowToast';
+import { resetGoal } from '@/services/goals';
 
 const GoalSettingsScreen = () => {
     const queryClient = useQueryClient();
