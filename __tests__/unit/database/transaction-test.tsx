@@ -1,11 +1,17 @@
 import { mockDatabaseTransactions, mockTransactions } from "@/__mocks__/mockData";
-import * as databaseModule from "@/db/database";
-import { destroyTransaction, getTransactions, showTransaction, storeTransaction, updateTransaction } from "@/db/database";
+import * as databaseModule from "@/database/init";
+import {
+    destroyTransaction,
+    getTransactions,
+    showTransaction,
+    storeTransaction,
+    updateTransaction,
+} from "@/database/transactionDatabase";
 import { SQLiteDatabase } from "expo-sqlite";
 
 // Mock the database module
-jest.mock("@/db/database", () => {
-    const actualDatabaseOperations = jest.requireActual('@/db/database');       // Load the real module
+jest.mock("@/database/init", () => {
+    const actualDatabaseOperations = jest.requireActual('@/database/init');       // Load the real module
 
     return {
         ...actualDatabaseOperations,

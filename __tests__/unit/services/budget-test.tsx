@@ -1,8 +1,8 @@
 import { mockBudgets } from "@/__mocks__/mockData";
-import { editBudget, fetchBudgets } from "@/db/budgets";
-import { getBudgets, updateBudget } from "@/db/database";
+import { getBudgets, updateBudget } from "@/database/budgetDatabase";
+import { editBudget, fetchBudgets } from "@/services/budgets";
 
-jest.mock("@/db/database", () => ({
+jest.mock("@/database/budgetDatabase", () => ({
     getBudgets: jest.fn(),
     updateBudget: jest.fn(),
 }));

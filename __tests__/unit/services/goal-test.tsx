@@ -1,5 +1,12 @@
-import { mockDefaultGoals, mockGoals } from "@/__mocks__/mockData";
-import { editGoal, fetchGoal, resetGoal } from "@/db/goals";
+import {
+    mockDefaultGoals,
+    mockGoals,
+} from "@/__mocks__/mockData";
+import {
+    editGoal,
+    fetchGoal,
+    resetGoal,
+} from "@/services/goals";
 import dayjs from "dayjs";
 import * as SecureStore from 'expo-secure-store';
 

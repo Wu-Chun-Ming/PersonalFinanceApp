@@ -1,7 +1,13 @@
 import { mockTransactions } from "@/__mocks__/mockData";
-import { createTransaction, deleteTransaction, editTransaction, fetchTransaction, fetchTransactions } from "@/db/transactions";
 import useShowToast from "@/hooks/useShowToast";
 import { useCreateTransaction, useDeleteTransaction, useTransaction, useTransactions, useUpdateTransaction } from "@/hooks/useTransactions";
+import {
+	createTransaction,
+	deleteTransaction,
+	editTransaction,
+	fetchTransaction,
+	fetchTransactions,
+} from "@/services/transactions";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { router } from "expo-router";
@@ -21,7 +27,7 @@ jest.mock('@/hooks/useShowToast', () => ({
 }));
 
 // Mock the database functions
-jest.mock("@/db/transactions", () => ({
+jest.mock("@/services/transactions", () => ({
 	fetchTransaction: jest.fn(),
 	fetchTransactions: jest.fn(),
 	createTransaction: jest.fn(),
@@ -35,11 +41,11 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 );
 
 beforeAll(() => {
-  jest.useFakeTimers();	// Use fake timers in tests
+	jest.useFakeTimers();	// Use fake timers in tests
 });
 
 afterAll(() => {
-  jest.useRealTimers(); // Restore real timers after all tests
+	jest.useRealTimers(); // Restore real timers after all tests
 });
 
 // Tests for useTransactions

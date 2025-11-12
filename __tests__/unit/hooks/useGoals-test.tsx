@@ -1,7 +1,13 @@
-import { mockDefaultGoals, mockGoals } from "@/__mocks__/mockData";
-import { editGoal, fetchGoal } from "@/db/goals";
+import {
+	mockDefaultGoals,
+	mockGoals,
+} from "@/__mocks__/mockData";
 import { useGoals, useUpdateGoal } from "@/hooks/useGoals";
 import useShowToast from "@/hooks/useShowToast";
+import {
+	editGoal,
+	fetchGoal,
+} from "@/services/goals";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { ReactNode } from "react";
@@ -13,7 +19,7 @@ jest.mock('@/hooks/useShowToast', () => ({
 }));
 
 // Mock the goals functions
-jest.mock("@/db/goals", () => ({
+jest.mock("@/services/goals", () => ({
 	fetchGoal: jest.fn(),
 	editGoal: jest.fn(),
 	resetGoal: jest.fn(),

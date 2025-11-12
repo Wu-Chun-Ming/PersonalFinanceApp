@@ -1,9 +1,23 @@
-import { mockTransactions } from "@/__mocks__/mockData";
-import { destroyTransaction, getTransactions, showTransaction, storeTransaction, updateTransaction } from "@/db/database";
-import { createTransaction, deleteTransaction, editTransaction, fetchTransaction, fetchTransactions } from "@/db/transactions";
+import {
+    mockTransactions,
+} from "@/__mocks__/mockData";
+import {
+    destroyTransaction,
+    getTransactions,
+    showTransaction,
+    storeTransaction,
+    updateTransaction,
+} from "@/database/transactionDatabase";
+import {
+    createTransaction,
+    deleteTransaction,
+    editTransaction,
+    fetchTransaction,
+    fetchTransactions,
+} from "@/services/transactions";
 
 // Mock the database module
-jest.mock("@/db/database", () => ({
+jest.mock("@/database/transactionDatabase", () => ({
     getTransactions: jest.fn(),
     showTransaction: jest.fn(),
     storeTransaction: jest.fn(),
