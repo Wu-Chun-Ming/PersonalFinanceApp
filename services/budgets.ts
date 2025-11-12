@@ -2,7 +2,7 @@ import { TransactionCategory } from "@/constants/Types";
 import {
     getBudgets,
     updateBudget,
-} from "@/database/transactionDatabase";
+} from "@/database/budgetDatabase";
 
 // Fetch budgets
 export const fetchBudgets = async () => {
