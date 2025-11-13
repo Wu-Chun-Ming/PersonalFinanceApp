@@ -29,16 +29,15 @@ import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { BudgetProps, EXPENSE_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
-import { useBudgets } from '@/hooks/useBudgets';
+import { EXPENSE_CATEGORIES, TransactionType } from '@/constants/Types';
+import { useBudgetData, useBudgets } from '@/hooks/useBudgets';
 import { useBudgetFormik } from '@/hooks/useBudgetsFormik';
-import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const BudgetScreen = () => {
     const font = useFont(inter, 12);
     const {
-        data: budgets,
+        data: budgets = [],
         isLoading,
         isError,
         isRefetchError,
@@ -47,33 +46,16 @@ const BudgetScreen = () => {
     } = useBudgets();
     const {
         data: transactions = [],
-        isLoading: isTransactionsLoading,
-        isError: isTransactionsError,
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-    const selectedYearExpenseTransactions = useFilteredTransactions(transactions ?? [], {
-        type: TransactionType.EXPENSE,
-        recurring: false,
-        startDate: new Date(selectedYear, 0, 1),
-        endDate: new Date(selectedYear, 11, 31),
-    });
-    const selectedMonthExpenseTransactions = useFilteredTransactions(transactions ?? [], {
-        type: TransactionType.EXPENSE,
-        recurring: false,
-        startDate: new Date(selectedYear, selectedMonth - 1, 1),
-        endDate: new Date(selectedYear, selectedMonth, 0),
-    });
-    const selectedYearBudgets = (budgets ?? [])?.filter(budget => budget.year === selectedYear);
-    const selectedMonthBudgets = (budgets ?? [])?.filter(budget => budget.year === selectedYear && budget.month === selectedMonth);
-    const expenseTotalsByCategory = selectedMonthExpenseTransactions.reduce<Record<string, number>>((acc, transaction) => {
-        acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
-        return acc;
-    }, {});
-    const budgetByCategory = selectedMonthBudgets.reduce<Record<string, BudgetProps>>((acc, budget) => {
-        acc[budget.category] = budget;
-        return acc;
-    }, {});
+    const {
+        selectedYearExpenseTransactions,
+        selectedYearBudgets,
+        expenseTotalsByCategory,
+        budgetByCategory,
+        expensesAndBudgetsByMonth,
+    } = useBudgetData(budgets, transactions, selectedYear, selectedMonth);
 
     // Formik setup
     const {
@@ -81,31 +63,6 @@ const BudgetScreen = () => {
         budgetModalVisible,
         setBudgetModalVisible,
     } = useBudgetFormik();
-
-    // Calculate total expenses and budgets per month for the selected year
-    const expensesAndBudgetsByMonth = (selectedYearExpenseTransactions: TransactionProps[], selectedYearBudgets: BudgetProps[]) => {
-        const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
-
-        const expenseTotalByMonth = selectedYearExpenseTransactions.reduce<Record<number, number>>((acc, t) => {
-            const month = new Date(t.date).getMonth() + 1;
-            acc[month] = (acc[month] || 0) + t.amount;      // Add transaction amount to the respective month
-            return acc;
-        }, {});
-
-        const budgetTotalByMonth = selectedYearBudgets.reduce<Record<number, number>>((acc, t) => {
-            const month = t.month;
-            acc[month] = (acc[month] || 0) + t.amount;      // Add budget amount to the respective month
-            return acc;
-        }, {});
-
-        const expensesAndBudgetsByMonth = months_num.map((month) => ({
-            month: month,
-            expensePerMonth: expenseTotalByMonth[month] || 0,
-            budgetPerMonth: budgetTotalByMonth[month] || 0,
-        }));
-
-        return expensesAndBudgetsByMonth;
-    }
 
     const queryState = (
         <QueryState
@@ -152,9 +109,7 @@ const BudgetScreen = () => {
                             flex: 1,
                         }}
                     >
-                        <CartesianChart data={
-                            expensesAndBudgetsByMonth(selectedYearExpenseTransactions, selectedYearBudgets)
-                        }
+                        <CartesianChart data={expensesAndBudgetsByMonth}
                             xKey="month"
                             xAxis={{
                                 font,
