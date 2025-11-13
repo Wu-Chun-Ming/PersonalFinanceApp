@@ -1,7 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { useFormik } from 'formik';
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
@@ -21,7 +20,7 @@ import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionCategory, TransactionType } from '@/constants/Types';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
-import { transactionSchema } from '@/validation/transactionSchema';
+import { useFilteredTransactionsFormik } from '@/hooks/useTransactionsFormik';
 
 const TransactionListScreen = () => {
     const navigation = useNavigation();
@@ -49,18 +48,13 @@ const TransactionListScreen = () => {
     } = useTransactions();
 
     // Formik setup
-    const formik = useFormik({
-        initialValues: {
-            date: date || '',
-            type: type || '',
-            category: category || '',
-            amount: amount || '',
-            recurring: recurring || '',
-            frequency: frequency || '',
-        },
-        validationSchema: transactionSchema,
-        onSubmit: (values) => {
-        }
+    const formik = useFilteredTransactionsFormik({
+        date: date?.toString(),
+        type: type?.toString(),
+        category: category?.toString(),
+        amount: amount?.toString(),
+        recurring: recurring?.toString(),
+        frequency: frequency?.toString(),
     });
 
     const filteredTransactions = useFilteredTransactions(transactions ?? [], {

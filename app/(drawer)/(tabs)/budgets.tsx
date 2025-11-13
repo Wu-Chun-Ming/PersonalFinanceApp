@@ -1,7 +1,6 @@
 import { AntDesign } from '@expo/vector-icons';
 import { useFont } from '@shopify/react-native-skia';
 import { useQueryClient } from '@tanstack/react-query';
-import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
@@ -31,12 +30,12 @@ import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { BudgetProps, EXPENSE_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
-import { useBudgets, useUpdateBudget } from '@/hooks/useBudgets';
+import { BudgetProps, EXPENSE_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
+import { useBudgets } from '@/hooks/useBudgets';
+import { useBudgetFormik } from '@/hooks/useBudgetsFormik';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import useShowToast from '@/hooks/useShowToast';
 import { useTransactions } from '@/hooks/useTransactions';
-import { budgetSchema } from '@/validation/budgetSchema';
 
 const BudgetScreen = () => {
     const queryClient = useQueryClient();
@@ -81,28 +80,8 @@ const BudgetScreen = () => {
     }, {});
     const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
-    const updateMutation = useUpdateBudget();
-
-
     // Formik setup
-    const formik = useFormik({
-        initialValues: {
-            year: (new Date().getFullYear()).toString(),
-            month: (new Date().getMonth() + 1).toString(),
-            category: '',
-            amount: '0',
-        },
-        validationSchema: budgetSchema,
-        onSubmit: (values) => {
-            updateMutation.mutate({
-                year: Number(values.year),
-                month: Number(values.month),
-                category: values.category as TransactionCategory,
-                amount: Number(values.amount),
-            });
-            setBudgetModalVisible(false);
-        }
-    });
+    const formik = useBudgetFormik();
 
     // Calculate total expenses and budgets per month for the selected year
     const expensesAndBudgetsByMonth = (selectedYearExpenseTransactions: TransactionProps[], selectedYearBudgets: BudgetProps[]) => {
@@ -442,6 +421,7 @@ const BudgetScreen = () => {
                                 onPress={async () => {
                                     formik.handleSubmit();
                                     if (!formik.errors) {
+                                        setBudgetModalVisible(false);
                                         queryClient.invalidateQueries({ queryKey: ['budgets'] });      // Invalidate budgets query
                                         refetch();
                                     }

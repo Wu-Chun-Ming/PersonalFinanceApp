@@ -1,7 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { useFormik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,10 +17,10 @@ import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
 import { HStack } from '@/components/ui/hstack';
 import { GOALS_COLOR } from '@/constants/Colors';
-import { useGoals, useUpdateGoal } from '@/hooks/useGoals';
+import { useGoals } from '@/hooks/useGoals';
+import { useGoalsFormik } from '@/hooks/useGoalsFormik';
 import useShowToast from '@/hooks/useShowToast';
 import { resetGoal } from '@/services/goals';
-import { goalSchema } from '@/validation/goalSchema';
 
 const GoalSettingsScreen = () => {
     const queryClient = useQueryClient();
@@ -36,42 +35,23 @@ const GoalSettingsScreen = () => {
         isRefetching,
         refetch
     } = useGoals();
-    const updateMutation = useUpdateGoal();
     const [savingsGoalExists, setSavingsGoalExists] = useState(false);
     const [incomeGoalExists, setIncomeGoalExists] = useState(false);
 
-    // Formik setup
-    const formik = useFormik({
-        initialValues: {
-            savings: {
-                date: goals?.savings.date ? dayjs(goals?.savings.date).format('YYYY-MM-DD') : '',
-                amount: goals?.savings.amount ? goals?.savings.amount.toString() : '',
-            },
-            income: {
-                perDay: goals?.income.perDay ? goals.income.perDay.toString() : '',
-                perMonth: goals?.income.perMonth ? goals.income.perMonth.toString() : '',
-                perYear: goals?.income.perYear ? goals.income.perYear.toString() : '',
-            }
+    const initialGoals = {
+        savings: {
+            date: goals?.savings.date ? dayjs(goals?.savings.date).format('YYYY-MM-DD') : '',
+            amount: goals?.savings.amount ? goals?.savings.amount.toString() : '',
         },
-        validationSchema: goalSchema,
-        onSubmit: (values) => {
-            const transformedGoalsData = {
-                savings: {
-                    date: new Date(values.savings.date),
-                    amount: Number(values.savings.amount),
-                },
-                income: {
-                    perDay: Number(values.income.perDay),
-                    perMonth: Number(values.income.perMonth),
-                    perYear: Number(values.income.perYear),
-                },
-            };
+        income: {
+            perDay: goals?.income.perDay ? goals.income.perDay.toString() : '',
+            perMonth: goals?.income.perMonth ? goals.income.perMonth.toString() : '',
+            perYear: goals?.income.perYear ? goals.income.perYear.toString() : '',
+        }
+    }
 
-            updateMutation.mutate(transformedGoalsData);
-            setSavingsGoalExists((values.savings.date || values.savings.amount) ? true : false);
-            setIncomeGoalExists((values.income.perDay || values.income.perMonth || values.income.perYear) ? true : false);
-        },
-    });
+    // Formik setup
+    const formik = useGoalsFormik(initialGoals);
 
     useEffect(() => {
         setSavingsGoalExists((goals?.savings.date || goals?.savings.amount) ? true : false);

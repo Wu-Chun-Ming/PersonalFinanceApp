@@ -2,8 +2,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { useFormik } from 'formik';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,19 +22,18 @@ import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringDay, RecurringFrequency, TransactionCategory, TransactionType } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringDay, RecurringFrequency, TransactionType } from '@/constants/Types';
 import useShowToast from '@/hooks/useShowToast';
-import { useCreateTransaction, useDeleteTransaction, useTransaction, useUpdateTransaction } from '@/hooks/useTransactions';
-import { getTransactionSchema } from '@/validation/transactionSchema';
+import { useDeleteTransaction, useTransaction } from '@/hooks/useTransactions';
+import { useTransactionFormik } from '@/hooks/useTransactionsFormik';
 
 const TransactionManager = () => {
     const { scannedData } = useContext(ScanContext);
-    const { scanNum = 0 } = useLocalSearchParams();
+    const { scanNum = 0, transactionId } = useLocalSearchParams();
     const navigation = useNavigation();
     const showToast = useShowToast();       // Use the useShowToast hook (custom)
-    const [formAction, setFormAction] = useState<"create" | "update" | "delete" | undefined>(undefined)
+    const [formAction, setFormAction] = useState<"create" | "update">('create')
     const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
-    const { transactionId } = useLocalSearchParams();
     const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
     const {
         data: transaction,
@@ -46,70 +44,17 @@ const TransactionManager = () => {
         isRefetchError,
         refetch
     } = useTransaction(Number(transactionId));
-    const createMutation = useCreateTransaction();
-    const updateMutation = useUpdateTransaction();
     const deleteMutation = useDeleteTransaction();
 
     // Formik setup
-    const formik = useFormik({
-        initialValues: {
-            date: new Date().toString(),
-            type: TransactionType.EXPENSE,
-            category: '',
-            amount: '',
-            description: '',
-            recurring: false,
-            recurring_frequency: {
-                frequency: '',
-                time: {
-                    month: '',
-                    date: '',
-                    day: '',
-                },
-            },
-        },
-        validationSchema: useMemo(
-            () => getTransactionSchema(transactionType),
-            [transactionType]
-        ),
-        onSubmit: (values) => {
-            const transformedTransactionData = {
-                ...values,
-                date: !values.recurring ? new Date(values.date) : null,
-                type: transactionType,
-                category: values.category as TransactionCategory,
-                amount: Number(values.amount),
-                recurring_frequency: values.recurring
-                    ? {
-                        frequency: values.recurring_frequency.frequency as RecurringFrequency,
-                        time: {
-                            month: Number(values.recurring_frequency.time.month) || null,
-                            date: Number(values.recurring_frequency.time.date) || null,
-                            day: values.recurring_frequency.time.day as RecurringDay || null,
-                        },
-                    } : null,
-            };
-            switch (formAction) {
-                case 'create':
-                    createMutation.mutate(transformedTransactionData);
-                    // Remove current scanned data from pending transactions
-                    if (scannedData && scannedData[scanNum]) {
-                        scannedData.splice(scanNum, 1);
-                        if (scannedData.length === 0) {
-                            router.dismiss(1);
-                            router.replace('/');
-                        }
-                    }
-                    break;
-                case 'update':
-                    updateMutation.mutate({
-                        id: Number(transactionId),
-                        updatedTransactionData: transformedTransactionData
-                    });
-                    break;
-            }
-        },
-    });
+    const formik = useTransactionFormik(
+        transactionType,
+        formAction,
+        scannedData,
+        Number(scanNum),
+        Number(transactionId),
+    );
+
     useEffect(() => {
         if (transaction) {
             // Set the current transaction type
