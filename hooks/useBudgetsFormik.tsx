@@ -1,5 +1,6 @@
 import { TransactionCategory } from "@/constants/Types";
 import { budgetSchema } from "@/validation/budgetSchema";
+import { useState } from "react";
 import { useCustomFormik } from "./useAppFormik";
 import { useUpdateBudget } from "./useBudgets";
 
@@ -15,8 +16,9 @@ export const useBudgetFormik = (
     initialBudget?: BudgetFormikProps,
 ) => {
     const updateMutation = useUpdateBudget();
+    const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
-    return useCustomFormik({
+    const budgetFormik = useCustomFormik({
         initialValues: initialBudget || {
             year: (new Date().getFullYear()).toString(),
             month: (new Date().getMonth() + 1).toString(),
@@ -32,6 +34,13 @@ export const useBudgetFormik = (
         }),
         onSubmitCallback: (transformedBudgetData) => {
             updateMutation.mutate(transformedBudgetData);
+            setBudgetModalVisible(false);
         }
     });
+
+    return {
+        budgetFormik,
+        budgetModalVisible,
+        setBudgetModalVisible,
+    };
 };

@@ -47,7 +47,7 @@ const TransactionManager = () => {
     const deleteMutation = useDeleteTransaction();
 
     // Formik setup
-    const formik = useTransactionFormik(
+    const { transactionFormik: formik } = useTransactionFormik(
         transactionType,
         formAction,
         scannedData,

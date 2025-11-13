@@ -48,7 +48,7 @@ const TransactionListScreen = () => {
     } = useTransactions();
 
     // Formik setup
-    const formik = useFilteredTransactionsFormik({
+    const { filteredTxFormik: formik } = useFilteredTransactionsFormik({
         date: date?.toString(),
         type: type?.toString(),
         category: category?.toString(),

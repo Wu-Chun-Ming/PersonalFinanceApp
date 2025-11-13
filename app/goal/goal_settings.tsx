@@ -51,7 +51,7 @@ const GoalSettingsScreen = () => {
     }
 
     // Formik setup
-    const formik = useGoalsFormik(initialGoals);
+    const { goalsFormik: formik } = useGoalsFormik(initialGoals);
 
     useEffect(() => {
         setSavingsGoalExists((goals?.savings.date || goals?.savings.amount) ? true : false);

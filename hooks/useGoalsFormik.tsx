@@ -19,7 +19,7 @@ export const useGoalsFormik = (
 ) => {
     const updateMutation = useUpdateGoal();
 
-    return useCustomFormik({
+    const goalsFormik = useCustomFormik({
         initialValues: initialGoals || {
             savings: {
                 date: '',
@@ -47,4 +47,8 @@ export const useGoalsFormik = (
             updateMutation.mutate(transformedGoalsData);
         },
     });
+
+    return {
+        goalsFormik,
+    };
 };

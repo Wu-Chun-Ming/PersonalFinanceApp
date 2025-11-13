@@ -1,6 +1,5 @@
 import { AntDesign } from '@expo/vector-icons';
 import { useFont } from '@shopify/react-native-skia';
-import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
@@ -34,12 +33,9 @@ import { BudgetProps, EXPENSE_CATEGORIES, TransactionProps, TransactionType } fr
 import { useBudgets } from '@/hooks/useBudgets';
 import { useBudgetFormik } from '@/hooks/useBudgetsFormik';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
-import useShowToast from '@/hooks/useShowToast';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const BudgetScreen = () => {
-    const queryClient = useQueryClient();
-    const showToast = useShowToast();       // Use the useShowToast hook (custom)
     const font = useFont(inter, 12);
     const {
         data: budgets,
@@ -78,10 +74,13 @@ const BudgetScreen = () => {
         acc[budget.category] = budget;
         return acc;
     }, {});
-    const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
     // Formik setup
-    const formik = useBudgetFormik();
+    const {
+        budgetFormik: formik,
+        budgetModalVisible,
+        setBudgetModalVisible,
+    } = useBudgetFormik();
 
     // Calculate total expenses and budgets per month for the selected year
     const expensesAndBudgetsByMonth = (selectedYearExpenseTransactions: TransactionProps[], selectedYearBudgets: BudgetProps[]) => {
@@ -418,14 +417,7 @@ const BudgetScreen = () => {
                                 <ButtonText>Cancel</ButtonText>
                             </Button>
                             <Button
-                                onPress={async () => {
-                                    formik.handleSubmit();
-                                    if (!formik.errors) {
-                                        setBudgetModalVisible(false);
-                                        queryClient.invalidateQueries({ queryKey: ['budgets'] });      // Invalidate budgets query
-                                        refetch();
-                                    }
-                                }}
+                                onPress={() => formik.handleSubmit()}
                             >
                                 <ButtonText>Save</ButtonText>
                             </Button>

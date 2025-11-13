@@ -33,7 +33,7 @@ export const useTransactionFormik = (
     const createMutation = useCreateTransaction();
     const updateMutation = useUpdateTransaction();
 
-    return useCustomFormik({
+    const transactionFormik = useCustomFormik({
         initialValues: initialTransaction || {
             date: new Date().toString(),
             type: TransactionType.EXPENSE,
@@ -92,6 +92,10 @@ export const useTransactionFormik = (
             }
         },
     });
+
+    return {
+        transactionFormik,
+    };
 };
 
 interface FilteredTransactionFormikProps {
@@ -111,7 +115,7 @@ export const useFilteredTransactionsFormik = ({
     recurring,
     frequency,
 }: FilteredTransactionFormikProps) => {
-    return useCustomFormik({
+    const filteredTxFormik = useCustomFormik({
         initialValues: {
             date: date || '',
             type: type || '',
@@ -123,4 +127,8 @@ export const useFilteredTransactionsFormik = ({
         transformValues: (values) => values,
         validationSchema: transactionSchema,
     });
+
+    return {
+        filteredTxFormik,
+    };
 }
