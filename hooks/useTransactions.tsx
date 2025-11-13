@@ -65,28 +65,84 @@ export const useDeleteTransaction = () => {
 // Custom hook to process transactions data
 export const useTransactionData = (
     selectedYear: number,
-    selectedMonth: number
+    selectedMonth?: number,
 ) => {
     const {
         data: transactions = [],
     } = useTransactions();
 
-    const selectedYearExpenseTransactions = useFilteredTransactions(transactions, {
+    // Expense transactions
+    const expenseTransactions = useFilteredTransactions(transactions, {
         type: TransactionType.EXPENSE,
         recurring: false,
-        startDate: new Date(selectedYear, 0, 1),
-        endDate: new Date(selectedYear, 11, 31),
+    });
+    // Income transactions
+    const incomeTransactions = useFilteredTransactions(transactions, {
+        type: TransactionType.INCOME,
+        recurring: false,
     });
 
-    const selectedMonthExpenseTransactions = useFilteredTransactions(transactions, {
-        type: TransactionType.EXPENSE,
-        recurring: false,
-        startDate: new Date(selectedYear, selectedMonth - 1, 1),
-        endDate: new Date(selectedYear, selectedMonth, 0),
+    // Transactions in the selected year
+    const selectedYearTransactions = useFilteredTransactions(
+        selectedYear ? transactions : [],
+        {
+            startDate: new Date(selectedYear, 0, 1),
+            endDate: new Date(selectedYear, 11, 31),
+        }
+    );
+    const selectedYearExpenseTransactions = useFilteredTransactions(
+        selectedYear ? expenseTransactions : [],
+        {
+            startDate: new Date(selectedYear, 0, 1),
+            endDate: new Date(selectedYear, 11, 31),
+        }
+    );
+
+    // Transactions in the selected month
+    const selectedMonthExpenseTransactions = useFilteredTransactions(
+        selectedMonth ? expenseTransactions : [],
+        {
+            startDate: selectedMonth ? new Date(selectedYear, selectedMonth - 1, 1) : undefined,
+            endDate: selectedMonth ? new Date(selectedYear, selectedMonth, 0) : undefined,
+        }
+    );
+
+    const selectedYearTransactionsData = {
+        selectedYearTransactions,
+        selectedYearExpenseTransactions,
+    }
+    const selectedMonthTransactionsData = {
+        selectedMonthExpenseTransactions,
+    }
+
+    return {
+        expenseTransactions,
+        incomeTransactions,
+        ...selectedYearTransactionsData,
+        ...selectedMonthTransactionsData,
+    };
+};
+
+export const useIncomeGraphTransactions = (
+    incomeTransactions: TransactionProps[],
+    incomeGraphMode: 'day' | 'month' | 'year',
+) => {
+    const now = new Date();
+
+    // Transactions in the selected period for income graph
+    // 'day' => current month
+    // 'month' => current year
+    // 'year' => last 12 years
+    const selectedPeriodIncomeTransactions = useFilteredTransactions(incomeTransactions, {
+        startDate: incomeGraphMode === 'day' ? new Date(now.getFullYear(), now.getMonth(), 1)       // First day of current month
+            : incomeGraphMode === 'month' ? new Date(now.getFullYear(), 0, 1)                       // First day of current year
+                : new Date(now.getFullYear() - 11, 0, 1),                                           // First day of year (11 years ago)
+        endDate: incomeGraphMode === 'day' ? new Date(now.getFullYear(), now.getMonth() + 1, 0)     // Last day of current month
+            : incomeGraphMode === 'month' ? new Date(now.getFullYear() + 1, 0, 0)                   // Last day of current year
+                : new Date(now.getFullYear() + 1, 0, 0),                                            // Last day of current year
     });
 
     return {
-        selectedYearExpenseTransactions,
-        selectedMonthExpenseTransactions,
+        selectedPeriodIncomeTransactions,
     };
-};
+}
