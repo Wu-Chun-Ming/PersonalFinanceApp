@@ -320,13 +320,14 @@ const GoalsScreen = () => {
                                 font,
                                 tickCount: incomeGraphMode === 'day' ? 31 : 12,
                                 formatXLabel: (value) => {
-                                    if (incomeGraphMode === "day") {
-                                        return value % 5 === 0 || value === 1 ? String(value) : "";
-                                    } else if (incomeGraphMode === "year") {
-                                        return value % 2 === 0 ? String(value) : "";
-                                    } else {
-                                        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                                        return months[value - 1] || "";
+                                    switch (incomeGraphMode) {
+                                        case "day":
+                                            return value % 5 === 0 || value === 1 ? String(value) : "";
+                                        case "year":
+                                            return value % 2 === 0 ? String(value) : "";
+                                        default:
+                                            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                            return months[value - 1] || "";
                                     }
                                 },
                             }}
@@ -357,7 +358,7 @@ const GoalsScreen = () => {
                 href={`/goal/goal_settings`}
                 icon={AddIcon}
             />
-        </SafeAreaView>
+        </SafeAreaView >
     );
 };
 

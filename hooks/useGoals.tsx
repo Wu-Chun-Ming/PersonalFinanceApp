@@ -173,24 +173,26 @@ export const useGoalData = (
         const days_num: number[] = Array.from({ length: 31 }, (_, i) => i + 1);
         const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
         const years_num = Array.from({ length: 12 }, (_, i) => now.getFullYear() - 11 + i);
-        if (period === 'day') {
-            incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
-                const day = new Date(t.date).getDate();
-                acc[day] = (acc[day] || 0) + t.amount;          // Add transaction amount to the respective day based on current month
-                return acc;
-            }, {});
-        } else if (period === 'year') {
-            incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
-                const year = new Date(t.date).getFullYear();
-                acc[year] = (acc[year] || 0) + t.amount;        // Add transaction amount to the respective year
-                return acc;
-            }, {});
-        } else {
-            incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
-                const month = new Date(t.date).getMonth() + 1;
-                acc[month] = (acc[month] || 0) + t.amount;      // Add transaction amount to the respective month
-                return acc;
-            }, {});
+
+        switch (period) {
+            case 'day':
+                incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
+                    const day = new Date(t.date).getDate();
+                    acc[day] = (acc[day] || 0) + t.amount;          // Add transaction amount to the respective day based on current month
+                    return acc;
+                }, {});
+            case 'year':
+                incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
+                    const year = new Date(t.date).getFullYear();
+                    acc[year] = (acc[year] || 0) + t.amount;        // Add transaction amount to the respective year
+                    return acc;
+                }, {});
+            default:
+                incomeByPeriod = selectedPeriodIncomeTransactions.reduce<Record<number, number>>((acc, t) => {
+                    const month = new Date(t.date).getMonth() + 1;
+                    acc[month] = (acc[month] || 0) + t.amount;      // Add transaction amount to the respective month
+                    return acc;
+                }, {});
         }
 
         const period_num = period === 'day' ? days_num : period === 'year' ? years_num : months_num;
