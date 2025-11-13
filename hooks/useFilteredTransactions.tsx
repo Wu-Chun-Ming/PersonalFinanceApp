@@ -36,24 +36,29 @@ export const useFilteredTransactions = (
     const filteredTransactions = useMemo(() => {
         if (!transactions || transactions.length === 0) return [];
 
-        return transactions.filter(transaction =>
-            (!date || new Date(transaction.date).getTime() === new Date(date).getTime())
-            &&
-            (
-                (!startDate || new Date(transaction.date) >= new Date(startDate))
-                && (!endDate || new Date(transaction.date) < new Date(endDate))
-            )
-            && (!type || transaction.type === type)
-            && (!category || transaction.category === category)
-            && (!amount || transaction.amount === amount)
-            &&
-            (
-                (!minAmount || transaction.amount >= minAmount)
-                && (!maxAmount || transaction.amount < maxAmount)
-            )
-            && (recurring === undefined || transaction.recurring === recurring)
-            && (!frequency || transaction.recurring_frequency?.frequency === frequency)
-        );
+        const dateObj = date ? new Date(date).getTime() : undefined;
+        const startDateObj = startDate ? new Date(startDate) : undefined;
+        const endDateObj = endDate ? new Date(endDate) : undefined;
+
+        return transactions.filter(transaction => {
+            const tDate = new Date(transaction.date);
+            return (!date || tDate.getTime() === dateObj)
+                &&
+                (
+                    (!startDate || tDate >= startDateObj!)
+                    && (!endDate || tDate < endDateObj!)
+                )
+                && (!type || transaction.type === type)
+                && (!category || transaction.category === category)
+                && (!amount || transaction.amount === amount)
+                &&
+                (
+                    (!minAmount || transaction.amount >= minAmount)
+                    && (!maxAmount || transaction.amount < maxAmount)
+                )
+                && (recurring === undefined || transaction.recurring === recurring)
+                && (!frequency || transaction.recurring_frequency?.frequency === frequency)
+        });
     }, [transactions, date, startDate, endDate, type, category, amount, minAmount, maxAmount, recurring, frequency]);
 
     return filteredTransactions;
