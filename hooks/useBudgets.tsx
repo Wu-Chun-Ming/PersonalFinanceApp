@@ -1,9 +1,8 @@
-import { BudgetProps, TransactionProps, TransactionType } from "@/constants/Types";
+import { BudgetProps, TransactionProps } from "@/constants/Types";
 import { editBudget, fetchBudgets } from "@/services/budgets";
 import { useMemo } from "react";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";
-import { useFilteredTransactions } from "./useFilteredTransactions";
 
 // Custom hook to fetch budgets
 export const useBudgets = () => {
@@ -25,34 +24,20 @@ export const useUpdateBudget = () => {
 // Custom hook to process budget data
 export const useBudgetData = (
     budgets: BudgetProps[],
-    transactions: TransactionProps[],
+    selectedYearExpenseTransactions: TransactionProps[],
+    selectedMonthExpenseTransactions: TransactionProps[],
     selectedYear: number,
     selectedMonth: number
 ) => {
-    const selectedYearExpenseTransactions = useFilteredTransactions(transactions, {
-        type: TransactionType.EXPENSE,
-        recurring: false,
-        startDate: new Date(selectedYear, 0, 1),
-        endDate: new Date(selectedYear, 11, 31),
-    });
-
-    const selectedMonthExpenseTransactions = useFilteredTransactions(transactions, {
-        type: TransactionType.EXPENSE,
-        recurring: false,
-        startDate: new Date(selectedYear, selectedMonth - 1, 1),
-        endDate: new Date(selectedYear, selectedMonth, 0),
-    });
-
-    const selectedYearBudgets = (budgets).filter(b => b.year === selectedYear);
     const selectedMonthBudgets = (budgets).filter(b => b.year === selectedYear && b.month === selectedMonth);
-
+    // Calculate total expenses per category for the selected month
     const expenseTotalsByCategory = useMemo(() =>
         selectedMonthExpenseTransactions.reduce<Record<string, number>>((acc, t) => {
             acc[t.category] = (acc[t.category] || 0) + t.amount;
             return acc;
         }, {}), [selectedMonthExpenseTransactions]
     );
-
+    // Calculate budget by category for the selected month
     const budgetByCategory = useMemo(() =>
         selectedMonthBudgets.reduce<Record<string, BudgetProps>>((acc, b) => {
             acc[b.category] = b;
@@ -60,6 +45,7 @@ export const useBudgetData = (
         }, {}), [selectedMonthBudgets]
     );
 
+    const selectedYearBudgets = (budgets).filter(b => b.year === selectedYear);
     // Calculate total expenses and budgets per month for the selected year
     const expensesAndBudgetsByMonth = (
         selectedYearExpenseTransactions: TransactionProps[],
@@ -88,8 +74,6 @@ export const useBudgetData = (
     }
 
     return {
-        selectedYearExpenseTransactions,
-        selectedMonthExpenseTransactions,
         selectedYearBudgets,
         selectedMonthBudgets,
         expenseTotalsByCategory,

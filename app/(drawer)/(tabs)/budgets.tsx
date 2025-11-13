@@ -32,7 +32,7 @@ import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, TransactionType } from '@/constants/Types';
 import { useBudgetData, useBudgets } from '@/hooks/useBudgets';
 import { useBudgetFormik } from '@/hooks/useBudgetsFormik';
-import { useTransactions } from '@/hooks/useTransactions';
+import { useTransactionData } from '@/hooks/useTransactions';
 
 const BudgetScreen = () => {
     const font = useFont(inter, 12);
@@ -44,18 +44,18 @@ const BudgetScreen = () => {
         isRefetching,
         refetch
     } = useBudgets();
-    const {
-        data: transactions = [],
-    } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
     const {
         selectedYearExpenseTransactions,
+        selectedMonthExpenseTransactions,
+    } = useTransactionData(selectedYear, selectedMonth);
+    const {
         selectedYearBudgets,
         expenseTotalsByCategory,
         budgetByCategory,
         expensesAndBudgetsByMonth,
-    } = useBudgetData(budgets, transactions, selectedYear, selectedMonth);
+    } = useBudgetData(budgets, selectedYearExpenseTransactions, selectedMonthExpenseTransactions, selectedYear, selectedMonth);
 
     // Formik setup
     const {

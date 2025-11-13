@@ -1,4 +1,4 @@
-import { TransactionProps } from "@/constants/Types";
+import { TransactionProps, TransactionType } from "@/constants/Types";
 import {
     createTransaction,
     deleteTransaction,
@@ -9,6 +9,7 @@ import {
 import { router } from "expo-router";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";
+import { useFilteredTransactions } from "./useFilteredTransactions";
 
 // Custom hook to fetch transactions
 export const useTransactions = () => {
@@ -60,3 +61,32 @@ export const useDeleteTransaction = () => {
         onInvalidationComplete: () => router.back(),    // Navigate to previous page after deleting transaction
     });
 }
+
+// Custom hook to process transactions data
+export const useTransactionData = (
+    selectedYear: number,
+    selectedMonth: number
+) => {
+    const {
+        data: transactions = [],
+    } = useTransactions();
+
+    const selectedYearExpenseTransactions = useFilteredTransactions(transactions, {
+        type: TransactionType.EXPENSE,
+        recurring: false,
+        startDate: new Date(selectedYear, 0, 1),
+        endDate: new Date(selectedYear, 11, 31),
+    });
+
+    const selectedMonthExpenseTransactions = useFilteredTransactions(transactions, {
+        type: TransactionType.EXPENSE,
+        recurring: false,
+        startDate: new Date(selectedYear, selectedMonth - 1, 1),
+        endDate: new Date(selectedYear, selectedMonth, 0),
+    });
+
+    return {
+        selectedYearExpenseTransactions,
+        selectedMonthExpenseTransactions,
+    };
+};
