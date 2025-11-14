@@ -25,6 +25,7 @@ import BarChart from '@/components/BarChart';
 import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
+import YearSelector from '@/components/YearSelector';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, TransactionType } from '@/constants/Types';
 import { useBudgetData, useBudgets } from '@/hooks/useBudgets';
@@ -83,20 +84,9 @@ const BudgetScreen = () => {
                     width: '95%',
                     height: "100%",
                 }}>
-                    <HStack className="justify-center items-center m-2">
-                        <TouchableOpacity onPress={() => setSelectedYear(selectedYear - 1)}>
-                            <AntDesign name="leftcircle" size={24} color='black' style={{ paddingHorizontal: 10 }} />
-                        </TouchableOpacity>
-
-                        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                            Year {selectedYear}
-                        </Text>
-
-                        <TouchableOpacity onPress={() => setSelectedYear(selectedYear + 1)}>
-                            <AntDesign name="rightcircle" size={24} color='black' style={{ paddingHorizontal: 10 }} />
-                        </TouchableOpacity>
-                    </HStack>
-
+                    <YearSelector
+                        onYearChange={(year) => setSelectedYear(year)}
+                    />
                     {(
                         (selectedYearExpenseTransactions && selectedYearExpenseTransactions.length > 0)
                         || (selectedYearBudgets && selectedYearBudgets.length > 0)

@@ -1,7 +1,6 @@
-import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 
 // Gluestack UI
 import { HStack } from '@/components/ui/hstack';
@@ -13,6 +12,7 @@ import styles from '@/app/styles';
 import { ActionFab } from '@/components/ActionFab';
 import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
+import YearSelector from '@/components/YearSelector';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 import { useTransactionData, useTransactions } from '@/hooks/useTransactions';
@@ -143,20 +143,9 @@ const TransactionScreen = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <HStack className="justify-center items-center m-2">
-                <TouchableOpacity onPress={() => setSelectedYear(selectedYear - 1)}>
-                    <AntDesign name="leftcircle" size={24} color='black' style={{ paddingHorizontal: 10 }} />
-                </TouchableOpacity>
-
-                <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                    Year {selectedYear}
-                </Text>
-
-                <TouchableOpacity onPress={() => setSelectedYear(selectedYear + 1)}>
-                    <AntDesign name="rightcircle" size={24} color='black' style={{ paddingHorizontal: 10 }} />
-                </TouchableOpacity>
-            </HStack>
-
+            <YearSelector
+                onYearChange={(year) => setSelectedYear(year)}
+            />
             {/* Bar Chart */}
             <View style={[styles.centered, {
                 height: "40%",

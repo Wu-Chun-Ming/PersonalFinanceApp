@@ -1,6 +1,5 @@
-import { AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import * as Progress from 'react-native-progress';
 
@@ -17,6 +16,7 @@ import { ActionFab } from '@/components/ActionFab';
 import BarChart from '@/components/BarChart';
 import Graph from '@/components/Graph';
 import QueryState from '@/components/QueryState';
+import YearSelector from '@/components/YearSelector';
 import { GOALS_COLOR } from '@/constants/Colors';
 import {
     defaultGoalsData,
@@ -215,20 +215,10 @@ const GoalsScreen = () => {
                     height: 280,
                     paddingVertical: 10,
                 }]}>
-                    <HStack className="justify-between items-center mb-2">
-                        <TouchableOpacity onPress={() => setSelectedYear(selectedYear - 1)}>
-                            <AntDesign name="leftcircle" size={24} color={GOALS_COLOR['savings']} style={{ paddingHorizontal: 10 }} />
-                        </TouchableOpacity>
-
-                        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                            Year {selectedYear}
-                        </Text>
-
-                        <TouchableOpacity onPress={() => setSelectedYear(selectedYear + 1)}>
-                            <AntDesign name="rightcircle" size={24} color={GOALS_COLOR['savings']} style={{ paddingHorizontal: 10 }} />
-                        </TouchableOpacity>
-                    </HStack>
-
+                    <YearSelector
+                        onYearChange={(year) => setSelectedYear(year)}
+                        iconColor={GOALS_COLOR['savings']}
+                    />
                     <View style={{
                         flex: 1,
                         width: '95%',
