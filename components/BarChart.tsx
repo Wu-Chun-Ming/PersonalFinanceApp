@@ -1,6 +1,6 @@
 import styles from "@/app/styles";
 import { useFont } from "@shopify/react-native-skia";
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { BarGroup, CartesianChart } from "victory-native";
 import { Box } from "./ui/box";
 import { HStack } from "./ui/hstack";
@@ -23,7 +23,10 @@ const BarChart = ({
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     return (
-        <>
+        <View style={{
+            flex: 1,
+            width: '95%',
+        }}>
             <CartesianChart
                 data={data}
                 xKey={xKey}
@@ -77,7 +80,7 @@ const BarChart = ({
                     </HStack>
                 ))}
             </HStack>
-        </>
+        </View>
     );
 };
 
