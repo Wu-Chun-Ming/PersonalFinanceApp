@@ -233,11 +233,15 @@ const GoalsScreen = () => {
                         flex: 1,
                         width: '95%',
                     }}>
-                        {transactions && <BarChart
+                        {(selectedYearTransactions && selectedYearTransactions.length > 0) ? <BarChart
                             data={getSavingsPerMonth(selectedYearTransactions)}
                             xKey="month"
                             yKeys={[["savings", GOALS_COLOR['savings']]]}
-                        />}
+                        /> : <View style={styles.centeredFlex}>
+                            <Text style={[styles.text, {
+                                fontWeight: 'bold',
+                            }]}>No data available.</Text>
+                        </View>}
                     </View>
                 </View>
 

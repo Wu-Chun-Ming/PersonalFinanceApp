@@ -18,7 +18,7 @@ import styles from '@/app/styles';
 import { ActionFab } from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionProps, TransactionType } from '@/constants/Types';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
 import { initializeDatabase } from '@/database/init';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -272,7 +272,7 @@ const App = () => {
           : <View style={styles.centeredFlex}>
             <Text style={[styles.text, {
               fontWeight: 'bold',
-            }]}>No transaction data available.</Text>
+            }]}>No data available.</Text>
           </View>}
       </View>
 

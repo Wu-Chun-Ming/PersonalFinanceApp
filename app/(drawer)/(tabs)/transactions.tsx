@@ -15,12 +15,11 @@ import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
-import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
-import { useTransactions } from '@/hooks/useTransactions';
+import { useTransactionData, useTransactions } from '@/hooks/useTransactions';
 
 const TransactionScreen = () => {
     const {
-        data: transactions,
+        data: transactions = [],
         isLoading,
         isError,
         isRefetchError,
@@ -28,11 +27,7 @@ const TransactionScreen = () => {
         refetch
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const selectedYearTransactions = useFilteredTransactions(transactions ?? [], {
-        recurring: false,
-        startDate: new Date(selectedYear, 0, 1),
-        endDate: new Date(selectedYear, 11, 31),
-    });
+    const { selectedYearTransactions } = useTransactionData(selectedYear);
 
     // Calculate the total amount based on transaction type and category
     const getTransactionBreakdownByType = (selectedYearTransactions: TransactionProps[], categories: TransactionCategory[], transactionType: TransactionType) => {
@@ -172,26 +167,22 @@ const TransactionScreen = () => {
                     height: "100%",
                 }}>
                     {(selectedYearTransactions && selectedYearTransactions.length > 0) ?
-                        <VStack
-                            style={{
-                                flex: 1,
-                            }}
-                        >
-                            <BarChart
-                                data={transactionsByMonth(selectedYearTransactions)}
-                                xKey='month'
-                                yKeys={[
-                                    ['expensePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
-                                    ['incomePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.INCOME]],
-                                ]}
-                                legends={[
-                                    ['Expense', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
-                                    ['Income', TRANSACTION_TYPE_COLORS[TransactionType.INCOME]],
-                                ]}
-                            />
-                        </VStack>
+                        <BarChart
+                            data={transactionsByMonth(selectedYearTransactions)}
+                            xKey='month'
+                            yKeys={[
+                                ['expensePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
+                                ['incomePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.INCOME]],
+                            ]}
+                            legends={[
+                                ['Expense', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
+                                ['Income', TRANSACTION_TYPE_COLORS[TransactionType.INCOME]],
+                            ]}
+                        />
                         : <View style={styles.centeredFlex}>
-                            <Text style={[styles.text, { fontWeight: 'bold' }]}>No transaction data available.</Text>
+                            <Text style={[styles.text, {
+                                fontWeight: 'bold',
+                            }]}>No data available.</Text>
                         </View>}
                 </View>
             </View>
