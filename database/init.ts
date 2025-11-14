@@ -1,3 +1,7 @@
+import {
+    getDatabaseInitialized,
+    setDatabaseInitialized,
+} from '@/services/appState';
 import * as SQLite from 'expo-sqlite';
 import {
     budgetTableSchema,
@@ -19,7 +23,7 @@ export const getDatabaseInstance = async () => {
 };
 
 // Initialise database
-export const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
+const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
     try {
         // Get the database instance
         const db = dbInstance || (await getDatabaseInstance());
@@ -32,4 +36,19 @@ export const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => 
     } catch (error) {
         throw new Error(`Error creating the database or table: ${(error as Error).message}`);
     }
-}
+};
+
+// Check if the database has been initialized
+export const checkDatabaseInitialization = async () => {
+    try {
+        const dbInitialized = await getDatabaseInitialized();
+
+        // Create the database if not initialized
+        if (!dbInitialized) {
+            await initializeDatabase();
+            await setDatabaseInitialized(true);
+        }
+    } catch (error) {
+        console.error('Error checking database initialization:', (error as Error).message);
+    }
+};

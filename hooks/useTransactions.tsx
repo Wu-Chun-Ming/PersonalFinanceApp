@@ -10,6 +10,7 @@ import { router } from "expo-router";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";
 import { useFilteredTransactions } from "./useFilteredTransactions";
+import { useLastOpenDate } from "./useLastOpenDate";
 
 // Custom hook to fetch transactions
 export const useTransactions = () => {
@@ -64,22 +65,33 @@ export const useDeleteTransaction = () => {
 
 // Custom hook to process transactions data
 export const useTransactionData = (
-    selectedYear: number,
+    selectedYear?: number,
     selectedMonth?: number,
 ) => {
     const {
         data: transactions = [],
     } = useTransactions();
+    const { lastOpenDate } = useLastOpenDate();
 
-    // Expense transactions
-    const expenseTransactions = useFilteredTransactions(transactions, {
-        type: TransactionType.EXPENSE,
+    // Recurring and non-recurring transactions
+    const nonRecurringTransactions = useFilteredTransactions(transactions, {
         recurring: false,
     });
+    const recurringTransactions = useFilteredTransactions(transactions, {
+        recurring: true,
+    });
+    const recurringTransactionsFromLastOpen = useFilteredTransactions(recurringTransactions ?? [], {
+        startDate: lastOpenDate,
+        endDate: new Date(),
+    });
+
+    // Expense transactions
+    const expenseTransactions = useFilteredTransactions(nonRecurringTransactions, {
+        type: TransactionType.EXPENSE,
+    });
     // Income transactions
-    const incomeTransactions = useFilteredTransactions(transactions, {
+    const incomeTransactions = useFilteredTransactions(nonRecurringTransactions, {
         type: TransactionType.INCOME,
-        recurring: false,
     });
 
     // Transactions in the selected year
@@ -116,6 +128,9 @@ export const useTransactionData = (
     }
 
     return {
+        nonRecurringTransactions,
+        recurringTransactions,
+        recurringTransactionsFromLastOpen,
         expenseTransactions,
         incomeTransactions,
         ...selectedYearTransactionsData,
