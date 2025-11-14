@@ -1,10 +1,8 @@
 import { AntDesign } from '@expo/vector-icons';
-import { useFont } from '@shopify/react-native-skia';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import * as Progress from 'react-native-progress';
-import { CartesianChart, Line } from 'victory-native';
 
 // Gluestack UI
 import { Divider } from '@/components/ui/divider';
@@ -15,9 +13,9 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import inter from "@/assets/inter-medium.ttf";
 import { ActionFab } from '@/components/ActionFab';
 import BarChart from '@/components/BarChart';
+import Graph from '@/components/Graph';
 import QueryState from '@/components/QueryState';
 import { GOALS_COLOR } from '@/constants/Colors';
 import {
@@ -32,7 +30,6 @@ import {
 } from '@/hooks/useTransactions';
 
 const GoalsScreen = () => {
-    const font = useFont(inter, 12);
     const [incomeProgressMode, setIncomeProgressMode] = useState<'day' | 'month' | 'year'>('month');
     const [incomeGraphMode, setIncomeGraphMode] = useState<'day' | 'month' | 'year'>('month');
     const {
@@ -293,40 +290,12 @@ const GoalsScreen = () => {
                         flex: 1,
                         width: '95%',
                     }}>
-                        {selectedPeriodIncomeTransactions && <CartesianChart
+                        {selectedPeriodIncomeTransactions && <Graph
                             data={getIncomeByPeriod(selectedPeriodIncomeTransactions, incomeGraphMode)}
-                            xKey="period"
-                            xAxis={{
-                                font,
-                                tickCount: incomeGraphMode === 'day' ? 31 : 12,
-                                formatXLabel: (value) => {
-                                    switch (incomeGraphMode) {
-                                        case "day":
-                                            return value % 5 === 0 || value === 1 ? String(value) : "";
-                                        case "year":
-                                            return value % 2 === 0 ? String(value) : "";
-                                        default:
-                                            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                                            return months[value - 1] || "";
-                                    }
-                                },
-                            }}
-                            yKeys={["income"]}
-                            axisOptions={{
-                                font,
-                                lineColor: "#d4d4d8",
-                            }}
-                            domainPadding={{ left: 20, right: 20, top: 10, }}
-                        >
-                            {({ points }) => (
-                                <Line
-                                    points={points.income}
-                                    color={GOALS_COLOR['income']}
-                                    strokeWidth={3}
-                                    animate={{ type: "timing", duration: 300 }}
-                                />
-                            )}
-                        </CartesianChart>}
+                            xKey='period'
+                            yKeys={[['income', GOALS_COLOR['income']]]}
+                            graphMode={incomeGraphMode}
+                        />}
                     </View>
                 </View>
                 {/* Reserve Space for Floating Action Button */}
