@@ -6,11 +6,15 @@ import {
     fetchTransaction,
     fetchTransactions,
 } from "@/services/transactions";
+import {
+    getMonthRange,
+    getYearRange,
+} from "@/utils/dateRanges";
 import { router } from "expo-router";
+import { useMemo } from "react";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";
 import { useFilteredTransactions } from "./useFilteredTransactions";
-import { useLastOpenDate } from "./useLastOpenDate";
 
 // Custom hook to fetch transactions
 export const useTransactions = () => {
@@ -68,74 +72,73 @@ export const useTransactionData = (
     selectedYear?: number,
     selectedMonth?: number,
 ) => {
-    const {
-        data: transactions = [],
-    } = useTransactions();
-    const { lastOpenDate } = useLastOpenDate();
+    const { data: transactions = [] } = useTransactions();
 
-    // Recurring and non-recurring transactions
-    const nonRecurringTransactions = useFilteredTransactions(transactions, {
-        recurring: false,
-    });
-    const recurringTransactions = useFilteredTransactions(transactions, {
-        recurring: true,
-    });
-    const recurringTransactionsFromLastOpen = useFilteredTransactions(recurringTransactions ?? [], {
-        startDate: lastOpenDate,
-        endDate: new Date(),
-    });
+    const yearRange = getYearRange(selectedYear);
+    const monthRange = getMonthRange(selectedYear, selectedMonth);
 
-    // Expense transactions
-    const expenseTransactions = useFilteredTransactions(nonRecurringTransactions, {
-        type: TransactionType.EXPENSE,
-    });
-    // Income transactions
-    const incomeTransactions = useFilteredTransactions(nonRecurringTransactions, {
-        type: TransactionType.INCOME,
-    });
+    return useMemo(() => {
+        const buckets = {
+            expenseTransactions: [] as TransactionProps[],
+            incomeTransactions: [] as TransactionProps[],
+            nonRecurringTransactions: [] as TransactionProps[],
+            recurringTransactions: [] as TransactionProps[],
+            selectedYearTransactions: [] as TransactionProps[],
+            selectedYearExpenseTransactions: [] as TransactionProps[],
+            selectedMonthExpenseTransactions: [] as TransactionProps[],
+        };
 
-    // Transactions in the selected year
-    const selectedYearTransactions = useFilteredTransactions(
-        selectedYear ? transactions : [],
-        {
-            startDate: new Date(selectedYear, 0, 1),
-            endDate: new Date(selectedYear, 11, 31),
+        for (const t of transactions) {
+            const isExpense = t.type === TransactionType.EXPENSE;
+            const isIncome = t.type === TransactionType.INCOME;
+            const isRecurring = t.recurring;
+            const isNonRecurring = !isRecurring;
+
+            if (isExpense) buckets.expenseTransactions.push(t);
+            if (isIncome) buckets.incomeTransactions.push(t);
+            if (isNonRecurring) buckets.nonRecurringTransactions.push(t);
+            if (isRecurring) buckets.recurringTransactions.push(t);
+
+            if (isNonRecurring && t.date) {
+                const date = new Date(t.date);
+                // Transactions in the selected year
+                if (
+                    yearRange
+                    && date >= yearRange.start
+                    && date < yearRange.end
+                ) {
+                    buckets.selectedYearTransactions.push(t);
+                    if (isExpense) buckets.selectedYearExpenseTransactions.push(t);
+                }
+
+                // Transactions in the selected month
+                if (
+                    monthRange
+                    && date >= monthRange.start
+                    && date < monthRange.end
+                ) {
+                    if (isExpense) buckets.selectedMonthExpenseTransactions.push(t);
+                }
+            }
         }
-    );
-    const selectedYearExpenseTransactions = useFilteredTransactions(
-        selectedYear ? expenseTransactions : [],
-        {
-            startDate: new Date(selectedYear, 0, 1),
-            endDate: new Date(selectedYear, 11, 31),
+
+        const selectedYearTransactionsData = {
+            selectedYearTransactions: buckets.selectedYearTransactions,
+            selectedYearExpenseTransactions: buckets.selectedYearExpenseTransactions,
         }
-    );
-
-    // Transactions in the selected month
-    const selectedMonthExpenseTransactions = useFilteredTransactions(
-        selectedMonth ? expenseTransactions : [],
-        {
-            startDate: selectedMonth ? new Date(selectedYear, selectedMonth - 1, 1) : undefined,
-            endDate: selectedMonth ? new Date(selectedYear, selectedMonth, 0) : undefined,
+        const selectedMonthTransactionsData = {
+            selectedMonthExpenseTransactions: buckets.selectedMonthExpenseTransactions,
         }
-    );
 
-    const selectedYearTransactionsData = {
-        selectedYearTransactions,
-        selectedYearExpenseTransactions,
-    }
-    const selectedMonthTransactionsData = {
-        selectedMonthExpenseTransactions,
-    }
-
-    return {
-        nonRecurringTransactions,
-        recurringTransactions,
-        recurringTransactionsFromLastOpen,
-        expenseTransactions,
-        incomeTransactions,
-        ...selectedYearTransactionsData,
-        ...selectedMonthTransactionsData,
-    };
+        return {
+            expenseTransactions: buckets.expenseTransactions,
+            incomeTransactions: buckets.incomeTransactions,
+            nonRecurringTransactions: buckets.nonRecurringTransactions,
+            recurringTransactions: buckets.recurringTransactions,
+            ...selectedYearTransactionsData,
+            ...selectedMonthTransactionsData,
+        };
+    }, [transactions, yearRange, monthRange]);
 };
 
 export const useIncomeGraphTransactions = (
