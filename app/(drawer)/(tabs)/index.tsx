@@ -16,12 +16,16 @@ import styles from '@/app/styles';
 import { ActionFab } from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
-import { useTransactionData, useTransactions } from '@/hooks/useTransactions';
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionType } from '@/constants/Types';
+import {
+  usePieChartTransactions,
+  useTransactionData,
+  useTransactions,
+} from '@/hooks/useTransactions';
 
 const App = () => {
   const {
-    data: transactions,
+    data: transactions = [],
     isLoading,
     isError,
     isSuccess,
@@ -30,31 +34,14 @@ const App = () => {
     refetch
   } = useTransactions();
   const {
-    nonRecurringTransactions,
+    expenseTransactions,
+    incomeTransactions,
+    nonRecurringTransactions
   } = useTransactionData();
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
-
-  // Filter the transactions by transaction type and category
-  const filterTransactions = (transactions: TransactionProps[], type: TransactionType) => {
-    const categories = type === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-    const transactionsByType = transactions.filter((transaction) => transaction.type === type);
-    const totalsMap: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
-
-    // Calculate totals for each category
-    for (const transaction of transactionsByType) {
-      const category = transaction.category;
-      if (!totalsMap[category]) {
-        totalsMap[category] = 0;
-      }
-      totalsMap[category] += transaction.amount;
-    }
-
-    return categories.map(category => ({
-      label: category,
-      value: totalsMap[category] || 0,
-      color: CATEGORY_COLORS[category],
-    }));
-  }
+  const {
+    transactionsPerCategory,
+  } = usePieChartTransactions(expenseTransactions, incomeTransactions, transactionType);
 
   // Calculate the total amount based on transaction type and category
   const TransactionBreakdown = ({ type }: { type: 'expense' | 'income' }) => {
@@ -171,9 +158,9 @@ const App = () => {
         height: "40%",
         paddingVertical: 10,
       }}>
-        {transactions ?
+        {(transactionsPerCategory && transactionsPerCategory.length > 0) ?
           <PolarChart
-            data={filterTransactions(nonRecurringTransactions, transactionType)}
+            data={transactionsPerCategory}
             labelKey={"label"}
             valueKey={"value"}
             colorKey={"color"}
@@ -215,7 +202,7 @@ const App = () => {
             </HStack>
           </View>
           {/* Total by Category */}
-          {transactions && <TransactionBreakdown type={transactionType} />}
+          {transactionsPerCategory && <TransactionBreakdown type={transactionType} />}
         </View>
 
         {/* Reserve Space for Floating Action Button */}

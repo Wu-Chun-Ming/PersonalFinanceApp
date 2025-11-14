@@ -1,4 +1,11 @@
-import { TransactionProps, TransactionType } from "@/constants/Types";
+import { CATEGORY_COLORS } from "@/constants/Colors";
+import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES,
+    TransactionCategory,
+    TransactionProps,
+    TransactionType,
+} from "@/constants/Types";
 import {
     createTransaction,
     deleteTransaction,
@@ -140,6 +147,35 @@ export const useTransactionData = (
         };
     }, [transactions, yearRange, monthRange]);
 };
+
+export const usePieChartTransactions = (
+    expenseTransactions: TransactionProps[],
+    incomeTransactions: TransactionProps[],
+    transactionType: TransactionType,
+) => {
+    const transactionsByType = (transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions;
+    const categories = (transactionType === TransactionType.EXPENSE) ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+
+    // Calculate totals by category
+    const transactionsPerCategory = useMemo(() => {
+        const totalsMap: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
+
+        // Calculate totals for each category
+        for (const { category, amount } of transactionsByType) {
+            totalsMap[category] = (totalsMap[category] ?? 0) + amount;
+        }
+
+        return categories.map(category => ({
+            label: category,
+            value: totalsMap[category] ?? 0,
+            color: CATEGORY_COLORS[category],
+        }));
+    }, [transactionsByType, categories]);
+
+    return {
+        transactionsPerCategory,
+    };
+}
 
 export const useIncomeGraphTransactions = (
     incomeTransactions: TransactionProps[],
