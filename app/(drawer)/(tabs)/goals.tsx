@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import * as Progress from 'react-native-progress';
-import { Bar, CartesianChart, Line } from 'victory-native';
+import { CartesianChart, Line } from 'victory-native';
 
 // Gluestack UI
 import { Divider } from '@/components/ui/divider';
@@ -17,6 +17,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import inter from "@/assets/inter-medium.ttf";
 import { ActionFab } from '@/components/ActionFab';
+import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
 import { GOALS_COLOR } from '@/constants/Colors';
 import {
@@ -235,32 +236,11 @@ const GoalsScreen = () => {
                         flex: 1,
                         width: '95%',
                     }}>
-                        {transactions && <CartesianChart
+                        {transactions && <BarChart
                             data={getSavingsPerMonth(selectedYearTransactions)}
                             xKey="month"
-                            xAxis={{
-                                font,
-                                tickCount: 12,
-                                formatXLabel: (value) => {
-                                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                                    return monthNames[(value - 1) % 12];
-                                },
-                            }}
-                            yKeys={["savings"]}
-                            axisOptions={{
-                                font,
-                                lineColor: "#d4d4d8",
-                            }}
-                            domainPadding={{ left: 20, right: 20, top: 10, }}
-                        >
-                            {({ points, chartBounds }) => (
-                                <Bar
-                                    points={points.savings}
-                                    chartBounds={chartBounds}
-                                    color={GOALS_COLOR['savings']}
-                                />
-                            )}
-                        </CartesianChart>}
+                            yKeys={[["savings", GOALS_COLOR['savings']]]}
+                        />}
                     </View>
                 </View>
 

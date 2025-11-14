@@ -1,12 +1,9 @@
 import { AntDesign } from '@expo/vector-icons';
-import { useFont } from '@shopify/react-native-skia';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
-import { BarGroup, CartesianChart } from 'victory-native';
 
 // Gluestack UI
-import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
@@ -24,7 +21,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import inter from "@/assets/inter-medium.ttf";
+import BarChart from '@/components/BarChart';
 import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
@@ -35,7 +32,6 @@ import { useBudgetFormik } from '@/hooks/useBudgetsFormik';
 import { useTransactionData } from '@/hooks/useTransactions';
 
 const BudgetScreen = () => {
-    const font = useFont(inter, 12);
     const {
         data: budgets = [],
         isLoading,
@@ -109,56 +105,18 @@ const BudgetScreen = () => {
                             flex: 1,
                         }}
                     >
-                        <CartesianChart data={expensesAndBudgetsByMonth}
+                        <BarChart
+                            data={expensesAndBudgetsByMonth}
                             xKey="month"
-                            xAxis={{
-                                font,
-                                tickCount: 12,
-                                formatXLabel: (value) => {
-                                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                                    return monthNames[(value - 1) % 12];
-                                },
-                            }}
-                            yKeys={["expensePerMonth", "budgetPerMonth"]}
-                            axisOptions={{
-                                font,
-                                lineColor: "#d4d4d8",
-                            }}
-                            domainPadding={{ left: 20, right: 20, top: 30 }}
-                        >
-                            {({ points, chartBounds }) => (
-                                // Bar Group
-                                <BarGroup
-                                    chartBounds={chartBounds}
-                                    betweenGroupPadding={0.3}
-                                    withinGroupPadding={0.1}
-                                >
-                                    <BarGroup.Bar points={points.expensePerMonth} color={TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]} />
-                                    <BarGroup.Bar points={points.budgetPerMonth} color={BUDGET_COLOR} />
-                                </BarGroup>
-                            )}
-                        </CartesianChart>
-                        {/* Legends */}
-                        <HStack className='justify-center items-center'>
-                            <Box
-                                className="w-5 h-5 rounded"
-                                style={{
-                                    backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
-                                }}
-                            />
-                            <Text style={[styles.text, {
-                                marginHorizontal: 5
-                            }]}>Expense</Text>
-                            <Box
-                                className="w-5 h-5 rounded"
-                                style={{
-                                    backgroundColor: BUDGET_COLOR,
-                                }}
-                            />
-                            <Text style={[styles.text, {
-                                marginHorizontal: 5
-                            }]}>Budget</Text>
-                        </HStack>
+                            yKeys={[
+                                ["expensePerMonth", TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
+                                ["budgetPerMonth", BUDGET_COLOR],
+                            ]}
+                            legends={[
+                                ["Expense", TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
+                                ["Budget", BUDGET_COLOR],
+                            ]}
+                        />
                     </VStack>
                         : <View style={[styles.centeredFlex]}>
                             <Text style={[styles.text, { fontWeight: 'bold' }]}>No budget data available.</Text>

@@ -1,20 +1,17 @@
 import { AntDesign } from '@expo/vector-icons';
-import { useFont } from '@shopify/react-native-skia';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native';
-import { BarGroup, CartesianChart } from 'victory-native';
 
 // Gluestack UI
-import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import inter from "@/assets/inter-medium.ttf";
 import { ActionFab } from '@/components/ActionFab';
+import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
@@ -22,7 +19,6 @@ import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const TransactionScreen = () => {
-    const font = useFont(inter, 12);
     const {
         data: transactions,
         isLoading,
@@ -175,64 +171,25 @@ const TransactionScreen = () => {
                     width: '95%',
                     height: "100%",
                 }}>
-                    {(selectedYearTransactions && selectedYearTransactions.length > 0) ? <VStack
-                        style={{
-                            flex: 1,
-                        }}
-                    >
-                        <CartesianChart data={
-                            transactionsByMonth(selectedYearTransactions)
-                        }
-                            xKey="month"
-                            xAxis={{
-                                font,
-                                tickCount: 12,
-                                formatXLabel: (value) => {
-                                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                                    return monthNames[(value - 1) % 12];
-                                },
+                    {(selectedYearTransactions && selectedYearTransactions.length > 0) ?
+                        <VStack
+                            style={{
+                                flex: 1,
                             }}
-                            yKeys={["expensePerMonth", "incomePerMonth"]}
-                            axisOptions={{
-                                font,
-                                lineColor: "#d4d4d8",
-                            }}
-                            domainPadding={{ left: 20, right: 20, top: 30 }}
                         >
-                            {({ points, chartBounds }) => (
-                                // Bar Group
-                                <BarGroup
-                                    chartBounds={chartBounds}
-                                    betweenGroupPadding={0.3}
-                                    withinGroupPadding={0.1}
-                                >
-                                    <BarGroup.Bar points={points.expensePerMonth} color={TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]} />
-                                    <BarGroup.Bar points={points.incomePerMonth} color={TRANSACTION_TYPE_COLORS[TransactionType.INCOME]} />
-                                </BarGroup>
-                            )}
-                        </CartesianChart>
-                        {/* Legends */}
-                        <HStack className='justify-center items-center'>
-                            <Box
-                                className="w-5 h-5 rounded"
-                                style={{
-                                    backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
-                                }}
+                            <BarChart
+                                data={transactionsByMonth(selectedYearTransactions)}
+                                xKey='month'
+                                yKeys={[
+                                    ['expensePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
+                                    ['incomePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.INCOME]],
+                                ]}
+                                legends={[
+                                    ['Expense', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
+                                    ['Income', TRANSACTION_TYPE_COLORS[TransactionType.INCOME]],
+                                ]}
                             />
-                            <Text style={[styles.text, {
-                                marginHorizontal: 5
-                            }]}>Expense</Text>
-                            <Box
-                                className="w-5 h-5 rounded"
-                                style={{
-                                    backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
-                                }}
-                            />
-                            <Text style={[styles.text, {
-                                marginHorizontal: 5
-                            }]}>Income</Text>
-                        </HStack>
-                    </VStack>
+                        </VStack>
                         : <View style={styles.centeredFlex}>
                             <Text style={[styles.text, { fontWeight: 'bold' }]}>No transaction data available.</Text>
                         </View>}
