@@ -5,22 +5,22 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { Pie, PolarChart } from 'victory-native';
 
 // Gluestack UI
-import { Box } from '@/components/ui/box';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
-import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
 import { ActionFab } from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
-import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionType } from '@/constants/Types';
+import TransactionBreakdown from '@/components/TransactionBreakdown';
+import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { TransactionCategory, TransactionType } from '@/constants/Types';
 import {
   usePieChartTransactions,
   useTransactionData,
   useTransactions,
+  useTransactionSummary,
 } from '@/hooks/useTransactions';
 
 const App = () => {
@@ -36,84 +36,23 @@ const App = () => {
   const {
     expenseTransactions,
     incomeTransactions,
-    nonRecurringTransactions
   } = useTransactionData();
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
   const {
     transactionsPerCategory,
   } = usePieChartTransactions(expenseTransactions, incomeTransactions, transactionType);
+  const {
+    totalByCategory,
+    percentageByCategory,
+  } = useTransactionSummary((transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions);
 
-  // Calculate the total amount based on transaction type and category
-  const TransactionBreakdown = ({ type }: { type: 'expense' | 'income' }) => {
-    const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-    const transactionsByType = nonRecurringTransactions.filter((transaction) => transaction.type === type);
-
-    const grandTotal = transactionsByType.reduce((sum, t) => sum + t.amount, 0);
-    // Calculate total amount for each category
-    const transactionTotalByCategory = transactionsByType.reduce<Record<string, number>>((acc, t) => {
-      acc[t.category] = (acc[t.category] || 0) + t.amount;      // Add transaction amount to the respective category
-      return acc;
-    }, {});
-
-    const transactionBreakdownByType = categories.map((category) => {
-      // Calculate percentage of total
-      const percentage = grandTotal ? (transactionTotalByCategory[category] / grandTotal) * 100 : 0;
-
-      return {
-        category,
-        total: transactionTotalByCategory[category] || 0,
-        percentage,
-      };
-    });
-
-    return (
-      <VStack>
-        {transactionBreakdownByType.map((item, index) => {
-          if (item.total !== 0) {
-            return (
-              <HStack
-                key={index}
-                className='justify-between items-center mx-5 my-2'
-              >
-                {/* Color Box */}
-                <Box
-                  className="w-5 h-5 rounded"
-                  style={{
-                    backgroundColor: CATEGORY_COLORS[item.category],
-                  }} />
-                <TouchableNativeFeedback
-                  onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}&recurring=false`)}
-                >
-                  {/* Category Label */}
-                  <View style={[styles.centered, {
-                    width: '40%',
-                    padding: 5,
-                    borderRadius: 10,
-                    backgroundColor: CATEGORY_COLORS[item.category],
-                  }]}>
-                    <Text style={styles.text}>{item.category}</Text>
-                  </View>
-                </TouchableNativeFeedback>
-                {/* Currency Label */}
-                <Text style={styles.text}>RM</Text>
-                {/* Total Amount and Percentage */}
-                <View
-                  style={{
-                    width: '30%',
-                    justifyContent: 'center',
-                    alignItems: 'flex-end',
-                  }}
-                >
-                  <Text style={styles.text}>{item.total.toFixed(2)}</Text>
-                  <Text>({item.percentage.toFixed(2)}%)</Text>
-                </View>
-              </HStack>
-            );
-          }
-        })}
-      </VStack>
-    );
-  };
+  const transactionBreakdown = Object.values(TransactionCategory).map((category) => {
+    return {
+      category,
+      total: totalByCategory[category] || 0,
+      percentage: percentageByCategory[category] || 0,
+    };
+  });
 
   const queryState = (
     <QueryState
@@ -202,7 +141,7 @@ const App = () => {
             </HStack>
           </View>
           {/* Total by Category */}
-          {transactionsPerCategory && <TransactionBreakdown type={transactionType} />}
+          {transactionsPerCategory && <TransactionBreakdown data={transactionBreakdown} type={transactionType} />}
         </View>
 
         {/* Reserve Space for Floating Action Button */}

@@ -148,6 +148,41 @@ export const useTransactionData = (
     }, [transactions, yearRange, monthRange]);
 };
 
+export const useTransactionSummary = (transactions: TransactionProps[]) => {
+    // Calculate totals for each category
+    const totalByCategory = useMemo(() => {
+        const totals: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
+
+        for (const { category, amount } of transactions) {
+            totals[category] = (totals[category] ?? 0) + amount;
+        }
+
+        return totals;
+    }, [transactions]);
+
+    // Calculate grand total
+    const grandTotal = useMemo(() => {
+        return transactions.reduce((sum, t) => sum + t.amount, 0);
+    }, [transactions]);
+
+    // Calculate percentage for each category
+    const percentageByCategory = useMemo(() => {
+        const percentages: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
+        
+        for (const category of Object.keys(totalByCategory) as TransactionCategory[]) {
+            percentages[category] = grandTotal ? (totalByCategory[category] / grandTotal) * 100 : 0;
+        }
+        
+        return percentages;
+    }, [totalByCategory, grandTotal]);
+
+    return {
+        totalByCategory,
+        grandTotal,
+        percentageByCategory,
+    };
+};
+
 export const usePieChartTransactions = (
     expenseTransactions: TransactionProps[],
     incomeTransactions: TransactionProps[],
