@@ -12,6 +12,7 @@ import {
     editTransaction,
     fetchTransaction,
     fetchTransactions,
+    importTransactions,
 } from "@/services/transactions";
 import {
     getMonthRange,
@@ -71,6 +72,14 @@ export const useDeleteTransaction = () => {
         mutationFn: (id: number) => deleteTransaction(id),
         invalidateKeys: () => [['transactions']],       // Invalidate transactions query on success
         onInvalidationComplete: () => router.back(),    // Navigate to previous page after deleting transaction
+    });
+}
+
+// Custom hook to import transactions
+export const useImportTransactions = () => {
+    return useCustomMutation({
+        mutationFn: (fileType: 'json' | 'csv') => importTransactions(fileType),
+        invalidateKeys: () => [['transactions']],       // Invalidate transactions query on success
     });
 }
 

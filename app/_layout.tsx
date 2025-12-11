@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from "react";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { MenuProvider } from 'react-native-popup-menu';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Gluestack UI
@@ -33,15 +34,17 @@ export default function RootLayout() {
       <GluestackUIProvider mode="light">
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            >
-              <Stack.Screen name="(drawer)" />
-              <Stack.Screen name="transaction" />
-              <Stack.Screen name="goal" />
-            </Stack>
+            <MenuProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                }}
+              >
+                <Stack.Screen name="(drawer)" />
+                <Stack.Screen name="transaction" />
+                <Stack.Screen name="goal" />
+              </Stack>
+            </MenuProvider>
           </GestureHandlerRootView>
           <StatusBar style="auto" />
         </QueryClientProvider>
