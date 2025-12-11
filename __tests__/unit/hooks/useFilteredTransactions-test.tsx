@@ -1,11 +1,11 @@
 import { mockTransactions } from "@/__mocks__/mockData";
 import { RecurringFrequency, TransactionCategory, TransactionProps, TransactionType } from "@/constants/Types";
 import { useFilteredTransactions } from "@/hooks/useFilteredTransactions";
-import { fetchTransactions } from "@/services/transactions";
+import { fetchTransactions } from "@/services/transactionService";
 import { renderHook } from '@testing-library/react-native';
 
 // Mock the database functions
-jest.mock("@/services/transactions", () => ({
+jest.mock("@/services/transactionService", () => ({
     fetchTransactions: jest.fn(),
 }));
 

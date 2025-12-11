@@ -7,7 +7,7 @@ import {
 	editTransaction,
 	fetchTransaction,
 	fetchTransactions,
-} from "@/services/transactions";
+} from "@/services/transactionService";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { router } from "expo-router";
@@ -27,7 +27,7 @@ jest.mock('@/hooks/useShowToast', () => ({
 }));
 
 // Mock the database functions
-jest.mock("@/services/transactions", () => ({
+jest.mock("@/services/transactionService", () => ({
 	fetchTransaction: jest.fn(),
 	fetchTransactions: jest.fn(),
 	createTransaction: jest.fn(),

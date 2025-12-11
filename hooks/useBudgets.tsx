@@ -1,5 +1,5 @@
 import { BudgetProps, TransactionProps } from "@/constants/Types";
-import { editBudget, fetchBudgets } from "@/services/budgets";
+import { editBudget, fetchBudgets } from "@/services/budgetService";
 import { useMemo } from "react";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";

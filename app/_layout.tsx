@@ -13,7 +13,7 @@ import "@/global.css";
 // Custom import
 import { checkDatabaseInitialization } from "@/database/init";
 import { useLastOpenDate } from '@/hooks/useLastOpenDate';
-import { handleRecurringTransactions } from "@/services/transactions";
+import { handleRecurringTransactions } from "@/services/transactionService";
 
 // Initialize QueryClient
 const queryClient = new QueryClient();

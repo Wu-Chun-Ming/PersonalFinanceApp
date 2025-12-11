@@ -6,7 +6,7 @@ import {
     editGoal,
     fetchGoal,
     resetGoal,
-} from "@/services/goals";
+} from "@/services/goalService";
 import dayjs from "dayjs";
 import * as SecureStore from 'expo-secure-store';
 

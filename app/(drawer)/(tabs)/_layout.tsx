@@ -29,7 +29,7 @@ import styles from '@/app/styles';
 import FormGroup from '@/components/FormGroup';
 import useShowToast from '@/hooks/useShowToast';
 import { useImportTransactions } from '@/hooks/useTransactions';
-import { exportAllTransactions } from '@/services/transactions';
+import { exportAllTransactions } from '@/services/transactionService';
 
 export default function TabLayout() {
   const navigation = useNavigation();

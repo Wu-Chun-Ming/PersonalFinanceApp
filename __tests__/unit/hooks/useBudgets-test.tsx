@@ -1,7 +1,7 @@
 import { mockBudgets } from "@/__mocks__/mockData";
 import { useBudgets, useUpdateBudget } from "@/hooks/useBudgets";
 import useShowToast from "@/hooks/useShowToast";
-import { editBudget, fetchBudgets } from "@/services/budgets";
+import { editBudget, fetchBudgets } from "@/services/budgetService";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { ReactNode } from "react";
@@ -13,7 +13,7 @@ jest.mock('@/hooks/useShowToast', () => ({
 }));
 
 // Mock the database functions
-jest.mock("@/services/budgets", () => ({
+jest.mock("@/services/budgetService", () => ({
 	fetchBudgets: jest.fn(),
 	editBudget: jest.fn(),
 }));

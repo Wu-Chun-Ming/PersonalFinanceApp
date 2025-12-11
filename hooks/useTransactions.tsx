@@ -13,7 +13,7 @@ import {
     fetchTransaction,
     fetchTransactions,
     importTransactions,
-} from "@/services/transactions";
+} from "@/services/transactionService";
 import {
     getMonthRange,
     getYearRange,

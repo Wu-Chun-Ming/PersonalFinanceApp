@@ -20,7 +20,7 @@ import { GOALS_COLOR } from '@/constants/Colors';
 import { useGoals } from '@/hooks/useGoals';
 import { useGoalsFormik } from '@/hooks/useGoalsFormik';
 import useShowToast from '@/hooks/useShowToast';
-import { resetGoal } from '@/services/goals';
+import { resetGoal } from '@/services/goalService';
 
 const GoalSettingsScreen = () => {
     const queryClient = useQueryClient();

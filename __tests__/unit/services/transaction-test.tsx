@@ -14,7 +14,7 @@ import {
     editTransaction,
     fetchTransaction,
     fetchTransactions,
-} from "@/services/transactions";
+} from "@/services/transactionService";
 
 // Mock the database module
 jest.mock("@/database/transactionDatabase", () => ({
