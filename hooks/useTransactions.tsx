@@ -169,6 +169,30 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
         return totals;
     }, [transactions]);
 
+    // Calculate totals per month
+    const totalPerMonth = useMemo(() => {
+        // Initialize fixed-size arrays
+        const income = Array(12).fill(0);
+        const expense = Array(12).fill(0);
+
+        for (let i = 0; i < transactions.length; i++) {
+            const t = transactions[i];
+            const month = new Date(t.date).getMonth(); // 0–11 index
+
+            if (t.type === TransactionType.INCOME) {
+                income[month] += t.amount;
+            } else {
+                expense[month] += t.amount;
+            }
+        }
+
+        return Array.from({ length: 12 }, (_, i) => ({
+            month: i + 1,
+            incomePerMonth: income[i],
+            expensePerMonth: expense[i],
+        }));
+    }, [transactions]);
+
     // Calculate grand total
     const grandTotal = useMemo(() => {
         return transactions.reduce((sum, t) => sum + t.amount, 0);
@@ -187,6 +211,7 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
 
     return {
         totalByCategory,
+        totalPerMonth,
         grandTotal,
         percentageByCategory,
     };

@@ -14,7 +14,7 @@ import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import YearSelector from '@/components/YearSelector';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
+import { TransactionCategory, TransactionType } from '@/constants/Types';
 import {
     useTransactionData,
     useTransactions,
@@ -32,7 +32,10 @@ const TransactionScreen = () => {
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const { selectedYearTransactions } = useTransactionData(selectedYear);
-    const { totalByCategory } = useTransactionSummary(selectedYearTransactions);
+    const {
+        totalByCategory,
+        totalPerMonth,
+    } = useTransactionSummary(selectedYearTransactions);
 
     // Get top 5 transaction breakdown by transaction type
     const getTransactionBreakdownByType = (transactionType: TransactionType) =>
@@ -41,33 +44,6 @@ const TransactionScreen = () => {
             .map(([category, total]) => ({ category: category as TransactionCategory, total }))
             .sort((a, b) => b.total - a.total)  // Sort in descending order by 'total'
             .slice(0, 5);                       // Limit to the top 5 categories
-
-    const transactionsByMonth = (selectedYearTransactions: TransactionProps[]) => {
-        const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
-        const { incomeTotalByMonth, expenseTotalByMonth } = selectedYearTransactions.reduce<{
-            incomeTotalByMonth: Record<number, number>,
-            expenseTotalByMonth: Record<number, number>,
-        }>((acc, transaction) => {
-            const month = new Date(transaction.date).getMonth() + 1;
-            const amount = transaction.amount;
-
-            if (transaction.type === TransactionType.INCOME) {
-                acc.incomeTotalByMonth[month] = (acc.incomeTotalByMonth[month] || 0) + amount;
-            } else if (transaction.type === TransactionType.EXPENSE) {
-                acc.expenseTotalByMonth[month] = (acc.expenseTotalByMonth[month] || 0) + amount;
-            }
-
-            return acc;
-        }, { incomeTotalByMonth: {}, expenseTotalByMonth: {} });
-
-        const transactionByMonthArray = months_num.map((month) => ({
-            month: month,
-            expensePerMonth: expenseTotalByMonth[month] || 0,
-            incomePerMonth: incomeTotalByMonth[month] || 0,
-        }));
-
-        return transactionByMonthArray;
-    }
 
     const queryState = (
         <QueryState
@@ -98,7 +74,7 @@ const TransactionScreen = () => {
                 }}>
                     {(selectedYearTransactions && selectedYearTransactions.length > 0) ?
                         <BarChart
-                            data={transactionsByMonth(selectedYearTransactions)}
+                            data={totalPerMonth}
                             xKey='month'
                             yKeys={[
                                 ['expensePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
