@@ -38,13 +38,14 @@ const App = () => {
     incomeTransactions,
   } = useTransactionData();
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
+  const filteredTransactions = (transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions;
   const {
     transactionsPerCategory,
-  } = usePieChartTransactions(expenseTransactions, incomeTransactions, transactionType);
+  } = usePieChartTransactions(filteredTransactions, transactionType);
   const {
     totalByCategory,
     percentageByCategory,
-  } = useTransactionSummary((transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions);
+  } = useTransactionSummary(filteredTransactions);
 
   const transactionBreakdown = Object.values(TransactionCategory).map((category) => {
     return {

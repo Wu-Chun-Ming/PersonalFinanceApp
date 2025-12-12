@@ -193,28 +193,20 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
 };
 
 export const usePieChartTransactions = (
-    expenseTransactions: TransactionProps[],
-    incomeTransactions: TransactionProps[],
+    transactions: TransactionProps[],
     transactionType: TransactionType,
 ) => {
-    const transactionsByType = (transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions;
     const categories = (transactionType === TransactionType.EXPENSE) ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+    const { totalByCategory } = useTransactionSummary(transactions);
 
     // Calculate totals by category
     const transactionsPerCategory = useMemo(() => {
-        const totalsMap: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
-
-        // Calculate totals for each category
-        for (const { category, amount } of transactionsByType) {
-            totalsMap[category] = (totalsMap[category] ?? 0) + amount;
-        }
-
         return categories.map(category => ({
             label: category,
-            value: totalsMap[category] ?? 0,
+            value: totalByCategory[category] ?? 0,
             color: CATEGORY_COLORS[category],
         }));
-    }, [transactionsByType, categories]);
+    }, [totalByCategory, categories]);
 
     return {
         transactionsPerCategory,
