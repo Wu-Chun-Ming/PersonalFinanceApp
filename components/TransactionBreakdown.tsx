@@ -7,13 +7,21 @@ import { HStack } from "./ui/hstack";
 import { VStack } from "./ui/vstack";
 
 interface TransactionBreakdownProps {
-    data: { category: keyof typeof CATEGORY_COLORS; total: number; percentage: number }[];
+    data: { 
+        category: keyof typeof CATEGORY_COLORS; 
+        total: number; 
+        percentage?: number;
+    }[];
     type: 'expense' | 'income';
+    colorBoxVisible?: boolean;
+    percentageVisible?: boolean;
 }
 
 const TransactionBreakdown = ({
     data,
     type,
+    colorBoxVisible = false,
+    percentageVisible = false,
 }: TransactionBreakdownProps) => {
     return (
         <VStack>
@@ -25,11 +33,11 @@ const TransactionBreakdown = ({
                             className='justify-between items-center mx-5 my-2'
                         >
                             {/* Color Box */}
-                            <Box className="w-5 h-5 rounded"
+                            {colorBoxVisible && <Box className="w-5 h-5 rounded"
                                 style={{
                                     backgroundColor: CATEGORY_COLORS[item.category],
                                 }}
-                            />
+                            />}
                             <TouchableNativeFeedback
                                 onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}&recurring=false`)}
                             >
@@ -54,7 +62,7 @@ const TransactionBreakdown = ({
                                 alignItems: 'flex-end',
                             }}>
                                 <Text style={styles.text}>{item.total.toFixed(2)}</Text>
-                                <Text>({item.percentage.toFixed(2)}%)</Text>
+                                {percentageVisible && <Text>({item.percentage?.toFixed(2)}%)</Text>}
                             </View>
                         </HStack>
                     );

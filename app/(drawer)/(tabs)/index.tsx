@@ -141,7 +141,13 @@ const App = () => {
             </HStack>
           </View>
           {/* Total by Category */}
-          {transactionsPerCategory && <TransactionBreakdown data={transactionBreakdown} type={transactionType} />}
+          {transactionsPerCategory &&
+            <TransactionBreakdown
+              data={transactionBreakdown}
+              type={transactionType}
+              colorBoxVisible={true}
+              percentageVisible={true}
+            />}
         </View>
 
         {/* Reserve Space for Floating Action Button */}

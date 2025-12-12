@@ -5,17 +5,21 @@ import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'r
 // Gluestack UI
 import { HStack } from '@/components/ui/hstack';
 import { AddIcon } from '@/components/ui/icon';
-import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
 import { ActionFab } from '@/components/ActionFab';
 import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
+import TransactionBreakdown from '@/components/TransactionBreakdown';
 import YearSelector from '@/components/YearSelector';
-import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
-import { useTransactionData, useTransactions } from '@/hooks/useTransactions';
+import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
+import {
+    useTransactionData,
+    useTransactions,
+    useTransactionSummary,
+} from '@/hooks/useTransactions';
 
 const TransactionScreen = () => {
     const {
@@ -28,78 +32,15 @@ const TransactionScreen = () => {
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const { selectedYearTransactions } = useTransactionData(selectedYear);
+    const { totalByCategory } = useTransactionSummary(selectedYearTransactions);
 
-    // Calculate the total amount based on transaction type and category
-    const getTransactionBreakdownByType = (selectedYearTransactions: TransactionProps[], categories: TransactionCategory[], transactionType: TransactionType) => {
-        const filteredTransactions = selectedYearTransactions.filter(transaction => transaction.type === transactionType);
-        const totalsMap: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
-
-        // Calculate totals for each category
-        for (const transaction of filteredTransactions) {
-            const category = transaction.category;
-            if (!totalsMap[category]) {
-                totalsMap[category] = 0;
-            }
-            totalsMap[category] += transaction.amount;
-        }
-
-        return categories.map(category => ({
-            category,
-            total: totalsMap[category] || 0,
-        }));
-    };
-
-    const TransactionsListing = ({ type }: { type: "expense" | "income" }) => {
-        const transactionType = type === 'expense' ? TransactionType.EXPENSE : TransactionType.INCOME;
-        const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-
-        return (
-            <VStack>
-                {(getTransactionBreakdownByType(selectedYearTransactions, categories, transactionType))
-                    .sort((a, b) => b.total - a.total)  // Sort in descending order by 'amount'
-                    .slice(0, 5)  // Limit to the top 5 categories
-                    .map((item, index) => {
-                        if (item.total !== 0) {
-                            return (
-                                <HStack
-                                    key={index}
-                                    className='justify-between'
-                                    style={{
-                                        marginHorizontal: 20,
-                                        marginVertical: 10,
-                                    }}
-                                >
-                                    <TouchableNativeFeedback
-                                        onPress={() => router.navigate(`/transaction/listing?type=${type}&category=${item.category}&recurring=false`)}
-                                    >
-                                        <View style={{
-                                            width: '50%',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            padding: 5,
-                                            borderRadius: 10,
-                                            backgroundColor: CATEGORY_COLORS[item.category],
-                                        }}>
-                                            <Text style={styles.text}>{item.category}</Text>
-                                        </View>
-                                    </TouchableNativeFeedback>
-
-                                    <Text style={styles.text}>RM</Text>
-                                    <View
-                                        style={{
-                                            width: '30%',
-                                            alignItems: 'flex-end',
-                                        }}
-                                    >
-                                        <Text style={styles.text}>{item.total.toFixed(2)}</Text>
-                                    </View>
-                                </HStack>
-                            );
-                        }
-                    })}
-            </VStack>
-        );
-    };
+    // Get top 5 transaction breakdown by transaction type
+    const getTransactionBreakdownByType = (transactionType: TransactionType) =>
+        Object.entries(totalByCategory)
+            .filter(([category]) => transactions.some(t => t.category === category && t.type === transactionType))
+            .map(([category, total]) => ({ category: category as TransactionCategory, total }))
+            .sort((a, b) => b.total - a.total)  // Sort in descending order by 'total'
+            .slice(0, 5);                       // Limit to the top 5 categories
 
     const transactionsByMonth = (selectedYearTransactions: TransactionProps[]) => {
         const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -180,60 +121,36 @@ const TransactionScreen = () => {
                 <View style={{
                     margin: 10,
                 }}>
-                    {/* Expense Heading */}
-                    <HStack
-                        className='justify-between'
-                        style={{
-                            backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
-                            paddingHorizontal: 20,
-                            paddingVertical: 15,
-                            borderRadius: 20,
-                            alignItems: 'center',
-                        }}>
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
-                            textDecorationLine: 'underline',
-                        }]}>Top 5 Expense Categories</Text>
-                        <TouchableNativeFeedback
-                            onPress={() => router.navigate(`/transaction/listing?type=expense&recurring=false`)}
-                        >
-                            <Text style={[styles.text, {
-                                backgroundColor: '#2bae2bff',
-                                padding: 8,
-                                borderRadius: 10,
-                            }]}>View All</Text>
-                        </TouchableNativeFeedback>
-                    </HStack>
-                    {/* Expense Total by Categories */}
-                    {transactions && <TransactionsListing type="expense" />}
-
-                    {/* Income Heading */}
-                    <HStack
-                        className='justify-between'
-                        style={{
-                            backgroundColor: TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
-                            paddingHorizontal: 20,
-                            paddingVertical: 15,
-                            borderRadius: 20,
-                            alignItems: 'center',
-                        }}
-                    >
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
-                            textDecorationLine: 'underline',
-                        }]}>Top 5 Income Categories</Text>
-                        <TouchableNativeFeedback
-                            onPress={() => router.navigate(`/transaction/listing?type=income&recurring=false`)}
-                        >
-                            <Text style={[styles.text, {
-                                padding: 8,
-                                backgroundColor: '#bebe09ff',
-                                borderRadius: 10,
-                            }]}>View All</Text>
-                        </TouchableNativeFeedback>
-                    </HStack>
-                    {/* Income Total by Categories */}
-                    {transactions && <TransactionsListing type="income" />}
+                    {/* Transactions Breakdown */}
+                    {Object.values(TransactionType).map((type, index) => (
+                        <View key={index}>
+                            <HStack
+                                className='justify-between'
+                                style={{
+                                    backgroundColor: TRANSACTION_TYPE_COLORS[type],
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 15,
+                                    borderRadius: 20,
+                                    alignItems: 'center',
+                                }}>
+                                <Text style={[styles.text, {
+                                    fontWeight: 'bold',
+                                    textDecorationLine: 'underline',
+                                }]}>Top 5 {type.charAt(0).toUpperCase() + type.slice(1)} Categories</Text>
+                                <TouchableNativeFeedback
+                                    onPress={() => router.navigate(`/transaction/listing?type=${type}&recurring=false`)}
+                                >
+                                    <Text style={[styles.text, {
+                                        backgroundColor: type === TransactionType.EXPENSE ? '#2bae2bff' : '#bebe09ff',
+                                        padding: 8,
+                                        borderRadius: 10,
+                                    }]}>View All</Text>
+                                </TouchableNativeFeedback>
+                            </HStack>
+                            {/* Total by Categories */}
+                            {transactions && <TransactionBreakdown data={getTransactionBreakdownByType(type)} type={type} />}
+                        </View>
+                    ))}
                 </View>
 
                 {/* Reserve Space for Floating Action Button */}
