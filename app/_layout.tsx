@@ -21,13 +21,17 @@ const queryClient = new QueryClient();
 export default function RootLayout() {
   const { lastOpenDate, updateAndRefreshLastOpenDate } = useLastOpenDate();
 
+  // App startup
   useEffect(() => {
     checkDatabaseInitialization();
+  }, []);
+
+  useEffect(() => {
     if (lastOpenDate) handleRecurringTransactions(lastOpenDate);
     updateAndRefreshLastOpenDate();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastOpenDate]);
+  }, []);
 
   return (
     <SafeAreaProvider>
