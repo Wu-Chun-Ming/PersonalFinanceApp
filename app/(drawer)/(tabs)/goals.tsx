@@ -50,7 +50,7 @@ const GoalsScreen = () => {
         expenseTransactions,
         incomeTransactions,
         selectedYearTransactions,
-    } = useTransactionData(selectedYear);
+    } = useTransactionData(transactions, selectedYear);
     const {
         selectedPeriodIncomeTransactions
     } = useIncomeGraphTransactions(incomeTransactions, incomeGraphMode);

@@ -85,13 +85,19 @@ export const useImportTransactions = () => {
 
 // Custom hook to process transactions data
 export const useTransactionData = (
+    transactions: TransactionProps[],
     selectedYear?: number,
     selectedMonth?: number,
 ) => {
-    const { data: transactions = [] } = useTransactions();
+    const yearRange = useMemo(
+        () => getYearRange(selectedYear),
+        [selectedYear]
+    );
 
-    const yearRange = getYearRange(selectedYear);
-    const monthRange = getMonthRange(selectedYear, selectedMonth);
+    const monthRange = useMemo(
+        () => getMonthRange(selectedYear, selectedMonth),
+        [selectedYear, selectedMonth]
+    );
 
     return useMemo(() => {
         const buckets = {

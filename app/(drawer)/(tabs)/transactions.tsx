@@ -31,7 +31,7 @@ const TransactionScreen = () => {
         refetch
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const { selectedYearTransactions } = useTransactionData(selectedYear);
+    const { selectedYearTransactions } = useTransactionData(transactions, selectedYear);
     const {
         totalByCategory,
         totalPerMonth,

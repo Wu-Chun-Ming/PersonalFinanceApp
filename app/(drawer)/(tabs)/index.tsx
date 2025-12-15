@@ -36,7 +36,7 @@ const App = () => {
   const {
     expenseTransactions,
     incomeTransactions,
-  } = useTransactionData();
+  } = useTransactionData(transactions);
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
   const filteredTransactions = (transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions;
   const {
