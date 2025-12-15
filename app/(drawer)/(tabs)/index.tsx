@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Pie, PolarChart } from 'victory-native';
@@ -42,6 +42,7 @@ const App = () => {
   const {
     transactionsPerCategory,
   } = usePieChartTransactions(filteredTransactions, transactionType);
+  const [chartKey, setChartKey] = useState(0);
   const {
     totalByCategory,
     percentageByCategory,
@@ -54,6 +55,13 @@ const App = () => {
       percentage: percentageByCategory[category] || 0,
     };
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      // Remount chart every time the screen gains focus
+      setChartKey(k => k + 1);
+    }, [])
+  );
 
   const queryState = (
     <QueryState
@@ -100,6 +108,7 @@ const App = () => {
       }}>
         {(transactionsPerCategory && transactionsPerCategory.length > 0) ?
           <PolarChart
+            key={chartKey}
             data={transactionsPerCategory}
             labelKey={"label"}
             valueKey={"value"}
