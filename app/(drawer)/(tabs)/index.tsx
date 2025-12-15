@@ -1,8 +1,8 @@
-import { router, useFocusEffect } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { Pie, PolarChart } from 'victory-native';
+import { PieChart } from "react-native-gifted-charts";
 
 // Gluestack UI
 import { Heading } from '@/components/ui/heading';
@@ -42,7 +42,6 @@ const App = () => {
   const {
     transactionsPerCategory,
   } = usePieChartTransactions(filteredTransactions, transactionType);
-  const [chartKey, setChartKey] = useState(0);
   const {
     totalByCategory,
     percentageByCategory,
@@ -55,13 +54,6 @@ const App = () => {
       percentage: percentageByCategory[category] || 0,
     };
   });
-
-  useFocusEffect(
-    useCallback(() => {
-      // Remount chart every time the screen gains focus
-      setChartKey(k => k + 1);
-    }, [])
-  );
 
   const queryState = (
     <QueryState
@@ -102,20 +94,14 @@ const App = () => {
       />
 
       {/* Pie Chart */}
-      <View style={{
+      <View style={[styles.centered,{
         height: "40%",
         paddingVertical: 10,
-      }}>
+      }]}>
         {(transactionsPerCategory && transactionsPerCategory.length > 0) ?
-          <PolarChart
-            key={chartKey}
+          <PieChart 
             data={transactionsPerCategory}
-            labelKey={"label"}
-            valueKey={"value"}
-            colorKey={"color"}
-          >
-            <Pie.Chart />
-          </PolarChart>
+          />
           : <View style={styles.centeredFlex}>
             <Text style={[styles.text, {
               fontWeight: 'bold',
