@@ -26,6 +26,7 @@ const BarChart = ({
         <View style={{
             flex: 1,
             width: '95%',
+            alignSelf: 'center',
         }}>
             <CartesianChart
                 data={data}
