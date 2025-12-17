@@ -1,14 +1,19 @@
 import { useMemo } from 'react';
 
 // Custom import
-import { RecurringFrequency, TransactionCategory, TransactionProps, TransactionType } from '@/constants/Types';
+import {
+    RecurringFrequency,
+    TransactionCategoryType,
+    TransactionProps,
+    TransactionTypeValue,
+} from '@/types';
 
 interface FilterParams {
     date?: Date | string;
     startDate?: Date | string;
     endDate?: Date | string;
-    type?: TransactionType | string;
-    category?: TransactionCategory | string;
+    type?: TransactionTypeValue | string;
+    category?: TransactionCategoryType | string;
     amount?: number;
     minAmount?: number;
     maxAmount?: number;

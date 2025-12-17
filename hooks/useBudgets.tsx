@@ -1,5 +1,5 @@
-import { BudgetProps, TransactionCategory } from "@/constants/Types";
 import { editBudget, fetchBudgets } from "@/services/budgetService";
+import { BudgetProps, TransactionCategoryType } from "@/types";
 import { useMemo } from "react";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";
@@ -54,7 +54,7 @@ export const useBudgetSummary = (
 ) => {
     // Calculate budget totals per category and month
     return useMemo(() => {
-        const totalsPerCategory: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
+        const totalsPerCategory: Record<TransactionCategoryType, number> = {} as Record<TransactionCategoryType, number>;
         const monthTotals: number[] = Array(12).fill(0);
 
         for (const { month, category, amount } of selectedYearBudgets) {        // 1-12 indexed months

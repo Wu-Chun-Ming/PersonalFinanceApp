@@ -2,7 +2,7 @@ import {
     EXPENSE_CATEGORIES,
     TransactionCategory,
     TransactionType,
-} from "@/constants/Types";
+} from "@/types";
 
 /* 
 Table: transactions

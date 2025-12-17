@@ -15,13 +15,17 @@ import ActionFab from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { TransactionCategory, TransactionType } from '@/constants/Types';
 import {
   usePieChartTransactions,
   useTransactionData,
   useTransactions,
   useTransactionSummary,
 } from '@/hooks/useTransactions';
+import {
+  TransactionCategory,
+  TransactionType,
+  TransactionTypeValue,
+} from '@/types';
 
 const App = () => {
   const {
@@ -37,7 +41,7 @@ const App = () => {
     expenseTransactions,
     incomeTransactions,
   } = useTransactionData(transactions);
-  const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
+  const [transactionType, setTransactionType] = useState<TransactionTypeValue>(TransactionType.EXPENSE);
   const filteredTransactions = (transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions;
   const {
     transactionsPerCategory,

@@ -1,4 +1,3 @@
-import { TransactionProps } from "@/constants/Types";
 import {
     destroyTransaction,
     getTransactions,
@@ -6,6 +5,7 @@ import {
     storeTransaction,
     updateTransaction,
 } from "@/database/transactionDatabase";
+import { TransactionProps } from "@/types";
 import { Parser } from '@json2csv/plainjs';
 import { csv } from 'csvtojson';
 import * as DocumentPicker from 'expo-document-picker';

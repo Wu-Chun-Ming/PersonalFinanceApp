@@ -16,12 +16,6 @@ import QueryState from '@/components/QueryState';
 import YearSelector from '@/components/YearSelector';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import {
-    BudgetProps,
-    EXPENSE_CATEGORIES,
-    TransactionCategory,
-    TransactionType,
-} from '@/constants/Types';
-import {
     useBudgetData,
     useBudgets,
     useBudgetSummary,
@@ -32,6 +26,12 @@ import {
     useTransactions,
     useTransactionSummary,
 } from '@/hooks/useTransactions';
+import {
+    BudgetProps,
+    EXPENSE_CATEGORIES,
+    TransactionCategoryType,
+    TransactionType,
+} from '@/types';
 
 const BudgetScreen = () => {
     const {
@@ -75,7 +75,7 @@ const BudgetScreen = () => {
 
     // Map budgets by category
     const selectedMonthBudgetTotalsByCategory = useMemo(() => {
-        const budgetMap: Record<TransactionCategory, BudgetProps> = {} as Record<TransactionCategory, BudgetProps>;
+        const budgetMap: Record<TransactionCategoryType, BudgetProps> = {} as Record<TransactionCategoryType, BudgetProps>;
 
         for (const b of selectedMonthBudgets) {
             budgetMap[b.category] = b;

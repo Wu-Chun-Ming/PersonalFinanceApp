@@ -1,7 +1,12 @@
-import { TransactionCategory, TransactionType } from "./Types";
+import {
+    TransactionCategory,
+    TransactionCategoryType,
+    TransactionType,
+    TransactionTypeValue,
+} from "@/types";
 
 // Define color for transaction categories
-export const CATEGORY_COLORS: { [key in TransactionCategory]: string } = {
+export const CATEGORY_COLORS: { [key in TransactionCategoryType]: string } = {
     // Expense categories
     [TransactionCategory.FOOD]: '#FF6F61',            // Coral Red
     [TransactionCategory.ENTERTAINMENT]: '#6B5B95',   // Deep Purple
@@ -21,7 +26,7 @@ export const CATEGORY_COLORS: { [key in TransactionCategory]: string } = {
 };
 
 // Define color for transaction types
-export const TRANSACTION_TYPE_COLORS: { [key in TransactionType]: string } = {
+export const TRANSACTION_TYPE_COLORS: { [key in TransactionTypeValue]: string } = {
     [TransactionType.EXPENSE]: 'limegreen',             // Expense
     [TransactionType.INCOME]: '#e1e106ff',            // Income
 };

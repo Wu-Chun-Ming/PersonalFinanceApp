@@ -14,12 +14,16 @@ import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import YearSelector from '@/components/YearSelector';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { TransactionCategory, TransactionType } from '@/constants/Types';
 import {
     useTransactionData,
     useTransactions,
     useTransactionSummary,
 } from '@/hooks/useTransactions';
+import {
+    TransactionCategoryType,
+    TransactionType,
+    TransactionTypeValue,
+} from '@/types';
 
 const TransactionScreen = () => {
     const {
@@ -38,11 +42,11 @@ const TransactionScreen = () => {
     } = useTransactionSummary(selectedYearTransactions);
 
     // Get top 5 transaction breakdown by transaction type
-    const getTransactionBreakdownByType = (transactionType: TransactionType) =>
+    const getTransactionBreakdownByType = (transactionType: TransactionTypeValue) =>
         Object.entries(selectedYearTxTotalsPerCategory)
             .filter(([category]) => transactions.some(t => t.category === category && t.type === transactionType))
             .map(([category, total]) => ({
-                category: category as TransactionCategory,
+                category: category as TransactionCategoryType,
                 total,
             }))
             .sort((a, b) => b.total - a.total)  // Sort in descending order by 'total'

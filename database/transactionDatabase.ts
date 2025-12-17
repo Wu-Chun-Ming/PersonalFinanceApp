@@ -2,7 +2,7 @@ import { getDatabaseInstance } from '@/database/init';
 import * as SQLite from 'expo-sqlite';
 
 // Custom import
-import { TransactionProps } from '@/constants/Types';
+import { TransactionProps } from '@/types';
 
 // Fetch all transaction
 export const getTransactions = async (dbInstance?: SQLite.SQLiteDatabase) => {

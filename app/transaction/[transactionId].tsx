@@ -22,10 +22,17 @@ import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringDay, RecurringFrequency, TransactionType } from '@/constants/Types';
 import useShowToast from '@/hooks/useShowToast';
 import { useDeleteTransaction, useTransaction } from '@/hooks/useTransactions';
 import { useTransactionFormik } from '@/hooks/useTransactionsFormik';
+import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES,
+    RecurringDay,
+    RecurringFrequency,
+    TransactionType,
+    TransactionTypeValue,
+} from '@/types';
 
 const TransactionManager = () => {
     const { scannedData } = useContext(ScanContext);
@@ -34,7 +41,7 @@ const TransactionManager = () => {
     const showToast = useShowToast();       // Use the useShowToast hook (custom)
     const [formAction, setFormAction] = useState<"create" | "update">('create')
     const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
-    const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
+    const [transactionType, setTransactionType] = useState<TransactionTypeValue>(TransactionType.EXPENSE);
     const {
         data: transaction,
         isLoading,
@@ -354,7 +361,7 @@ const TransactionManager = () => {
                             initialLabel={formik.values.type[0].toUpperCase() + formik.values.type.slice(1)}
                             selectedValue={formik.values.type}
                             onValueChange={(value) => {
-                                setTransactionType(value as TransactionType);
+                                setTransactionType(value as TransactionTypeValue);
                                 formik.setFieldValue('type', value);
                             }}
                         >

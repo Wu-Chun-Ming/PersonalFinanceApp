@@ -17,10 +17,17 @@ import styles from '@/app/styles';
 import { ScanContext } from '@/app/transaction/_layout';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionCategory, TransactionType } from '@/constants/Types';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useFilteredTransactionsFormik } from '@/hooks/useTransactionsFormik';
+import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES,
+    RecurringFrequency,
+    TransactionCategory,
+    TransactionType,
+    TransactionTypeValue,
+} from '@/types';
 
 const TransactionListScreen = () => {
     const navigation = useNavigation();
@@ -59,7 +66,7 @@ const TransactionListScreen = () => {
 
     const filteredTransactions = useFilteredTransactions(transactions ?? [], {
         date: formik.values.date ? new Date(formik.values.date) : undefined,
-        type: formik.values.type ? formik.values.type as TransactionType : undefined,
+        type: formik.values.type ? formik.values.type as TransactionTypeValue : undefined,
         category: formik.values.category ? formik.values.category as (typeof EXPENSE_CATEGORIES[number] | typeof INCOME_CATEGORIES[number]) : undefined,
         amount: formik.values.amount ? Number(formik.values.amount) : undefined,
         recurring: formik.values.recurring ? (formik.values.recurring === 'true' ? true : false) : undefined,

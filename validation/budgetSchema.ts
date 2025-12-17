@@ -1,4 +1,4 @@
-import { EXPENSE_CATEGORIES } from '@/constants/Types';
+import { EXPENSE_CATEGORIES } from '@/types';
 import * as Yup from 'yup';
 
 export const budgetSchema = Yup.object().shape({

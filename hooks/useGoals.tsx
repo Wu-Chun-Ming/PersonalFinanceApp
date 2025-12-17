@@ -1,5 +1,10 @@
-import { IncomeGoalProps, SavingsGoalProps, TransactionProps, TransactionType } from "@/constants/Types";
 import { editGoal, fetchGoal } from "@/services/goalService";
+import {
+    IncomeGoalProps,
+    SavingsGoalProps,
+    TransactionProps,
+    TransactionType,
+} from "@/types";
 import { useState } from "react";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";

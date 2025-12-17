@@ -18,7 +18,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import { ScanContext } from '@/app/transaction/_layout';
 import ImageViewer from '@/components/ImageViewer';
-import { TransactionType } from '@/constants/Types';
+import { TransactionType } from '@/types';
 
 const ScanScreen = () => {
     const { setScannedData } = useContext(ScanContext);

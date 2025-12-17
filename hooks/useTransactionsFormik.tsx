@@ -1,4 +1,10 @@
-import { RecurringDay, RecurringFrequency, TransactionCategory, TransactionType } from "@/constants/Types";
+import {
+    RecurringDay,
+    RecurringFrequency,
+    TransactionCategoryType,
+    TransactionType,
+    TransactionTypeValue,
+} from "@/types";
 import { getTransactionSchema, transactionSchema } from "@/validation/transactionSchema";
 import { router } from "expo-router";
 import { useMemo } from "react";
@@ -7,7 +13,7 @@ import { useCreateTransaction, useUpdateTransaction } from "./useTransactions";
 
 interface TransactionFormikProps {
     date: string;
-    type: TransactionType;
+    type: TransactionTypeValue;
     category: string;
     amount: string;
     description: string;
@@ -23,7 +29,7 @@ interface TransactionFormikProps {
 }
 
 export const useTransactionFormik = (
-    transactionType: TransactionType = TransactionType.EXPENSE,
+    transactionType: TransactionTypeValue = TransactionType.EXPENSE,
     formAction: 'create' | 'update',
     scannedData: TransactionFormikProps[],
     scanNum: number,
@@ -58,7 +64,7 @@ export const useTransactionFormik = (
             ...values,
             date: !values.recurring ? new Date(values.date) : null,
             type: transactionType,
-            category: values.category as TransactionCategory,
+            category: values.category as TransactionCategoryType,
             amount: Number(values.amount),
             recurring_frequency: values.recurring
                 ? {
@@ -100,8 +106,8 @@ export const useTransactionFormik = (
 
 interface FilteredTransactionFormikProps {
     date?: string;
-    type?: string | TransactionType | '';
-    category?: string | TransactionCategory | '';
+    type?: string | TransactionTypeValue | '';
+    category?: string | TransactionCategoryType | '';
     amount?: string;
     recurring?: string;
     frequency?: string;

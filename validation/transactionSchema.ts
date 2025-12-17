@@ -1,4 +1,11 @@
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringDay, RecurringFrequency, TransactionType } from '@/constants/Types';
+import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES,
+    RecurringDay,
+    RecurringFrequency,
+    TransactionType,
+    TransactionTypeValue,
+} from '@/types';
 import * as Yup from 'yup';
 
 export const transactionSchema = Yup.object().shape({
@@ -32,7 +39,7 @@ export const transactionSchema = Yup.object().shape({
         .optional(),
 });
 
-export const getTransactionSchema = (transactionType: TransactionType) => Yup.object().shape({
+export const getTransactionSchema = (transactionType: TransactionTypeValue) => Yup.object().shape({
     date: Yup.date()
         .when(['recurring'], ([recurring], schema) => {
             return recurring === false

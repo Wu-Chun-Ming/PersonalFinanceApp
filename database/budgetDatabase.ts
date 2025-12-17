@@ -1,5 +1,5 @@
-import { BudgetProps } from '@/constants/Types';
 import { getDatabaseInstance } from '@/database/init';
+import { BudgetProps } from '@/types';
 import * as SQLite from 'expo-sqlite';
 
 // Fetch budgets

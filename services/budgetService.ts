@@ -1,8 +1,8 @@
-import { TransactionCategory } from "@/constants/Types";
 import {
     getBudgets,
     updateBudget,
 } from "@/database/budgetDatabase";
+import { TransactionCategoryType } from "@/types";
 
 // Fetch budgets
 export const fetchBudgets = async () => {
@@ -18,7 +18,7 @@ export const editBudget = async (updatedBudgetAmount: number, {
 }: {
     year: number;
     month: number;
-    category: TransactionCategory;
+    category: TransactionCategoryType;
 }) => {
     const response = await updateBudget(updatedBudgetAmount, {
         year,

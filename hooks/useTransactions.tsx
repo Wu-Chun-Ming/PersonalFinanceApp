@@ -1,12 +1,5 @@
 import { CATEGORY_COLORS } from "@/constants/Colors";
 import {
-    EXPENSE_CATEGORIES,
-    INCOME_CATEGORIES,
-    TransactionCategory,
-    TransactionProps,
-    TransactionType,
-} from "@/constants/Types";
-import {
     createTransaction,
     deleteTransaction,
     editTransaction,
@@ -14,6 +7,14 @@ import {
     fetchTransactions,
     importTransactions,
 } from "@/services/transactionService";
+import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES,
+    TransactionCategoryType,
+    TransactionProps,
+    TransactionType,
+    TransactionTypeValue,
+} from "@/types";
 import {
     getMonthRange,
     getYearRange,
@@ -171,7 +172,7 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
         totalsPerMonth,
         grandTotal,
     } = useMemo(() => {
-        const totalsPerCategory: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
+        const totalsPerCategory: Record<TransactionCategoryType, number> = {} as Record<TransactionCategoryType, number>;
         // Initialize fixed-size arrays
         const income: number[] = Array(12).fill(0);
         const expense: number[] = Array(12).fill(0);
@@ -208,9 +209,9 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
 
     // Calculate percentage for each category
     const percentagesPerCategory = useMemo(() => {
-        const percentages: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
+        const percentages: Record<TransactionCategoryType, number> = {} as Record<TransactionCategoryType, number>;
 
-        for (const category of Object.keys(totalsPerCategory) as TransactionCategory[]) {
+        for (const category of Object.keys(totalsPerCategory) as TransactionCategoryType[]) {
             percentages[category] = grandTotal ? (totalsPerCategory[category] / grandTotal) * 100 : 0;
         }
 
@@ -227,7 +228,7 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
 
 export const usePieChartTransactions = (
     transactions: TransactionProps[],
-    transactionType: TransactionType,
+    transactionType: TransactionTypeValue,
 ) => {
     const categories = (transactionType === TransactionType.EXPENSE) ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
     const { transactionTotalsPerCategory } = useTransactionSummary(transactions);
