@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 
@@ -15,12 +15,22 @@ import MonthSelector from '@/components/MonthSelector';
 import QueryState from '@/components/QueryState';
 import YearSelector from '@/components/YearSelector';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, TransactionType } from '@/constants/Types';
-import { useBudgetData, useBudgets } from '@/hooks/useBudgets';
+import {
+    BudgetProps,
+    EXPENSE_CATEGORIES,
+    TransactionCategory,
+    TransactionType,
+} from '@/constants/Types';
+import {
+    useBudgetData,
+    useBudgets,
+    useBudgetSummary,
+} from '@/hooks/useBudgets';
 import { useBudgetFormik } from '@/hooks/useBudgetsFormik';
 import {
     useTransactionData,
     useTransactions,
+    useTransactionSummary,
 } from '@/hooks/useTransactions';
 
 const BudgetScreen = () => {
@@ -42,16 +52,43 @@ const BudgetScreen = () => {
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    // Transaction data
     const {
         selectedYearExpenseTransactions,
         selectedMonthExpenseTransactions,
     } = useTransactionData(transactions, selectedYear, selectedMonth);
     const {
+        totalPerMonth: selectedYearExpenseTotalsPerMonth,
+    } = useTransactionSummary(selectedYearExpenseTransactions);
+    const {
+        totalPerCategory: selectedMonthExpenseTotalsPerCategory,
+    } = useTransactionSummary(selectedMonthExpenseTransactions);
+
+    // Budget data
+    const {
         selectedYearBudgets,
-        expenseTotalsByCategory,
-        budgetByCategory,
-        expensesAndBudgetsByMonth,
-    } = useBudgetData(budgets, selectedYearExpenseTransactions, selectedMonthExpenseTransactions, selectedYear, selectedMonth);
+        selectedMonthBudgets,
+    } = useBudgetData(budgets, selectedYear, selectedMonth);
+    const {
+        budgetTotalsPerMonth: selectedYearBudgetTotalsPerMonth,
+    } = useBudgetSummary(selectedYearBudgets);
+
+    // Map budgets by category
+    const selectedMonthBudgetTotalsByCategory = useMemo(() => {
+        const budgetMap: Record<TransactionCategory, BudgetProps> = {} as Record<TransactionCategory, BudgetProps>;
+
+        for (const b of selectedMonthBudgets) {
+            budgetMap[b.category] = b;
+        }
+
+        return budgetMap;
+    }, [selectedMonthBudgets]);
+
+    const expensesAndBudgetsByMonth = Array.from({ length: 12 }, (_, i) => i + 1).map((month) => ({
+        month: month,
+        expensePerMonth: selectedYearExpenseTotalsPerMonth[month - 1].expensePerMonth || 0,
+        budgetPerMonth: selectedYearBudgetTotalsPerMonth[month - 1].budgetPerMonth || 0,
+    }));
 
     // Formik setup
     const {
@@ -131,8 +168,8 @@ const BudgetScreen = () => {
                     margin: 10,
                 }}>
                     {EXPENSE_CATEGORIES.map((category) => {
-                        const expenseTotal = expenseTotalsByCategory[category] || 0;
-                        const budget = budgetByCategory[category];
+                        const expenseTotal = selectedMonthExpenseTotalsPerCategory[category] || 0;
+                        const budget = selectedMonthBudgetTotalsByCategory[category];
                         const progress = (expenseTotal) / (budget?.amount || 1) * 100; // Calculate progress as a percentage
 
                         return (
