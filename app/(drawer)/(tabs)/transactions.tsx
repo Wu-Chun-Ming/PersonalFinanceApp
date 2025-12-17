@@ -13,7 +13,7 @@ import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import YearSelector from '@/components/YearSelector';
-import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import {
     useTransactionData,
     useTransactions,

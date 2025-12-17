@@ -16,7 +16,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
 import { HStack } from '@/components/ui/hstack';
-import { GOALS_COLOR } from '@/constants/Colors';
+import { GOALS_COLOR } from '@/constants/colors';
 import { useGoals } from '@/hooks/useGoals';
 import { useGoalsFormik } from '@/hooks/useGoalsFormik';
 import useShowToast from '@/hooks/useShowToast';

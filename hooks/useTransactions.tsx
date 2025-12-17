@@ -1,4 +1,4 @@
-import { CATEGORY_COLORS } from "@/constants/Colors";
+import { CATEGORY_COLORS } from "@/constants/colors";
 import {
     createTransaction,
     deleteTransaction,

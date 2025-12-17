@@ -14,7 +14,7 @@ import BudgetModal from '@/components/BudgetModal';
 import MonthSelector from '@/components/MonthSelector';
 import QueryState from '@/components/QueryState';
 import YearSelector from '@/components/YearSelector';
-import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import {
     useBudgetData,
     useBudgets,

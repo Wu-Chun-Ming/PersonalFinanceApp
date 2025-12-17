@@ -1,5 +1,5 @@
 import styles from "@/app/styles";
-import { CATEGORY_COLORS } from "@/constants/Colors";
+import { CATEGORY_COLORS } from "@/constants/colors";
 import { router } from "expo-router";
 import { Text, TouchableNativeFeedback, View } from "react-native";
 import { Box } from "./ui/box";

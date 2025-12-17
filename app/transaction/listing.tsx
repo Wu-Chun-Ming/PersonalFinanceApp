@@ -16,7 +16,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import { ScanContext } from '@/app/transaction/_layout';
 import QueryState from '@/components/QueryState';
-import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useFilteredTransactionsFormik } from '@/hooks/useTransactionsFormik';

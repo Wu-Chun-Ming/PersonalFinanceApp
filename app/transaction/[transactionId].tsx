@@ -21,7 +21,7 @@ import { ScanContext } from '@/app/transaction/_layout';
 import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
-import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import useShowToast from '@/hooks/useShowToast';
 import { useDeleteTransaction, useTransaction } from '@/hooks/useTransactions';
 import { useTransactionFormik } from '@/hooks/useTransactionsFormik';

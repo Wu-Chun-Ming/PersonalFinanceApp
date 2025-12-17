@@ -9,7 +9,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import { CATEGORY_COLORS } from '@/constants/Colors';
+import { CATEGORY_COLORS } from '@/constants/colors';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 

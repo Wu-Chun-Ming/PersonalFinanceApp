@@ -14,7 +14,7 @@ import styles from '@/app/styles';
 import ActionFab from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
-import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
+import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import {
   usePieChartTransactions,
   useTransactionData,

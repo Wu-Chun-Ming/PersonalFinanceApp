@@ -17,7 +17,7 @@ import BarChart from '@/components/BarChart';
 import Graph from '@/components/Graph';
 import QueryState from '@/components/QueryState';
 import YearSelector from '@/components/YearSelector';
-import { GOALS_COLOR } from '@/constants/Colors';
+import { GOALS_COLOR } from '@/constants/colors';
 import {
     defaultGoalsData,
     useGoalData,
