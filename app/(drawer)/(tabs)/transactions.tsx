@@ -33,15 +33,18 @@ const TransactionScreen = () => {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const { selectedYearTransactions } = useTransactionData(transactions, selectedYear);
     const {
-        totalByCategory,
-        totalPerMonth,
+        transactionTotalsPerCategory: selectedYearTxTotalsPerCategory,
+        transactionTotalsPerMonth: selectedYearTxTotalsPerMonth,
     } = useTransactionSummary(selectedYearTransactions);
 
     // Get top 5 transaction breakdown by transaction type
     const getTransactionBreakdownByType = (transactionType: TransactionType) =>
-        Object.entries(totalByCategory)
+        Object.entries(selectedYearTxTotalsPerCategory)
             .filter(([category]) => transactions.some(t => t.category === category && t.type === transactionType))
-            .map(([category, total]) => ({ category: category as TransactionCategory, total }))
+            .map(([category, total]) => ({
+                category: category as TransactionCategory,
+                total,
+            }))
             .sort((a, b) => b.total - a.total)  // Sort in descending order by 'total'
             .slice(0, 5);                       // Limit to the top 5 categories
 
@@ -74,7 +77,7 @@ const TransactionScreen = () => {
                 }}>
                     {(selectedYearTransactions && selectedYearTransactions.length > 0) ?
                         <BarChart
-                            data={totalPerMonth}
+                            data={selectedYearTxTotalsPerMonth}
                             xKey='month'
                             yKeys={[
                                 ['expensePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],

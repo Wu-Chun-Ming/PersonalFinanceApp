@@ -43,15 +43,15 @@ const App = () => {
     transactionsPerCategory,
   } = usePieChartTransactions(filteredTransactions, transactionType);
   const {
-    totalByCategory,
-    percentageByCategory,
+    transactionTotalsPerCategory,
+    percentagesPerCategory,
   } = useTransactionSummary(filteredTransactions);
 
   const transactionBreakdown = Object.values(TransactionCategory).map((category) => {
     return {
       category,
-      total: totalByCategory[category] || 0,
-      percentage: percentageByCategory[category] || 0,
+      total: transactionTotalsPerCategory[category] || 0,
+      percentage: percentagesPerCategory[category] || 0,
     };
   });
 
@@ -72,8 +72,8 @@ const App = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <Dropdown
         data={[
-          { label: 'Expense', value: 'expense' },
-          { label: 'Income', value: 'income' },
+          { label: 'Expense', value: TransactionType.EXPENSE },
+          { label: 'Income', value: TransactionType.INCOME },
         ]}
         labelField="label"
         valueField="value"

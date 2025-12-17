@@ -163,9 +163,10 @@ export const useTransactionData = (
     }, [transactions, yearRange, monthRange]);
 };
 
+// Custom hook to summarize transaction data
 export const useTransactionSummary = (transactions: TransactionProps[]) => {
     // Calculate totals for each category
-    const totalByCategory = useMemo(() => {
+    const totalsPerCategory = useMemo(() => {
         const totals: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
 
         for (const { category, amount } of transactions) {
@@ -176,10 +177,10 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
     }, [transactions]);
 
     // Calculate totals per month
-    const totalPerMonth = useMemo(() => {
+    const totalsPerMonth = useMemo(() => {
         // Initialize fixed-size arrays
-        const income = Array(12).fill(0);
-        const expense = Array(12).fill(0);
+        const income: number[] = Array(12).fill(0);
+        const expense: number[] = Array(12).fill(0);
 
         for (let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
@@ -205,21 +206,21 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
     }, [transactions]);
 
     // Calculate percentage for each category
-    const percentageByCategory = useMemo(() => {
+    const percentagesPerCategory = useMemo(() => {
         const percentages: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
-        
-        for (const category of Object.keys(totalByCategory) as TransactionCategory[]) {
-            percentages[category] = grandTotal ? (totalByCategory[category] / grandTotal) * 100 : 0;
+
+        for (const category of Object.keys(totalsPerCategory) as TransactionCategory[]) {
+            percentages[category] = grandTotal ? (totalsPerCategory[category] / grandTotal) * 100 : 0;
         }
-        
+
         return percentages;
-    }, [totalByCategory, grandTotal]);
+    }, [totalsPerCategory, grandTotal]);
 
     return {
-        totalByCategory,
-        totalPerMonth,
+        transactionTotalsPerCategory: totalsPerCategory,
+        transactionTotalsPerMonth: totalsPerMonth,
         grandTotal,
-        percentageByCategory,
+        percentagesPerCategory,
     };
 };
 
@@ -228,16 +229,16 @@ export const usePieChartTransactions = (
     transactionType: TransactionType,
 ) => {
     const categories = (transactionType === TransactionType.EXPENSE) ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-    const { totalByCategory } = useTransactionSummary(transactions);
+    const { transactionTotalsPerCategory } = useTransactionSummary(transactions);
 
     // Calculate totals by category
     const transactionsPerCategory = useMemo(() => {
         return categories.map(category => ({
             label: category,
-            value: totalByCategory[category] ?? 0,
+            value: transactionTotalsPerCategory[category] ?? 0,
             color: CATEGORY_COLORS[category],
         }));
-    }, [totalByCategory, categories]);
+    }, [transactionTotalsPerCategory, categories]);
 
     return {
         transactionsPerCategory,

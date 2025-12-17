@@ -58,10 +58,10 @@ const BudgetScreen = () => {
         selectedMonthExpenseTransactions,
     } = useTransactionData(transactions, selectedYear, selectedMonth);
     const {
-        totalPerMonth: selectedYearExpenseTotalsPerMonth,
+        transactionTotalsPerMonth: selectedYearExpenseTotalsPerMonth,
     } = useTransactionSummary(selectedYearExpenseTransactions);
     const {
-        totalPerCategory: selectedMonthExpenseTotalsPerCategory,
+        transactionTotalsPerCategory: selectedMonthExpenseTotalsPerCategory,
     } = useTransactionSummary(selectedMonthExpenseTransactions);
 
     // Budget data
