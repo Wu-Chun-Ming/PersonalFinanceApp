@@ -3,28 +3,16 @@ import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-na
 import * as Progress from 'react-native-progress';
 
 // Gluestack UI
-import { Button, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
-import { Input, InputField } from '@/components/ui/input';
-import {
-    Modal,
-    ModalBackdrop,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader
-} from "@/components/ui/modal";
-import { SelectItem } from "@/components/ui/select";
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
 import BarChart from '@/components/BarChart';
-import FormGroup from '@/components/FormGroup';
+import BudgetModal from '@/components/BudgetModal';
 import MonthSelector from '@/components/MonthSelector';
 import QueryState from '@/components/QueryState';
-import SelectGroup from '@/components/SelectGroup';
 import YearSelector from '@/components/YearSelector';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
 import { EXPENSE_CATEGORIES, TransactionType } from '@/constants/Types';
@@ -198,130 +186,17 @@ const BudgetScreen = () => {
 
             {/* Budget Modal */}
             {budgetModalVisible && (
-                <Modal
+                <BudgetModal
                     isOpen={budgetModalVisible}
                     onClose={() => {
                         formik.resetForm();
                         setBudgetModalVisible(false);
                     }}
-                    size="md"
-                >
-                    <ModalBackdrop />
-                    <ModalContent>
-                        <ModalHeader>
-                            <Heading>Enter Budget</Heading>
-                        </ModalHeader>
-                        <ModalBody>
-                            {/* Year */}
-                            <FormGroup
-                                label='Year'
-                                isInvalid={formik.errors.year && formik.touched.year}
-                                isRequired={true}
-                                errorText={formik.errors.year}
-                            >
-                                <SelectGroup
-                                    selectedValue={selectedYear.toString() || formik.values.year}
-                                    onValueChange={formik.handleChange('year')}
-                                >
-                                    {(Array.from({ length: 7 }, (_, i) => String(selectedYear - 3 + i))).map(
-                                        (label) => (
-                                            <SelectItem
-                                                key={label}
-                                                label={label}
-                                                value={label}
-                                            />
-                                        )
-                                    )}
-                                </SelectGroup>
-                            </FormGroup>
-
-                            {/* Month */}
-                            <FormGroup
-                                label='Month'
-                                isInvalid={formik.errors.month && formik.touched.month}
-                                isRequired={true}
-                                errorText={formik.errors.month}
-                            >
-                                <SelectGroup
-                                    initialLabel={(selectedMonth || formik.values.month) ? ['January', 'February', 'March', 'April', 'May', 'June',
-                                        'July', 'August', 'September', 'October', 'November', 'December'
-                                    ][Number(selectedMonth || formik.values.month) - 1] : ''}
-                                    selectedValue={selectedMonth.toString() || formik.values.month}
-                                    onValueChange={formik.handleChange('month')}
-                                >
-                                    {([['January', 1], ['February', 2], ['March', 3], ['April', 4], ['May', 5], ['June', 6], ['July', 7], ['August', 8], ['September', 9], ['October', 10], ['November', 11], ['December', 12]]).map(
-                                        (label) => (
-                                            <SelectItem
-                                                key={label[1]}
-                                                label={label[0].toString()}
-                                                value={label[1].toString()}
-                                            />
-                                        )
-                                    )}
-                                </SelectGroup>
-                            </FormGroup>
-
-                            {/* Category */}
-                            <FormGroup
-                                label='Category'
-                                isInvalid={formik.errors.category && formik.touched.category}
-                                isRequired={true}
-                                errorText={formik.errors.category}
-                            >
-                                <SelectGroup
-                                    initialLabel={formik.values.category ? formik.values.category[0].toUpperCase() + formik.values.category.slice(1) : ''}
-                                    selectedValue={formik.values.category}
-                                    onValueChange={formik.handleChange('category')}
-                                >
-                                    {EXPENSE_CATEGORIES.map(
-                                        (label) => (
-                                            <SelectItem
-                                                key={label}
-                                                label={label[0].toUpperCase() + label.slice(1)}
-                                                value={label}
-                                            />
-                                        )
-                                    )}
-                                </SelectGroup>
-                            </FormGroup>
-
-                            {/* Amount */}
-                            <FormGroup
-                                label='Amount'
-                                isInvalid={formik.errors.amount && formik.touched.amount}
-                                isRequired={true}
-                                errorText={formik.errors.amount}
-                            >
-                                <Input
-                                >
-                                    <InputField
-                                        type="text"
-                                        value={formik.values.amount}
-                                        onChangeText={formik.handleChange('amount')}
-                                        inputMode='numeric'
-                                    />
-                                </Input>
-                            </FormGroup>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button
-                                variant="outline"
-                                action="secondary"
-                                onPress={() => {
-                                    formik.resetForm();
-                                    setBudgetModalVisible(false);
-                                }}
-                            >
-                                <ButtonText>Cancel</ButtonText>
-                            </Button>
-                            <Button
-                                onPress={() => formik.handleSubmit()}
-                            >
-                                <ButtonText>Save</ButtonText>
-                            </Button>
-                        </ModalFooter>
-                    </ModalContent>
-                </Modal>
+                    formik={formik}
+                    selectedYear={selectedYear}
+                    selectedMonth={selectedMonth}
+                    expenseCategories={EXPENSE_CATEGORIES}
+                />
             )}
         </SafeAreaView>
     );
