@@ -165,44 +165,45 @@ export const useTransactionData = (
 
 // Custom hook to summarize transaction data
 export const useTransactionSummary = (transactions: TransactionProps[]) => {
-    // Calculate totals for each category
-    const totalsPerCategory = useMemo(() => {
-        const totals: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
-
-        for (const { category, amount } of transactions) {
-            totals[category] = (totals[category] ?? 0) + amount;
-        }
-
-        return totals;
-    }, [transactions]);
-
-    // Calculate totals per month
-    const totalsPerMonth = useMemo(() => {
+    // Calculate transaction totals per category and month, grand total
+    const {
+        totalsPerCategory,
+        totalsPerMonth,
+        grandTotal,
+    } = useMemo(() => {
+        const totalsPerCategory: Record<TransactionCategory, number> = {} as Record<TransactionCategory, number>;
         // Initialize fixed-size arrays
         const income: number[] = Array(12).fill(0);
         const expense: number[] = Array(12).fill(0);
+        let grandTotal = 0;
 
         for (let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
             const month = new Date(t.date).getMonth(); // 0–11 index
+            const category = t.category;
+            const amount = t.amount;
 
             if (t.type === TransactionType.INCOME) {
-                income[month] += t.amount;
+                income[month] += amount;
             } else {
-                expense[month] += t.amount;
+                expense[month] += amount;
             }
+
+            totalsPerCategory[category] = (totalsPerCategory[category] ?? 0) + amount;
+            grandTotal += amount;
         }
 
-        return Array.from({ length: 12 }, (_, i) => ({
+        const totalsPerMonth = Array.from({ length: 12 }, (_, i) => ({
             month: i + 1,
             incomePerMonth: income[i],
             expensePerMonth: expense[i],
         }));
-    }, [transactions]);
 
-    // Calculate grand total
-    const grandTotal = useMemo(() => {
-        return transactions.reduce((sum, t) => sum + t.amount, 0);
+        return {
+            totalsPerCategory,
+            totalsPerMonth,
+            grandTotal,
+        };
     }, [transactions]);
 
     // Calculate percentage for each category
