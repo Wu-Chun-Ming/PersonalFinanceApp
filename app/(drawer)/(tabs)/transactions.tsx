@@ -8,7 +8,7 @@ import { AddIcon } from '@/components/ui/icon';
 
 // Custom import
 import styles from '@/app/styles';
-import { ActionFab } from '@/components/ActionFab';
+import ActionFab from '@/components/ActionFab';
 import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';

@@ -12,7 +12,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import { ActionFab } from '@/components/ActionFab';
+import ActionFab from '@/components/ActionFab';
 import BarChart from '@/components/BarChart';
 import Graph from '@/components/Graph';
 import QueryState from '@/components/QueryState';

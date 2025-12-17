@@ -9,7 +9,7 @@ interface ActionFabProps {
     href: Href;
 }
 
-export const ActionFab = ({
+const ActionFab = ({
     icon,
     href,
 }: ActionFabProps) => {
@@ -23,3 +23,5 @@ export const ActionFab = ({
         </Fab>
     );
 };
+
+export default ActionFab;
