@@ -25,33 +25,16 @@ export const IncomeCategory = {
     OTHER: "Other",
 } as const;
 
-export type ExpenseCategoryType = (typeof ExpenseCategory)[keyof typeof ExpenseCategory];
-export type IncomeCategoryType = (typeof IncomeCategory)[keyof typeof IncomeCategory];
-
-export const EXPENSE_CATEGORIES: ExpenseCategoryType[] = [
-    ExpenseCategory.FOOD,
-    ExpenseCategory.ENTERTAINMENT,
-    ExpenseCategory.UTILITIES,
-    ExpenseCategory.GROCERY,
-    ExpenseCategory.RENT,
-    ExpenseCategory.TRANSPORTATION,
-    ExpenseCategory.DINING,
-    ExpenseCategory.SUBSCRIPTIONS,
-    ExpenseCategory.OTHER,
-];
-
-export const INCOME_CATEGORIES: IncomeCategoryType[] = [
-    IncomeCategory.SALARY,
-    IncomeCategory.FREELANCE,
-    IncomeCategory.INVESTMENT,
-    IncomeCategory.GIFT,
-    IncomeCategory.OTHER,
-];
-
 export const TransactionCategory = {
     ...ExpenseCategory,
     ...IncomeCategory,
 } as const;
+
+export type ExpenseCategoryType = (typeof ExpenseCategory)[keyof typeof ExpenseCategory];
+export type IncomeCategoryType = (typeof IncomeCategory)[keyof typeof IncomeCategory];
+
+export const EXPENSE_CATEGORIES: ExpenseCategoryType[] = Object.values(ExpenseCategory);
+export const INCOME_CATEGORIES: IncomeCategoryType[] = Object.values(IncomeCategory);
 
 export type TransactionCategoryType = (typeof TransactionCategory)[keyof typeof TransactionCategory];
 
