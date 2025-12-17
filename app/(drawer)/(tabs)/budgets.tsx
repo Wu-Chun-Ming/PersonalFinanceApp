@@ -1,4 +1,3 @@
-import { AntDesign } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
@@ -23,6 +22,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import BarChart from '@/components/BarChart';
 import FormGroup from '@/components/FormGroup';
+import MonthSelector from '@/components/MonthSelector';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
 import YearSelector from '@/components/YearSelector';
@@ -132,25 +132,9 @@ const BudgetScreen = () => {
                     margin: 10,
                     width: '60%',
                 }}>
-                    <HStack className="justify-between items-center m-2">
-                        <TouchableOpacity
-                            disabled={selectedMonth <= 1}
-                            onPress={() => setSelectedMonth(selectedMonth - 1)}
-                        >
-                            <AntDesign name="leftcircle" size={24} color={selectedMonth <= 1 ? 'gray' : 'white'} style={{ paddingHorizontal: 10 }} />
-                        </TouchableOpacity>
-
-                        <Text style={{ fontSize: 18, fontWeight: "bold", color: 'white' }}>
-                            {new Date(selectedYear, selectedMonth - 1).toLocaleString('en-US', { month: 'long' })}
-                        </Text>
-
-                        <TouchableOpacity
-                            disabled={selectedMonth >= 12}
-                            onPress={() => setSelectedMonth(selectedMonth + 1)}
-                        >
-                            <AntDesign name="rightcircle" size={24} color={selectedMonth >= 12 ? 'gray' : 'white'} style={{ paddingHorizontal: 10 }} />
-                        </TouchableOpacity>
-                    </HStack>
+                    <MonthSelector
+                        onMonthChange={(month) => setSelectedMonth(month)}
+                    />
                 </View>
             </View>
 
