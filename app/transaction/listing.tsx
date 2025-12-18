@@ -1,4 +1,3 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -14,6 +13,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
+import DatePicker from '@/components/DatePicker';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import {
@@ -120,18 +120,12 @@ const TransactionListScreen = () => {
             </Button>}
 
             {/* Date Picker Modal */}
-            {dateModalVisible && <DateTimePicker
-                value={formik.values.date ? new Date(formik.values.date) : new Date()}
-                mode='date'
-                onChange={(event, selectedDate) => {
-                    if (event.type === 'set' && selectedDate) {
-                        setDateModalVisible(false);
-                        formik.setFieldValue('date', dayjs(selectedDate).format('YYYY-MM-DD'));
-                    } else if (event.type === 'dismissed') {
-                        setDateModalVisible(false);
-                    }
-                }}
-            />}
+            <DatePicker
+                visible={dateModalVisible}
+                fieldName="date"
+                formik={formik}
+                onClose={() => setDateModalVisible(false)}
+            />
 
             {/* Collapsible Filters Section */}
             <Collapsible collapsed={isFiltersCollapsed}>

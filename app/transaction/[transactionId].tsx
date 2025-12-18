@@ -1,5 +1,4 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -17,6 +16,7 @@ import { VStack } from "@/components/ui/vstack";
 
 // Custom import
 import styles from '@/app/styles';
+import DatePicker from '@/components/DatePicker';
 import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
@@ -340,18 +340,13 @@ const TransactionManager = () => {
                                 </FormGroup>
                             </HStack>
                         </>}
-                    {dateModalVisible && <DateTimePicker
-                        value={new Date((formik.values.date))}
-                        mode='date'
-                        onChange={(event, selectedDate) => {
-                            if (event.type === 'set' && selectedDate) {
-                                setDateModalVisible(false);
-                                formik.setFieldValue('date', dayjs(selectedDate).format('YYYY-MM-DD'));
-                            } else if (event.type === 'dismissed') {
-                                setDateModalVisible(false);
-                            }
-                        }}
-                    />}
+
+                    <DatePicker
+                        visible={dateModalVisible}
+                        fieldName='date'
+                        formik={formik}
+                        onClose={() => setDateModalVisible(false)}
+                    />
 
                     {/* Type */}
                     {transaction && <FormGroup
