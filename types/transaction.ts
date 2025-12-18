@@ -51,33 +51,19 @@ export enum RecurringDay {
     SUNDAY = "SU",
 }
 
-export type RecurringFrequencyProps =
-    | {
-        frequency: RecurringFrequency.DAILY;
-    }
-    | {
-        frequency: RecurringFrequency.WEEKLY;
-        day: RecurringDay;
-    }
-    | {
-        frequency: RecurringFrequency.MONTHLY;
-        date: number; // 1–31
-    }
-    | {
-        frequency: RecurringFrequency.YEARLY;
-        month: number; // 1–12
-        date: number;  // 1–31
+export type RecurringFrequencyProps = {
+    frequency: RecurringFrequency;
+    time: {
+        month?: number | null;
+        date?: number | null;
+        day?: RecurringDay | null;
     };
+};
 
-type RecurringProps =
-    | {
-        recurring: false;
-        recurring_frequency: null;
-    }
-    | {
-        recurring: true;
-        recurring_frequency: RecurringFrequencyProps;
-    };
+type RecurringProps = {
+    recurring: boolean;
+    recurring_frequency: RecurringFrequencyProps | null;
+};
 
 type BaseTransactionProps = {
     id?: number;
@@ -97,6 +83,7 @@ export type IncomeTransactionProps = BaseTransactionProps & {
     category: IncomeCategoryType;
 };
 
-export type TransactionProps =
-    | ExpenseTransactionProps
-    | IncomeTransactionProps;
+export type TransactionProps = BaseTransactionProps & {
+    type: TransactionTypeValue;
+    category: TransactionCategoryType;
+};
