@@ -17,14 +17,18 @@ import styles from '@/app/styles';
 import { ScanContext } from '@/app/transaction/_layout';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES,
+    RECURRING_FREQUENCIES,
+    TRANSACTION_CATEGORIES,
+    TRANSACTION_TYPES,
+} from '@/constants/transaction';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useFilteredTransactionsFormik } from '@/hooks/useTransactionsFormik';
 import {
-    EXPENSE_CATEGORIES,
-    INCOME_CATEGORIES,
     RecurringFrequency,
-    TransactionCategory,
     TransactionType,
     TransactionTypeValue,
 } from '@/types';
@@ -178,7 +182,7 @@ const TransactionListScreen = () => {
                             <Dropdown
                                 data={[
                                     { label: 'All', value: '' },
-                                    ...Object.values(TransactionType).map((type) => ({
+                                    ...TRANSACTION_TYPES.map((type) => ({
                                         label: type.charAt(0).toUpperCase() + type.slice(1),
                                         value: type,
                                     }))
@@ -221,7 +225,7 @@ const TransactionListScreen = () => {
                         <Dropdown
                             data={[
                                 { label: '-', value: '' },
-                                ...Object.values(TransactionCategory).map((type) => ({
+                                ...TRANSACTION_CATEGORIES.map((type) => ({
                                     label: type.charAt(0).toUpperCase() + type.slice(1),
                                     value: type,
                                 }))
@@ -329,7 +333,7 @@ const TransactionListScreen = () => {
                             <Dropdown
                                 data={[
                                     { label: '-', value: '' },
-                                    ...Object.values(RecurringFrequency).map((frequency) => ({
+                                    ...RECURRING_FREQUENCIES.map((frequency) => ({
                                         label: frequency.charAt(0).toUpperCase() + frequency.slice(1),
                                         value: frequency,
                                     }))

@@ -1,5 +1,9 @@
 import { CATEGORY_COLORS } from "@/constants/colors";
 import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES,
+} from "@/constants/transaction";
+import {
     createTransaction,
     deleteTransaction,
     editTransaction,
@@ -8,8 +12,6 @@ import {
     importTransactions,
 } from "@/services/transactionService";
 import {
-    EXPENSE_CATEGORIES,
-    INCOME_CATEGORIES,
     TransactionCategoryType,
     TransactionProps,
     TransactionType,

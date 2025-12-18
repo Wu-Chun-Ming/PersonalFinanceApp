@@ -15,6 +15,7 @@ import MonthSelector from '@/components/MonthSelector';
 import QueryState from '@/components/QueryState';
 import YearSelector from '@/components/YearSelector';
 import { BUDGET_COLOR, TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import { EXPENSE_CATEGORIES } from '@/constants/transaction';
 import {
     useBudgetData,
     useBudgets,
@@ -28,7 +29,6 @@ import {
 } from '@/hooks/useTransactions';
 import {
     BudgetProps,
-    EXPENSE_CATEGORIES,
     TransactionCategoryType,
     TransactionType,
 } from '@/types';

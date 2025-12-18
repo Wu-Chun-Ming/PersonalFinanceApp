@@ -32,10 +32,6 @@ export const TransactionCategory = {
 
 export type ExpenseCategoryType = (typeof ExpenseCategory)[keyof typeof ExpenseCategory];
 export type IncomeCategoryType = (typeof IncomeCategory)[keyof typeof IncomeCategory];
-
-export const EXPENSE_CATEGORIES: ExpenseCategoryType[] = Object.values(ExpenseCategory);
-export const INCOME_CATEGORIES: IncomeCategoryType[] = Object.values(IncomeCategory);
-
 export type TransactionCategoryType = (typeof TransactionCategory)[keyof typeof TransactionCategory];
 
 export enum RecurringFrequency {

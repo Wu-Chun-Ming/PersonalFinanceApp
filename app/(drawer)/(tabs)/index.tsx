@@ -15,6 +15,7 @@ import ActionFab from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import { TRANSACTION_CATEGORIES } from '@/constants/transaction';
 import {
   usePieChartTransactions,
   useTransactionData,
@@ -22,7 +23,6 @@ import {
   useTransactionSummary,
 } from '@/hooks/useTransactions';
 import {
-  TransactionCategory,
   TransactionType,
   TransactionTypeValue,
 } from '@/types';
@@ -51,7 +51,7 @@ const App = () => {
     percentagesPerCategory,
   } = useTransactionSummary(filteredTransactions);
 
-  const transactionBreakdown = Object.values(TransactionCategory).map((category) => {
+  const transactionBreakdown = TRANSACTION_CATEGORIES.map((category) => {
     return {
       category,
       total: transactionTotalsPerCategory[category] || 0,
@@ -98,12 +98,12 @@ const App = () => {
       />
 
       {/* Pie Chart */}
-      <View style={[styles.centered,{
+      <View style={[styles.centered, {
         height: "40%",
         paddingVertical: 10,
       }]}>
         {(transactionsPerCategory && transactionsPerCategory.length > 0) ?
-          <PieChart 
+          <PieChart
             data={transactionsPerCategory}
           />
           : <View style={styles.centeredFlex}>

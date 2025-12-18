@@ -1,7 +1,11 @@
 import {
     EXPENSE_CATEGORIES,
     INCOME_CATEGORIES,
-    RecurringDay,
+    RECURRING_DAYS,
+    RECURRING_FREQUENCIES,
+    TRANSACTION_TYPES,
+} from '@/constants/transaction';
+import {
     RecurringFrequency,
     TransactionType,
     TransactionTypeValue,
@@ -12,7 +16,7 @@ export const transactionSchema = Yup.object().shape({
     date: Yup.date()
         .optional(),
     type: Yup.string()
-        .oneOf(Object.values(TransactionType))
+        .oneOf(TRANSACTION_TYPES)
         .optional(),
     category: Yup.string()
         .when('type', (transactionType: any, schema) => {
@@ -35,7 +39,7 @@ export const transactionSchema = Yup.object().shape({
     recurring: Yup.boolean()
         .optional(),
     frequency: Yup.string()
-        .oneOf(Object.values(RecurringFrequency))
+        .oneOf(RECURRING_FREQUENCIES)
         .optional(),
 });
 
@@ -47,7 +51,7 @@ export const getTransactionSchema = (transactionType: TransactionTypeValue) => Y
                 : schema.notRequired();
         }),
     type: Yup.string()
-        .oneOf(Object.values(TransactionType), 'Invalid type')
+        .oneOf(TRANSACTION_TYPES, 'Invalid type')
         .required('Transaction type is required'),
     category: Yup.string()
         .oneOf((transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES), 'Invalid Category')
@@ -60,7 +64,7 @@ export const getTransactionSchema = (transactionType: TransactionTypeValue) => Y
     recurring: Yup.boolean(),
     recurring_frequency: Yup.object().shape({
         frequency: Yup.string()
-            .oneOf(Object.values(RecurringFrequency), 'Invalid frequency')
+            .oneOf(RECURRING_FREQUENCIES, 'Invalid frequency')
             .when('$recurring', ([recurring], schema) => {
                 return recurring === true
                     ? schema.required('Frequency is required')
@@ -75,7 +79,7 @@ export const getTransactionSchema = (transactionType: TransactionTypeValue) => Y
                 }),
             date: Yup.string(),
             day: Yup.string()
-                .oneOf(Object.values(RecurringDay), 'Invalid day')
+                .oneOf(RECURRING_DAYS, 'Invalid day')
                 .when('$recurring_frequency.frequency', ([frequency], schema) => {
                     return frequency === RecurringFrequency.WEEKLY
                         ? schema.required('Day is required')

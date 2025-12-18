@@ -14,6 +14,7 @@ import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import YearSelector from '@/components/YearSelector';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import { TRANSACTION_TYPES } from '@/constants/transaction';
 import {
     useTransactionData,
     useTransactions,
@@ -105,7 +106,7 @@ const TransactionScreen = () => {
                     margin: 10,
                 }}>
                     {/* Transactions Breakdown */}
-                    {Object.values(TransactionType).map((type, index) => (
+                    {TRANSACTION_TYPES.map((type, index) => (
                         <View key={index}>
                             <HStack
                                 className='justify-between'

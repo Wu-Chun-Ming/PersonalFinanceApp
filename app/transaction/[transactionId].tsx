@@ -22,12 +22,16 @@ import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES,
+    RECURRING_FREQUENCIES,
+    TRANSACTION_TYPES,
+} from '@/constants/transaction';
 import useShowToast from '@/hooks/useShowToast';
 import { useDeleteTransaction, useTransaction } from '@/hooks/useTransactions';
 import { useTransactionFormik } from '@/hooks/useTransactionsFormik';
 import {
-    EXPENSE_CATEGORIES,
-    INCOME_CATEGORIES,
     RecurringDay,
     RecurringFrequency,
     TransactionType,
@@ -215,7 +219,7 @@ const TransactionManager = () => {
                                     onValueChange={formik.handleChange('recurring_frequency.frequency')}
                                     placeholder="Select frequency"
                                 >
-                                    {(Object.values(RecurringFrequency)).map(
+                                    {(RECURRING_FREQUENCIES).map(
                                         (label) => (
                                             <SelectItem
                                                 key={label}
@@ -365,7 +369,7 @@ const TransactionManager = () => {
                                 formik.setFieldValue('type', value);
                             }}
                         >
-                            {Object.values(TransactionType).map(
+                            {TRANSACTION_TYPES.map(
                                 (label) => (
                                     <SelectItem
                                         key={label}

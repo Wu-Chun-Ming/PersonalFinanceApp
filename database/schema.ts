@@ -1,8 +1,8 @@
 import {
     EXPENSE_CATEGORIES,
-    TransactionCategory,
-    TransactionType,
-} from "@/types";
+    TRANSACTION_CATEGORIES,
+    TRANSACTION_TYPES,
+} from "@/constants/transaction";
 
 /* 
 Table: transactions
@@ -22,8 +22,8 @@ currency                VARCHAR
 */
 
 // Define allowed values for transaction types and categories
-const allowedTransactionTypes = Object.values(TransactionType).map(type => `'${type}'`).join(', ');
-const allowedTransactionCategories = Object.values(TransactionCategory).map(category => `'${category}'`).join(', ');
+const allowedTransactionTypes = TRANSACTION_TYPES.map(type => `'${type}'`).join(', ');
+const allowedTransactionCategories = TRANSACTION_CATEGORIES.map(category => `'${category}'`).join(', ');
 
 export const transactionTableSchema = `
     CREATE TABLE IF NOT EXISTS transactions (
