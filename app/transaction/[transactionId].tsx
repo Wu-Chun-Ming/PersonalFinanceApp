@@ -23,8 +23,6 @@ import QueryState from '@/components/QueryState';
 import SelectGroup from '@/components/SelectGroup';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import {
-    EXPENSE_CATEGORIES,
-    INCOME_CATEGORIES,
     RECURRING_FREQUENCIES,
     TRANSACTION_TYPES,
 } from '@/constants/transaction';
@@ -37,6 +35,7 @@ import {
     TransactionType,
     TransactionTypeValue,
 } from '@/types';
+import { getCategoriesByTransactionType } from '@/utils/category';
 
 const TransactionManager = () => {
     const { scannedData } = useContext(ScanContext);
@@ -393,7 +392,7 @@ const TransactionManager = () => {
                             selectedValue={formik.values.category}
                             onValueChange={formik.handleChange('category')}
                         >
-                            {(transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(
+                            {getCategoriesByTransactionType(transactionType).map(
                                 (label) => (
                                     <SelectItem
                                         key={label}

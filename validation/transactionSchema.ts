@@ -10,6 +10,7 @@ import {
     TransactionType,
     TransactionTypeValue,
 } from '@/types';
+import { getCategoriesByTransactionType } from '@/utils/category';
 import * as Yup from 'yup';
 
 export const transactionSchema = Yup.object().shape({
@@ -54,7 +55,7 @@ export const getTransactionSchema = (transactionType: TransactionTypeValue) => Y
         .oneOf(TRANSACTION_TYPES, 'Invalid type')
         .required('Transaction type is required'),
     category: Yup.string()
-        .oneOf((transactionType === TransactionType.EXPENSE ? EXPENSE_CATEGORIES : INCOME_CATEGORIES), 'Invalid Category')
+        .oneOf(getCategoriesByTransactionType(transactionType), 'Invalid Category')
         .required('Category is required'),
     amount: Yup.number().typeError("Must be a number")
         .positive('Amount must be positive')

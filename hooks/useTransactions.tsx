@@ -1,9 +1,5 @@
 import { CATEGORY_COLORS } from "@/constants/colors";
 import {
-    EXPENSE_CATEGORIES,
-    INCOME_CATEGORIES,
-} from "@/constants/transaction";
-import {
     createTransaction,
     deleteTransaction,
     editTransaction,
@@ -17,6 +13,7 @@ import {
     TransactionType,
     TransactionTypeValue,
 } from "@/types";
+import { getCategoriesByTransactionType } from "@/utils/category";
 import {
     getMonthRange,
     getYearRange,
@@ -232,7 +229,7 @@ export const usePieChartTransactions = (
     transactions: TransactionProps[],
     transactionType: TransactionTypeValue,
 ) => {
-    const categories = (transactionType === TransactionType.EXPENSE) ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+    const categories = getCategoriesByTransactionType(transactionType);
     const { transactionTotalsPerCategory } = useTransactionSummary(transactions);
 
     // Calculate totals by category
