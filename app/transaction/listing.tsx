@@ -29,6 +29,7 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { useFilteredTransactionsFormik } from '@/hooks/useTransactionsFormik';
 import {
     RecurringFrequency,
+    TransactionCategoryType,
     TransactionType,
     TransactionTypeValue,
 } from '@/types';
@@ -403,7 +404,7 @@ const TransactionListScreen = () => {
                                     : () => router.navigate(`/transaction/${item.id}`)
                                 }
                                 style={{
-                                    backgroundColor: CATEGORY_COLORS[item.category],
+                                    backgroundColor: CATEGORY_COLORS[item.category as TransactionCategoryType],
                                 }}
                             >
                                 <HStack
