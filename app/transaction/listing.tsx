@@ -1,7 +1,7 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -14,7 +14,6 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import { ScanContext } from '@/app/transaction/_layout';
 import QueryState from '@/components/QueryState';
 import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import {
@@ -25,6 +24,7 @@ import {
     TRANSACTION_TYPES,
 } from '@/constants/transaction';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
+import { useScanContext } from '@/hooks/useScanContext';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useFilteredTransactionsFormik } from '@/hooks/useTransactionsFormik';
 import {
@@ -46,8 +46,7 @@ const TransactionListScreen = () => {
     } = useLocalSearchParams();
     const [isFiltersCollapsed, setIsFiltersCollapsed] = useState<boolean>(true);
     const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
-    const context = useContext(ScanContext);
-    const scannedData = context?.scannedData;
+    const { scannedData } = useScanContext();
     // Transactions Data
     const {
         data: transactions,
@@ -445,7 +444,7 @@ const TransactionListScreen = () => {
                                             borderRadius: 8,
                                         }]}
                                     >
-                                        <Text style={styles.text}>{item.type === TransactionType.EXPENSE ? '-' : '+'} RM {item.amount.toFixed(2)}</Text>
+                                        <Text style={styles.text}>{item.type === TransactionType.EXPENSE ? '-' : '+'} RM {Number(item.amount).toFixed(2)}</Text>
                                     </View>
                                 </HStack>
                             </TouchableOpacity>

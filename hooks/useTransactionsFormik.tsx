@@ -11,7 +11,7 @@ import { useMemo } from "react";
 import { useCustomFormik } from "./useAppFormik";
 import { useCreateTransaction, useUpdateTransaction } from "./useTransactions";
 
-interface TransactionFormikProps {
+export interface TransactionFormikProps {
     date: string;
     type: TransactionTypeValue;
     category: string;
@@ -31,7 +31,7 @@ interface TransactionFormikProps {
 export const useTransactionFormik = (
     transactionType: TransactionTypeValue = TransactionType.EXPENSE,
     formAction: 'create' | 'update',
-    scannedData: TransactionFormikProps[],
+    scannedData: TransactionFormikProps[] | null,
     scanNum: number,
     transactionId: number,
     initialTransaction?: TransactionFormikProps,
