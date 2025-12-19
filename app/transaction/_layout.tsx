@@ -4,14 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import { createContext, useState } from 'react';
 
 interface ScanContextType {
-  scannedData: TransactionFormikProps[] | null;
-  setScannedData: React.Dispatch<React.SetStateAction<TransactionFormikProps[] | null>>;
+  scannedData: TransactionFormikProps[];
+  setScannedData: React.Dispatch<React.SetStateAction<TransactionFormikProps[]>>;
 }
 
 export const ScanContext = createContext<ScanContextType | undefined>(undefined);
 
 export default function RootLayout() {
-  const [scannedData, setScannedData] = useState<TransactionFormikProps[] | null>(null);
+  const [scannedData, setScannedData] = useState<TransactionFormikProps[]>([]);
 
   return (
     <ScanContext.Provider value={{ scannedData, setScannedData }}>
