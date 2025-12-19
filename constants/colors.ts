@@ -10,21 +10,21 @@ import {
 // Define color for transaction categories
 export const CATEGORY_COLORS: { [key in TransactionCategoryType]: string } = {
     // Expense categories
-    [ExpenseCategory.FOOD]: '#FF6F61',            // Coral Red
-    [ExpenseCategory.ENTERTAINMENT]: '#6B5B95',   // Deep Purple
-    [ExpenseCategory.UTILITIES]: '#45B8AC',       // Teal
-    [ExpenseCategory.GROCERY]: '#FFD662',         // Bright Yellow
-    [ExpenseCategory.RENT]: '#955251',            // Mauve
-    [ExpenseCategory.TRANSPORTATION]: '#034F84',  // Navy Blue
-    [ExpenseCategory.DINING]: '#F7CAC9',          // Light Pink
-    [ExpenseCategory.SUBSCRIPTIONS]: '#B565A7',   // Violet
+    [ExpenseCategory.FOOD]: '#FF6F61',              // Coral Red
+    [ExpenseCategory.ENTERTAINMENT]: '#6B5B95',     // Deep Purple
+    [ExpenseCategory.UTILITIES]: '#45B8AC',         // Teal
+    [ExpenseCategory.GROCERIES]: '#FFD662',         // Bright Yellow
+    [ExpenseCategory.RENT]: '#955251',              // Mauve
+    [ExpenseCategory.TRANSPORTATION]: '#034F84',    // Navy Blue
+    [ExpenseCategory.DINING]: '#F7CAC9',            // Light Pink
+    [ExpenseCategory.SUBSCRIPTIONS]: '#B565A7',     // Violet
     // Income categories
-    [IncomeCategory.SALARY]: '#88B04B',          // Olive Green
-    [IncomeCategory.FREELANCE]: '#F7786B',       // Salmon
-    [IncomeCategory.INVESTMENT]: '#92A8D1',      // Soft Blue
-    [IncomeCategory.GIFT]: '#DD4124',            // Red-Orange
+    [IncomeCategory.SALARY]: '#88B04B',             // Olive Green
+    [IncomeCategory.FREELANCE]: '#F7786B',          // Salmon
+    [IncomeCategory.INVESTMENT]: '#92A8D1',         // Soft Blue
+    [IncomeCategory.GIFT]: '#DD4124',               // Red-Orange
     // Other category
-    [TransactionCategory.OTHER]: '#939597',           // Gray
+    [TransactionCategory.OTHER]: '#939597',         // Gray
 };
 
 // Define color for transaction types
@@ -34,7 +34,7 @@ export const TRANSACTION_TYPE_COLORS: { [key in TransactionTypeValue]: string } 
 };
 
 // Define color for budget
-export const BUDGET_COLOR = '#304cbdff'; // Dark blue
+export const BUDGET_COLOR = '#304cbdff';        // Dark blue
 
 // Define color for goals
 export const GOALS_COLOR = {

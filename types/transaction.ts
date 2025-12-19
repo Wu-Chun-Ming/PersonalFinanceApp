@@ -9,7 +9,7 @@ export const ExpenseCategory = {
     FOOD: "Food",
     ENTERTAINMENT: "Entertainment",
     UTILITIES: "Utilities",
-    GROCERY: "Grocery",
+    GROCERIES: "Groceries",
     RENT: "Rent",
     TRANSPORTATION: "Transportation",
     DINING: "Dining",
