@@ -18,7 +18,7 @@ import {
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useScanContext } from '@/hooks/useScanContext';
 import { useTransactions } from '@/hooks/useTransactions';
-import { useFilteredTransactionsFormik } from '@/hooks/useTransactionsFormik';
+import { useTransactionFilterFormik } from '@/hooks/useTransactionsFormik';
 import {
     RecurringFrequency,
     TransactionTypeValue
@@ -50,7 +50,7 @@ const TransactionListScreen = () => {
     } = useTransactions();
 
     // Formik setup
-    const { filteredTxFormik: formik } = useFilteredTransactionsFormik({
+    const { transactionFilterFormik: formik } = useTransactionFilterFormik({
         date: date?.toString(),
         type: type?.toString(),
         category: category?.toString(),

@@ -13,7 +13,7 @@ import {
 import { getCategoriesByTransactionType } from '@/utils/category';
 import * as Yup from 'yup';
 
-export const transactionSchema = Yup.object().shape({
+export const transactionFilterSchema = Yup.object().shape({
     date: Yup.date()
         .optional(),
     type: Yup.string()

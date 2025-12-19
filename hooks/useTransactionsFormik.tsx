@@ -2,11 +2,13 @@ import {
     RecurringDay,
     RecurringFrequency,
     TransactionCategoryType,
+    TransactionProps,
     TransactionType,
     TransactionTypeValue,
 } from "@/types";
-import { getTransactionSchema, transactionSchema } from "@/validation/transactionSchema";
+import { getTransactionSchema, transactionFilterSchema } from "@/validation/transactionSchema";
 import { router } from "expo-router";
+import { FormikProps } from "formik";
 import { useMemo } from "react";
 import { useCustomFormik } from "./useAppFormik";
 import { useCreateTransaction, useUpdateTransaction } from "./useTransactions";
@@ -35,7 +37,7 @@ export const useTransactionFormik = (
     scanNum: number,
     transactionId: number,
     initialTransaction?: TransactionFormikProps,
-) => {
+): { transactionFormik: FormikProps<TransactionFormikProps> } => {
     const createMutation = useCreateTransaction();
     const updateMutation = useUpdateTransaction();
 
@@ -60,7 +62,7 @@ export const useTransactionFormik = (
             () => getTransactionSchema(transactionType),
             [transactionType]
         ),
-        transformValues: (values) => ({
+        transformValues: (values: TransactionFormikProps): TransactionProps => ({
             ...values,
             date: !values.recurring ? new Date(values.date) : null,
             type: transactionType,
@@ -76,7 +78,7 @@ export const useTransactionFormik = (
                     },
                 } : null,
         }),
-        onSubmitCallback: (transformedTransactionData) => {
+        onSubmitCallback: (transformedTransactionData: TransactionProps) => {
             switch (formAction) {
                 case 'create':
                     createMutation.mutate(transformedTransactionData);
@@ -104,7 +106,7 @@ export const useTransactionFormik = (
     };
 };
 
-interface FilteredTransactionFormikProps {
+interface TransactionFilterFormikProps {
     date?: string;
     type?: string | TransactionTypeValue | '';
     category?: string | TransactionCategoryType | '';
@@ -113,15 +115,15 @@ interface FilteredTransactionFormikProps {
     frequency?: string;
 }
 
-export const useFilteredTransactionsFormik = ({
+export const useTransactionFilterFormik = ({
     date,
     type,
     category,
     amount,
     recurring,
     frequency,
-}: FilteredTransactionFormikProps) => {
-    const filteredTxFormik = useCustomFormik({
+}: TransactionFilterFormikProps) => {
+    const transactionFilterFormik = useCustomFormik({
         initialValues: {
             date: date || '',
             type: type || '',
@@ -131,10 +133,10 @@ export const useFilteredTransactionsFormik = ({
             frequency: frequency || '',
         },
         transformValues: (values) => values,
-        validationSchema: transactionSchema,
+        validationSchema: transactionFilterSchema,
     });
 
     return {
-        filteredTxFormik,
+        transactionFilterFormik,
     };
 }
