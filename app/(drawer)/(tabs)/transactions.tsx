@@ -94,9 +94,7 @@ const TransactionScreen = () => {
                             ]}
                         />
                         : <View style={styles.centeredFlex}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
-                            }]}>No data available.</Text>
+                            <Text style={styles.boldText}>No data available.</Text>
                         </View>}
                 </View>
             </View>
@@ -117,8 +115,7 @@ const TransactionScreen = () => {
                                     borderRadius: 20,
                                     alignItems: 'center',
                                 }}>
-                                <Text style={[styles.text, {
-                                    fontWeight: 'bold',
+                                <Text style={[styles.boldText, {
                                     textDecorationLine: 'underline',
                                 }]}>Top 5 {type.charAt(0).toUpperCase() + type.slice(1)} Categories</Text>
                                 <TouchableNativeFeedback

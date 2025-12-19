@@ -107,9 +107,7 @@ const App = () => {
             data={transactionsPerCategory}
           />
           : <View style={styles.centeredFlex}>
-            <Text style={[styles.text, {
-              fontWeight: 'bold',
-            }]}>No data available.</Text>
+            <Text style={styles.boldText}>No data available.</Text>
           </View>}
       </View>
 

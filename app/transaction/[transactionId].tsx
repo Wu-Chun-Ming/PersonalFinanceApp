@@ -138,9 +138,7 @@ const TransactionManager = () => {
                                 borderRadius: 20,
                                 borderWidth: transactionType === TransactionType.EXPENSE ? 3 : 0,
                             },]}>
-                                <Text style={[styles.text, {
-                                    fontWeight: 'bold',
-                                }]}>Expense</Text>
+                                <Text style={styles.boldText}>Expense</Text>
                             </View>
                         </TouchableNativeFeedback>
 
@@ -158,9 +156,7 @@ const TransactionManager = () => {
                                 borderRadius: 20,
                                 borderWidth: transactionType === TransactionType.INCOME ? 3 : 0,
                             }]}>
-                                <Text style={[styles.text, {
-                                    fontWeight: 'bold',
-                                }]}>Income</Text>
+                                <Text style={styles.boldText}>Income</Text>
                             </View>
                         </TouchableNativeFeedback>
                     </HStack>}

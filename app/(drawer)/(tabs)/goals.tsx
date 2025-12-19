@@ -125,9 +125,8 @@ const GoalsScreen = () => {
                     }}
                 />
             </TouchableNativeFeedback>
-            <Text style={[styles.text, {
+            <Text style={[styles.boldText, {
                 marginTop: 10,
-                fontWeight: 'bold',
                 textAlign: 'center',
                 color: 'black',
             }]}>
@@ -190,20 +189,15 @@ const GoalsScreen = () => {
 
                     <HStack className="items-center">
                         <VStack className='items-center'>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
-                            }]}>Current</Text>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
-                            }]}>Savings Rate: </Text>
+                            <Text style={styles.boldText}>Current</Text>
+                            <Text style={styles.boldText}>Savings Rate: </Text>
                         </VStack>
                         <View style={{
                             backgroundColor: GOALS_COLOR['savings'],
                             borderRadius: 10,
                             padding: 10,
                         }}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
+                            <Text style={[styles.boldText, {
                                 color: 'white',
                             }]}>{currentSavingsRate.toFixed(2)}%</Text>
                         </View>
@@ -224,9 +218,7 @@ const GoalsScreen = () => {
                         xKey="month"
                         yKeys={[["savings", GOALS_COLOR['savings']]]}
                     /> : <View style={styles.centeredFlex}>
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
-                        }]}>No data available.</Text>
+                        <Text style={styles.boldText}>No data available.</Text>
                     </View>}
                 </View>
 

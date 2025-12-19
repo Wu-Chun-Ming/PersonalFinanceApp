@@ -145,7 +145,7 @@ const BudgetScreen = () => {
                         />
                     </VStack>
                         : <View style={[styles.centeredFlex]}>
-                            <Text style={[styles.text, { fontWeight: 'bold' }]}>No budget data available.</Text>
+                            <Text style={styles.boldText}>No budget data available.</Text>
                         </View>}
                 </View>
             </View>

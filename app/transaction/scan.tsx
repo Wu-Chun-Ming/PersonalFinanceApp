@@ -207,9 +207,7 @@ const ScanScreen = () => {
                         fontWeight: 'bold',
                     }}>Scan or Upload Image</Text>
                     <HStack style={styles.centered}>
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
-                        }]}>Mode:</Text>
+                        <Text style={styles.boldText}>Mode:</Text>
                         <Dropdown
                             data={[
                                 { label: 'Receipt', value: 'receipt' },

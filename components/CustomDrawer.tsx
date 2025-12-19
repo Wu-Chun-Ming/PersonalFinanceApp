@@ -54,9 +54,7 @@ const CustomDrawer = () => {
                   justifyContent: 'center',
                   alignItems: 'flex-end',
                 }}>
-                  <Text style={[styles.text, {
-                    fontWeight: 'bold',
-                  }]}>RM {item.amount}</Text>
+                  <Text style={styles.boldText}>RM {item.amount}</Text>
                 </View>
               </HStack>
             </View>

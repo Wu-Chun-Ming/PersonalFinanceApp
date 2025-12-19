@@ -60,8 +60,7 @@ const TransactionFilterForm = ({
                             backgroundColor: '#d8e0e6ff',
                             borderRadius: 10,
                         }]}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
+                            <Text style={[styles.boldText, {
                                 marginRight: 10,
                             }]}>Date:</Text>
                             <TouchableOpacity
@@ -82,8 +81,7 @@ const TransactionFilterForm = ({
                             backgroundColor: '#d8e0e6ff',
                             borderRadius: 10,
                         }]}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
+                            <Text style={[styles.boldText, {
                                 marginRight: 10,
                             }]}>Type:</Text>
                             <Dropdown
@@ -125,8 +123,7 @@ const TransactionFilterForm = ({
                             borderRadius: 10,
                         }]}
                     >
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
+                        <Text style={[styles.boldText, {
                             marginRight: 10,
                         }]}>Category:</Text>
                         <Dropdown
@@ -165,8 +162,7 @@ const TransactionFilterForm = ({
                         backgroundColor: '#d8e0e6ff',
                         borderRadius: 10,
                     }]}>
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
+                        <Text style={[styles.boldText, {
                             marginRight: 10,
                         }]}>Amount:</Text>
                         <TextInput
@@ -193,8 +189,7 @@ const TransactionFilterForm = ({
                             borderRadius: 10,
                         }]}>
                             <Text
-                                style={[styles.text, {
-                                    fontWeight: 'bold',
+                                style={[styles.boldText, {
                                     marginRight: 10,
                                 }]}
                             >Recurring:</Text>
@@ -235,8 +230,7 @@ const TransactionFilterForm = ({
                             }]}
                         >
                             <Text
-                                style={[styles.text, {
-                                    fontWeight: 'bold',
+                                style={[styles.boldText, {
                                     marginRight: 10,
                                 }]}
                             >Frequency:</Text>
@@ -288,9 +282,8 @@ const TransactionFilterForm = ({
                             backgroundColor: 'red',
                         }}
                     >
-                        <Text style={[styles.text, {
+                        <Text style={[styles.boldText, {
                             color: 'white',
-                            fontWeight: 'bold',
                         }]}>Reset Filters</Text>
                     </Button>}
                 </VStack>
