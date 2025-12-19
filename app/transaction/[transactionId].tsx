@@ -12,7 +12,6 @@ import { VStack } from "@/components/ui/vstack";
 
 // Custom import
 import styles from '@/app/styles';
-import DatePicker from '@/components/DatePicker';
 import QueryState from '@/components/QueryState';
 import TransactionForm from '@/components/TransactionForm';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
@@ -31,7 +30,6 @@ const TransactionManager = () => {
     const navigation = useNavigation();
     const showToast = useShowToast();       // Use the useShowToast hook (custom)
     const [formAction, setFormAction] = useState<"create" | "update">('create')
-    const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
     const [transactionType, setTransactionType] = useState<TransactionTypeValue>(TransactionType.EXPENSE);
     const {
         data: transaction,
@@ -172,7 +170,6 @@ const TransactionManager = () => {
                         formik={formik}
                         transactionType={transactionType}
                         isExistingTransaction={!!transaction}
-                        onOpenDatePicker={() => setDateModalVisible(true)}
                         onTransactionTypeChange={setTransactionType}
                     />
 
@@ -250,14 +247,6 @@ const TransactionManager = () => {
                             </Button>
                         </View>
                     )}
-
-                    {/* Date Picker */}
-                    <DatePicker
-                        visible={dateModalVisible}
-                        fieldName='date'
-                        formik={formik}
-                        onClose={() => setDateModalVisible(false)}
-                    />
                 </VStack>
             </ScrollView>
         </SafeAreaView>

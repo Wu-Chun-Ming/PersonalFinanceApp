@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-import { FormikValues } from "formik";
+import { FormikProps } from "formik";
+import { useState } from "react";
 import { TouchableOpacity } from "react-native";
 
 // Gluestack UI
@@ -13,20 +14,21 @@ import {
     RECURRING_FREQUENCIES,
     TRANSACTION_TYPES,
 } from "@/constants/transaction";
+import { TransactionFormikProps } from "@/hooks/useTransactionsFormik";
 import {
     RecurringDay,
     RecurringFrequency,
     TransactionTypeValue
 } from "@/types";
 import { getCategoriesByTransactionType } from "@/utils/category";
+import DatePicker from "./DatePicker";
 import FormGroup from "./FormGroup";
 import SelectGroup from "./SelectGroup";
 
 interface TransactionFormProps {
-    formik: FormikValues;
+    formik: FormikProps<TransactionFormikProps>;
     transactionType: TransactionTypeValue;
     isExistingTransaction: boolean;
-    onOpenDatePicker: () => void;
     onTransactionTypeChange?: (type: TransactionTypeValue) => void;
 }
 
@@ -34,9 +36,9 @@ const TransactionForm = ({
     formik,
     transactionType,
     isExistingTransaction,
-    onOpenDatePicker,
     onTransactionTypeChange,
 }: TransactionFormProps) => {
+    const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
 
     const changeTransactionType = (transactionType: TransactionTypeValue) => {
         onTransactionTypeChange?.(transactionType);        // notify parent
@@ -56,7 +58,7 @@ const TransactionForm = ({
                     isReadOnly={true}
                 >
                     <TouchableOpacity
-                        onPress={() => onOpenDatePicker()}
+                        onPress={() => setDateModalVisible(true)}
                     >
                         <InputField
                             type="text"
@@ -293,6 +295,14 @@ const TransactionForm = ({
                     />
                 </Textarea>
             </FormGroup>
+
+            {/* Date Picker */}
+            <DatePicker
+                visible={dateModalVisible}
+                fieldName='date'
+                formik={formik}
+                onClose={() => setDateModalVisible(false)}
+            />
         </>
     );
 }
