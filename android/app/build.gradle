@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply plugin: "com.chaquo.python"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
@@ -80,6 +81,9 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+def MODULE_ROOT = "../../modules"
+def EXPO_PYTHON_OCR_MODULE = "$MODULE_ROOT/expo-python-ocr"
+def REQUIREMENTS_TXT = "$EXPO_PYTHON_OCR_MODULE/requirements.txt"
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -94,6 +98,20 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
+
+        python {
+            version "3.12"
+            pip {
+                install "-r", REQUIREMENTS_TXT
+            }
+        }
+    }
+    sourceSets {
+        main {
+            python {
+                srcDirs += file("$EXPO_PYTHON_OCR_MODULE/android/src/main/python")
+            }
+        }
     }
     signingConfigs {
         debug {
