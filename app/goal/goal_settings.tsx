@@ -1,4 +1,3 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
@@ -9,14 +8,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import FormGroup from '@/components/FormGroup';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
+import { HStack } from '@/components/ui/hstack';
 import { Input, InputField } from '@/components/ui/input';
 import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
+import DatePicker from '@/components/DatePicker';
 import QueryState from '@/components/QueryState';
-import { HStack } from '@/components/ui/hstack';
-import { GOALS_COLOR } from '@/constants/Colors';
+import { GOALS_COLOR } from '@/constants/colors';
 import { useGoals } from '@/hooks/useGoals';
 import { useGoalsFormik } from '@/hooks/useGoalsFormik';
 import useShowToast from '@/hooks/useShowToast';
@@ -145,20 +145,13 @@ const GoalSettingsScreen = () => {
                         </Input>
                     </FormGroup>
 
-                    {dateModalVisible && <DateTimePicker
+                    <DatePicker
+                        visible={dateModalVisible}
+                        fieldName='savings.date'
+                        formik={formik}
                         minimumDate={new Date()}
-                        value={formik.values.savings.date ? new Date(formik.values.savings.date) : new Date()}
-                        mode='date'
-                        onChange={(event, selectedDate) => {
-                            // If user selected date and pressed OK
-                            if (event.type === 'set' && selectedDate) {
-                                setDateModalVisible(false);
-                                formik.setFieldValue('savings.date', dayjs(selectedDate).format('YYYY-MM-DD'));
-                            } else if (event.type === 'dismissed') {
-                                setDateModalVisible(false);
-                            }
-                        }}
-                    />}
+                        onClose={() => setDateModalVisible(false)}
+                    />
 
                     {/* Savings Amount */}
                     <FormGroup

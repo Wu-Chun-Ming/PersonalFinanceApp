@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,12 +16,12 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import { ScanContext } from '@/app/transaction/_layout';
 import ImageViewer from '@/components/ImageViewer';
-import { TransactionType } from '@/constants/Types';
+import { useScanContext } from '@/hooks/useScanContext';
+import { TransactionType } from '@/types';
 
 const ScanScreen = () => {
-    const { setScannedData } = useContext(ScanContext);
+    const { setScannedData } = useScanContext();
     const [selectedImage, setSelectedImage] = useState(null);
 
     const pickImageAsync = async () => {
@@ -207,9 +207,7 @@ const ScanScreen = () => {
                         fontWeight: 'bold',
                     }}>Scan or Upload Image</Text>
                     <HStack style={styles.centered}>
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
-                        }]}>Mode:</Text>
+                        <Text style={styles.boldText}>Mode:</Text>
                         <Dropdown
                             data={[
                                 { label: 'Receipt', value: 'receipt' },

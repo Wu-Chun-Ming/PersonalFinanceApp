@@ -4,6 +4,10 @@ export default StyleSheet.create({
     text: {
         fontSize: 15,
     },
+    boldText: {
+        fontSize: 15,
+        fontWeight: 'bold',
+    },
     centered: {
         justifyContent: 'center',
         alignItems: 'center',

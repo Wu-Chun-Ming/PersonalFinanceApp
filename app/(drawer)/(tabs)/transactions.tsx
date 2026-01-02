@@ -8,18 +8,23 @@ import { AddIcon } from '@/components/ui/icon';
 
 // Custom import
 import styles from '@/app/styles';
-import { ActionFab } from '@/components/ActionFab';
+import ActionFab from '@/components/ActionFab';
 import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import YearSelector from '@/components/YearSelector';
-import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { TransactionCategory, TransactionType } from '@/constants/Types';
+import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import { TRANSACTION_TYPES } from '@/constants/transaction';
 import {
     useTransactionData,
     useTransactions,
     useTransactionSummary,
 } from '@/hooks/useTransactions';
+import {
+    TransactionCategoryType,
+    TransactionType,
+    TransactionTypeValue,
+} from '@/types';
 
 const TransactionScreen = () => {
     const {
@@ -33,15 +38,18 @@ const TransactionScreen = () => {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const { selectedYearTransactions } = useTransactionData(transactions, selectedYear);
     const {
-        totalByCategory,
-        totalPerMonth,
+        transactionTotalsPerCategory: selectedYearTxTotalsPerCategory,
+        transactionTotalsPerMonth: selectedYearTxTotalsPerMonth,
     } = useTransactionSummary(selectedYearTransactions);
 
     // Get top 5 transaction breakdown by transaction type
-    const getTransactionBreakdownByType = (transactionType: TransactionType) =>
-        Object.entries(totalByCategory)
+    const getTransactionBreakdownByType = (transactionType: TransactionTypeValue) =>
+        Object.entries(selectedYearTxTotalsPerCategory)
             .filter(([category]) => transactions.some(t => t.category === category && t.type === transactionType))
-            .map(([category, total]) => ({ category: category as TransactionCategory, total }))
+            .map(([category, total]) => ({
+                category: category as TransactionCategoryType,
+                total,
+            }))
             .sort((a, b) => b.total - a.total)  // Sort in descending order by 'total'
             .slice(0, 5);                       // Limit to the top 5 categories
 
@@ -74,7 +82,7 @@ const TransactionScreen = () => {
                 }}>
                     {(selectedYearTransactions && selectedYearTransactions.length > 0) ?
                         <BarChart
-                            data={totalPerMonth}
+                            data={selectedYearTxTotalsPerMonth}
                             xKey='month'
                             yKeys={[
                                 ['expensePerMonth', TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE]],
@@ -86,9 +94,7 @@ const TransactionScreen = () => {
                             ]}
                         />
                         : <View style={styles.centeredFlex}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
-                            }]}>No data available.</Text>
+                            <Text style={styles.boldText}>No data available.</Text>
                         </View>}
                 </View>
             </View>
@@ -98,7 +104,7 @@ const TransactionScreen = () => {
                     margin: 10,
                 }}>
                     {/* Transactions Breakdown */}
-                    {Object.values(TransactionType).map((type, index) => (
+                    {TRANSACTION_TYPES.map((type, index) => (
                         <View key={index}>
                             <HStack
                                 className='justify-between'
@@ -109,8 +115,7 @@ const TransactionScreen = () => {
                                     borderRadius: 20,
                                     alignItems: 'center',
                                 }}>
-                                <Text style={[styles.text, {
-                                    fontWeight: 'bold',
+                                <Text style={[styles.boldText, {
                                     textDecorationLine: 'underline',
                                 }]}>Top 5 {type.charAt(0).toUpperCase() + type.slice(1)} Categories</Text>
                                 <TouchableNativeFeedback

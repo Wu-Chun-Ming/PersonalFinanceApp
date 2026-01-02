@@ -9,7 +9,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import { CATEGORY_COLORS } from '@/constants/Colors';
+import { CATEGORY_COLORS } from '@/constants/colors';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
@@ -54,9 +54,7 @@ const CustomDrawer = () => {
                   justifyContent: 'center',
                   alignItems: 'flex-end',
                 }}>
-                  <Text style={[styles.text, {
-                    fontWeight: 'bold',
-                  }]}>RM {item.amount}</Text>
+                  <Text style={styles.boldText}>RM {item.amount}</Text>
                 </View>
               </HStack>
             </View>

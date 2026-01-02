@@ -1,26 +1,28 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
-import dayjs from 'dayjs';
-import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
-import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Collapsible from 'react-native-collapsible';
-import { Dropdown } from 'react-native-element-dropdown';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
 import { Button } from '@/components/ui/button';
-import { HStack } from '@/components/ui/hstack';
-import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import { ScanContext } from '@/app/transaction/_layout';
 import QueryState from '@/components/QueryState';
-import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, RecurringFrequency, TransactionCategory, TransactionType } from '@/constants/Types';
+import TransactionFilterForm from '@/components/TransactionFilterForm';
+import TransactionListing from '@/components/TransactionListing';
+import {
+    EXPENSE_CATEGORIES,
+    INCOME_CATEGORIES
+} from '@/constants/transaction';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
+import { useScanContext } from '@/hooks/useScanContext';
 import { useTransactions } from '@/hooks/useTransactions';
-import { useFilteredTransactionsFormik } from '@/hooks/useTransactionsFormik';
+import { useTransactionFilterFormik } from '@/hooks/useTransactionsFormik';
+import {
+    RecurringFrequency,
+    TransactionTypeValue
+} from '@/types';
 
 const TransactionListScreen = () => {
     const navigation = useNavigation();
@@ -34,9 +36,9 @@ const TransactionListScreen = () => {
         frequency,
     } = useLocalSearchParams();
     const [isFiltersCollapsed, setIsFiltersCollapsed] = useState<boolean>(true);
-    const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
-    const context = useContext(ScanContext);
-    const scannedData = context?.scannedData;
+    const { scannedData } = useScanContext();
+    const hasScannedData = scannedData.length > 0;
+
     // Transactions Data
     const {
         data: transactions,
@@ -48,7 +50,7 @@ const TransactionListScreen = () => {
     } = useTransactions();
 
     // Formik setup
-    const { filteredTxFormik: formik } = useFilteredTransactionsFormik({
+    const { transactionFilterFormik: formik } = useTransactionFilterFormik({
         date: date?.toString(),
         type: type?.toString(),
         category: category?.toString(),
@@ -59,7 +61,7 @@ const TransactionListScreen = () => {
 
     const filteredTransactions = useFilteredTransactions(transactions ?? [], {
         date: formik.values.date ? new Date(formik.values.date) : undefined,
-        type: formik.values.type ? formik.values.type as TransactionType : undefined,
+        type: formik.values.type ? formik.values.type as TransactionTypeValue : undefined,
         category: formik.values.category ? formik.values.category as (typeof EXPENSE_CATEGORIES[number] | typeof INCOME_CATEGORIES[number]) : undefined,
         amount: formik.values.amount ? Number(formik.values.amount) : undefined,
         recurring: formik.values.recurring ? (formik.values.recurring === 'true' ? true : false) : undefined,
@@ -72,7 +74,7 @@ const TransactionListScreen = () => {
                 title: 'Pending Transactions',
             });
         }
-    }, [scannedData]);
+    }, [navigation, scannedData]);
 
     const queryState = (
         <QueryState
@@ -93,7 +95,7 @@ const TransactionListScreen = () => {
             backgroundColor: '#25292e',
         }} edges={['bottom']}>
             {/* Button to toggle filter visibility */}
-            {(scannedData && scannedData.length === 0) && <Button
+            <Button
                 onPress={() => setIsFiltersCollapsed(prevState => !prevState)}
                 style={{
                     margin: 5,
@@ -104,344 +106,21 @@ const TransactionListScreen = () => {
                 <Text style={[styles.text, {
                     color: 'white',
                 }]}>
-                    {isFiltersCollapsed ? 'Show Filters' : 'Hide Filters'}
+                    {(isFiltersCollapsed ? 'Show' : 'Hide') + ' Filters'}
                 </Text>
-            </Button>}
+            </Button>
 
-            {/* Date Picker Modal */}
-            {dateModalVisible && <DateTimePicker
-                value={formik.values.date ? new Date(formik.values.date) : new Date()}
-                mode='date'
-                onChange={(event, selectedDate) => {
-                    if (event.type === 'set' && selectedDate) {
-                        setDateModalVisible(false);
-                        formik.setFieldValue('date', dayjs(selectedDate).format('YYYY-MM-DD'));
-                    } else if (event.type === 'dismissed') {
-                        setDateModalVisible(false);
-                    }
-                }}
-            />}
+            {/* Transaction Filter Form */}
+            <TransactionFilterForm
+                isCollapsed={isFiltersCollapsed}
+                formik={formik}
+            />
 
-            {/* Collapsible Filters Section */}
-            <Collapsible collapsed={isFiltersCollapsed}>
-                <VStack
-                    style={{
-                        backgroundColor: '#fff',
-                    }}
-                >
-                    {/* Date & Type */}
-                    <HStack style={{
-                        margin: 5,
-                    }}>
-                        <HStack style={[{
-                            width: '45%',
-                            alignItems: 'center',
-                            marginRight: '5%',
-                            padding: 10,
-                            backgroundColor: '#d8e0e6ff',
-                            borderRadius: 10,
-                        }]}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
-                                marginRight: 10,
-                            }]}>Date:</Text>
-                            <TouchableOpacity
-                                onPress={() => setDateModalVisible(true)}
-                                style={{
-                                    flex: 1,
-                                }}
-                            >
-                                <Text style={[styles.text, styles.centeredFlex]}>
-                                    {formik.values.date ? dayjs(formik.values.date).format('YYYY-MM-DD') : 'Select date'}
-                                </Text>
-                            </TouchableOpacity>
-                        </HStack>
-
-                        <HStack style={[{
-                            width: '50%',
-                            alignItems: 'center',
-                            padding: 10,
-                            backgroundColor: '#d8e0e6ff',
-                            borderRadius: 10,
-                        }]}>
-                            <Text style={[styles.text, {
-                                fontWeight: 'bold',
-                                marginRight: 10,
-                            }]}>Type:</Text>
-                            <Dropdown
-                                data={[
-                                    { label: 'All', value: '' },
-                                    ...Object.values(TransactionType).map((type) => ({
-                                        label: type.charAt(0).toUpperCase() + type.slice(1),
-                                        value: type,
-                                    }))
-                                ]}
-                                placeholder='...'
-                                placeholderStyle={{
-                                    textAlign: 'center',
-                                }}
-                                labelField="label"
-                                valueField="value"
-                                value={formik.values.type.toString()}
-                                onChange={(item) => formik.setFieldValue('type', item.value)}
-                                style={{
-                                    flex: 1,
-                                }}
-                                selectedTextStyle={{
-                                    textAlign: 'center',
-                                }}
-                                itemTextStyle={[styles.text, {
-                                    textAlign: 'center',
-                                }]}
-                            />
-                        </HStack>
-                    </HStack>
-
-                    {/* Category */}
-                    <HStack
-                        style={[{
-                            margin: 5,
-                            alignItems: 'center',
-                            padding: 10,
-                            backgroundColor: '#d8e0e6ff',
-                            borderRadius: 10,
-                        }]}
-                    >
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
-                            marginRight: 10,
-                        }]}>Category:</Text>
-                        <Dropdown
-                            data={[
-                                { label: '-', value: '' },
-                                ...Object.values(TransactionCategory).map((type) => ({
-                                    label: type.charAt(0).toUpperCase() + type.slice(1),
-                                    value: type,
-                                }))
-                            ]}
-                            placeholder='Select category'
-                            placeholderStyle={{
-                                textAlign: 'center',
-                            }}
-                            labelField="label"
-                            valueField="value"
-                            value={formik.values.category.toString()}
-                            onChange={(item) => formik.setFieldValue('category', item.value)}
-                            style={[{
-                                flex: 1,
-                            }]}
-                            selectedTextStyle={{
-                                textAlign: 'center',
-                            }}
-                            itemTextStyle={[styles.text, {
-                                textAlign: 'center',
-                            }]}
-                        />
-                    </HStack>
-
-                    {/* Amount */}
-                    <HStack style={[{
-                        margin: 5,
-                        alignItems: 'center',
-                        padding: 10,
-                        backgroundColor: '#d8e0e6ff',
-                        borderRadius: 10,
-                    }]}>
-                        <Text style={[styles.text, {
-                            fontWeight: 'bold',
-                            marginRight: 10,
-                        }]}>Amount:</Text>
-                        <TextInput
-                            style={[styles.text, styles.centeredFlex]}
-                            keyboardType="numeric"
-                            placeholder="Enter amount"
-                            value={formik.values.amount.toString()}
-                            onChangeText={(value) => formik.setFieldValue('amount', value)}
-                        />
-                    </HStack>
-
-                    {/* Recurring & Frequency */}
-                    <HStack style={{
-                        margin: 5,
-                        justifyContent: 'space-between',
-                    }}>
-                        <HStack style={[{
-                            width: '45%',
-                            marginRight: 10,
-                            alignItems: 'center',
-                            padding: 10,
-                            backgroundColor: '#d8e0e6ff',
-                            borderRadius: 10,
-                        }]}>
-                            <Text
-                                style={[styles.text, {
-                                    fontWeight: 'bold',
-                                    marginRight: 10,
-                                }]}
-                            >Recurring:</Text>
-                            <Dropdown
-                                data={[
-                                    { label: '-', value: '' },
-                                    { label: 'Yes', value: 'true' },
-                                    { label: 'No', value: 'false' },
-                                ]}
-                                placeholder='-'
-                                placeholderStyle={{
-                                    textAlign: 'center',
-                                }}
-                                labelField="label"
-                                valueField="value"
-                                value={formik.values.recurring.toString()}
-                                onChange={(item) => formik.setFieldValue('recurring', item.value)}
-                                style={[{
-                                    flex: 1,
-                                }]}
-                                selectedTextStyle={{
-                                    textAlign: 'center',
-                                }}
-                                itemTextStyle={[styles.text, {
-                                    textAlign: 'center',
-                                }]}
-                            />
-                        </HStack>
-                        <HStack
-                            style={[{
-                                flex: 1,
-                                alignItems: 'center',
-                                padding: 10,
-                                backgroundColor: '#d8e0e6ff',
-                                borderRadius: 10,
-                            }]}
-                        >
-                            <Text
-                                style={[styles.text, {
-                                    fontWeight: 'bold',
-                                    marginRight: 10,
-                                }]}
-                            >Frequency:</Text>
-                            <Dropdown
-                                data={[
-                                    { label: '-', value: '' },
-                                    ...Object.values(RecurringFrequency).map((frequency) => ({
-                                        label: frequency.charAt(0).toUpperCase() + frequency.slice(1),
-                                        value: frequency,
-                                    }))
-                                ]}
-                                placeholder='-'
-                                placeholderStyle={{
-                                    textAlign: 'center',
-                                }}
-                                labelField="label"
-                                valueField="value"
-                                value={formik.values.frequency.toString()}
-                                onChange={(item) => formik.setFieldValue('frequency', item.value)}
-                                style={[{
-                                    flex: 1,
-                                }]}
-                                selectedTextStyle={{
-                                    textAlign: 'center',
-                                }}
-                                itemTextStyle={[styles.text, {
-                                    textAlign: 'center',
-                                }]}
-                            />
-                        </HStack>
-                    </HStack>
-                    {/* Reset Filters Button */}
-                    {formik.values && <Button
-                        onPress={() => {
-                            formik.resetForm({
-                                values: {
-                                    date: '',
-                                    type: '',
-                                    category: '',
-                                    amount: '',
-                                    recurring: '',
-                                    frequency: '',
-                                }
-                            });
-                        }}
-                        style={{
-                            margin: 5,
-                            borderRadius: 10,
-                            backgroundColor: 'red',
-                        }}
-                    >
-                        <Text style={[styles.text, {
-                            color: 'white',
-                            fontWeight: 'bold',
-                        }]}>Reset Filters</Text>
-                    </Button>}
-                </VStack>
-            </Collapsible>
-
-            {/* Transactions List */}
-            <ScrollView style={{
-                flex: 1,
-                backgroundColor: '#fff',
-            }}>
-                <VStack>
-                    {filteredTransactions && ((scannedData && scannedData.length > 0)
-                        ? scannedData
-                        : filteredTransactions
-                    ).map((item, index) => {
-                        return (
-                            <TouchableOpacity
-                                key={index}
-                                onPress={(scannedData && scannedData.length > 0)
-                                    ? () => router.navigate(`/transaction/new?scanNum=${index}` as Href)
-                                    : () => router.navigate(`/transaction/${item.id}`)
-                                }
-                                style={{
-                                    backgroundColor: CATEGORY_COLORS[item.category],
-                                }}
-                            >
-                                <HStack
-                                    key={index}
-                                    className='justify-between'
-                                    style={{
-                                        marginHorizontal: 20,
-                                        marginVertical: 20,
-                                    }}
-                                >
-                                    <VStack
-                                        style={{
-                                            width: '30%',
-                                        }}
-                                    >
-                                        <View>
-                                            <Text style={styles.text}>{(item.date && dayjs(item.date).format('YYYY-MM-DD')) || (item.recurring_frequency && item.recurring_frequency.frequency)}</Text>
-                                        </View>
-                                        <View
-                                            style={{
-                                                alignSelf: 'flex-start',
-                                            }}>
-                                            <Text style={styles.text}>{item.description}</Text>
-                                        </View>
-                                    </VStack>
-
-                                    <View style={[styles.centered, {
-                                        borderRadius: 8,
-                                        padding: 10,
-                                    }]}>
-                                        <Text style={styles.text}>{item.category}</Text>
-                                    </View>
-
-                                    <View
-                                        style={[styles.centered, {
-                                            width: '30%',
-                                            backgroundColor: TRANSACTION_TYPE_COLORS[item.type],
-                                            borderRadius: 8,
-                                        }]}
-                                    >
-                                        <Text style={styles.text}>{item.type === TransactionType.EXPENSE ? '-' : '+'} RM {item.amount.toFixed(2)}</Text>
-                                    </View>
-                                </HStack>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </VStack>
-            </ScrollView>
+            {/* Transaction Listing */}
+            <TransactionListing
+                data={hasScannedData ? scannedData : filteredTransactions}
+                isFromScan={hasScannedData}
+            />
         </SafeAreaView>
     );
 };

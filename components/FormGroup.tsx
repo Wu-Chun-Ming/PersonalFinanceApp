@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/build/Ionicons';
 import React from 'react';
+import { StyleProp, View, ViewStyle } from 'react-native';
 
 // Gluestack UI
 import {
@@ -12,7 +13,31 @@ import {
   FormControlLabelText
 } from "@/components/ui/form-control";
 
-const FormGroup = ({ isRequired, isDisabled, isReadOnly, isInvalid, style, label, children, helperText, errorText }: any) => {
+interface FormGroupProps {
+  isRequired?: boolean;
+  isDisabled?: boolean;
+  isReadOnly?: boolean;
+  isInvalid?: boolean;
+  style?: StyleProp<ViewStyle>;
+  direction?: "row" | "column";
+  label?: string;
+  children: React.ReactNode;
+  helperText?: string;
+  errorText?: string;
+}
+
+const FormGroup = ({
+  isRequired,
+  isDisabled,
+  isReadOnly,
+  isInvalid,
+  style,
+  direction = "column",
+  label,
+  children,
+  helperText,
+  errorText,
+}: FormGroupProps) => {
   return (
     <FormControl
       size="lg"
@@ -22,11 +47,19 @@ const FormGroup = ({ isRequired, isDisabled, isReadOnly, isInvalid, style, label
       isInvalid={isInvalid}
       style={style}
     >
-      {label && <FormControlLabel className="my-2">
-        <FormControlLabelText>{label}</FormControlLabelText>
-      </FormControlLabel>}
+      <View style={[
+        direction === "row" && {
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }
+      ]}>
+        {label && <FormControlLabel className="my-2">
+          <FormControlLabelText>{label}</FormControlLabelText>
+        </FormControlLabel>}
 
-      {children}
+        {children}
+      </View>
       {helperText && (
         <FormControlHelper>
           <FormControlHelperText>
@@ -38,7 +71,7 @@ const FormGroup = ({ isRequired, isDisabled, isReadOnly, isInvalid, style, label
       {isInvalid && errorText && (
         <FormControlError>
           <Ionicons name="alert-circle-outline" size={22} color="red" />
-          <FormControlErrorText>
+          <FormControlErrorText style={{ flexShrink: 1 }}>
             {errorText}
           </FormControlErrorText>
         </FormControlError>

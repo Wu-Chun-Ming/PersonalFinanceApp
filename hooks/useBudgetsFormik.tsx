@@ -1,4 +1,4 @@
-import { TransactionCategory } from "@/constants/Types";
+import { TransactionCategoryType } from "@/types";
 import { budgetSchema } from "@/validation/budgetSchema";
 import { useState } from "react";
 import { useCustomFormik } from "./useAppFormik";
@@ -29,7 +29,7 @@ export const useBudgetFormik = (
         transformValues: (values) => ({
             year: Number(values.year),
             month: Number(values.month),
-            category: values.category as TransactionCategory,
+            category: values.category as TransactionCategoryType,
             amount: Number(values.amount),
         }),
         onSubmitCallback: (transformedBudgetData) => {

@@ -1,5 +1,5 @@
-import { BudgetProps, TransactionProps } from "@/constants/Types";
 import { editBudget, fetchBudgets } from "@/services/budgetService";
+import { BudgetProps, TransactionCategoryType } from "@/types";
 import { useMemo } from "react";
 import { useCustomMutation } from "./useAppMutation";
 import { useCustomQuery } from "./useAppQuery";
@@ -24,60 +24,52 @@ export const useUpdateBudget = () => {
 // Custom hook to process budget data
 export const useBudgetData = (
     budgets: BudgetProps[],
-    selectedYearExpenseTransactions: TransactionProps[],
-    selectedMonthExpenseTransactions: TransactionProps[],
     selectedYear: number,
-    selectedMonth: number
+    selectedMonth?: number,
 ) => {
-    const selectedMonthBudgets = (budgets).filter(b => b.year === selectedYear && b.month === selectedMonth);
-    // Calculate total expenses per category for the selected month
-    const expenseTotalsByCategory = useMemo(() =>
-        selectedMonthExpenseTransactions.reduce<Record<string, number>>((acc, t) => {
-            acc[t.category] = (acc[t.category] || 0) + t.amount;
-            return acc;
-        }, {}), [selectedMonthExpenseTransactions]
-    );
-    // Calculate budget by category for the selected month
-    const budgetByCategory = useMemo(() =>
-        selectedMonthBudgets.reduce<Record<string, BudgetProps>>((acc, b) => {
-            acc[b.category] = b;
-            return acc;
-        }, {}), [selectedMonthBudgets]
-    );
+    return useMemo(() => {
+        const buckets = {
+            selectedYearBudgets: [] as BudgetProps[],
+            selectedMonthBudgets: [] as BudgetProps[],
+        };
 
-    const selectedYearBudgets = (budgets).filter(b => b.year === selectedYear);
-    // Calculate total expenses and budgets per month for the selected year
-    const expensesAndBudgetsByMonth = (
-        selectedYearExpenseTransactions: TransactionProps[],
-        selectedYearBudgets: BudgetProps[],
-    ) => {
-        const expenseTotalByMonth = selectedYearExpenseTransactions.reduce<Record<number, number>>((acc, t) => {
-            const month = new Date(t.date).getMonth() + 1;
-            acc[month] = (acc[month] || 0) + t.amount;      // Add transaction amount to the respective month
-            return acc;
-        }, {});
+        for (const b of budgets) {
+            const isSelectedYear = b.year === selectedYear;
+            const isSelectedMonth = b.year === selectedYear && b.month === selectedMonth;
 
-        const budgetTotalByMonth = selectedYearBudgets.reduce<Record<number, number>>((acc, b) => {
-            const month = b.month;
-            acc[month] = (acc[month] || 0) + b.amount;      // Add budget amount to the respective month
-            return acc;
-        }, {});
+            if (isSelectedYear) buckets.selectedYearBudgets.push(b);
+            if (isSelectedMonth) buckets.selectedMonthBudgets.push(b);
+        }
 
-        const months_num = Array.from({ length: 12 }, (_, i) => i + 1);
-        const expensesAndBudgetsByMonth = months_num.map((month) => ({
-            month: month,
-            expensePerMonth: expenseTotalByMonth[month] || 0,
-            budgetPerMonth: budgetTotalByMonth[month] || 0,
+        return {
+            selectedYearBudgets: buckets.selectedYearBudgets,
+            selectedMonthBudgets: buckets.selectedMonthBudgets,
+        };
+    }, [budgets, selectedYear, selectedMonth]);
+};
+
+// Custom hook to summarize budget data
+export const useBudgetSummary = (
+    selectedYearBudgets: BudgetProps[],
+) => {
+    // Calculate budget totals per category and month
+    return useMemo(() => {
+        const totalsPerCategory: Record<TransactionCategoryType, number> = {} as Record<TransactionCategoryType, number>;
+        const monthTotals: number[] = Array(12).fill(0);
+
+        for (const { month, category, amount } of selectedYearBudgets) {        // 1-12 indexed months
+            totalsPerCategory[category] = (totalsPerCategory[category] ?? 0) + amount;
+            monthTotals[month - 1] = (monthTotals[month - 1] ?? 0) + amount;
+        }
+
+        const totalsPerMonth = monthTotals.map((budgetPerMonth, i) => ({
+            month: i + 1,
+            budgetPerMonth,
         }));
 
-        return expensesAndBudgetsByMonth;
-    }
-
-    return {
-        selectedYearBudgets,
-        selectedMonthBudgets,
-        expenseTotalsByCategory,
-        budgetByCategory,
-        expensesAndBudgetsByMonth: expensesAndBudgetsByMonth(selectedYearExpenseTransactions, selectedYearBudgets),
-    };
+        return {
+            budgetTotalsPerCategory: totalsPerCategory,
+            budgetTotalsPerMonth: totalsPerMonth,
+        };
+    }, [selectedYearBudgets]);
 };

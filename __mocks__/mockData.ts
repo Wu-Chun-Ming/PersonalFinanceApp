@@ -1,4 +1,8 @@
-import { RecurringFrequency, TransactionCategory, TransactionType } from "@/constants/Types";
+import {
+    RecurringFrequency,
+    TransactionCategory,
+    TransactionType,
+} from "@/types";
 
 export const mockDatabaseTransactions = [
     {

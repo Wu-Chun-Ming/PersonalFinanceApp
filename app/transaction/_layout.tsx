@@ -1,11 +1,17 @@
+import { TransactionFormikProps } from '@/hooks/useTransactionsFormik';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { createContext, useState } from 'react';
 
-export const ScanContext = createContext(null);
+interface ScanContextType {
+  scannedData: TransactionFormikProps[];
+  setScannedData: React.Dispatch<React.SetStateAction<TransactionFormikProps[]>>;
+}
+
+export const ScanContext = createContext<ScanContextType | undefined>(undefined);
 
 export default function RootLayout() {
-  const [scannedData, setScannedData] = useState(null);
+  const [scannedData, setScannedData] = useState<TransactionFormikProps[]>([]);
 
   return (
     <ScanContext.Provider value={{ scannedData, setScannedData }}>

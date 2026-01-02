@@ -11,17 +11,21 @@ import { AddIcon } from '@/components/ui/icon';
 
 // Custom import
 import styles from '@/app/styles';
-import { ActionFab } from '@/components/ActionFab';
+import ActionFab from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
-import { TRANSACTION_TYPE_COLORS } from '@/constants/Colors';
-import { TransactionCategory, TransactionType } from '@/constants/Types';
+import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import { TRANSACTION_CATEGORIES } from '@/constants/transaction';
 import {
   usePieChartTransactions,
   useTransactionData,
   useTransactions,
   useTransactionSummary,
 } from '@/hooks/useTransactions';
+import {
+  TransactionType,
+  TransactionTypeValue,
+} from '@/types';
 
 const App = () => {
   const {
@@ -37,21 +41,21 @@ const App = () => {
     expenseTransactions,
     incomeTransactions,
   } = useTransactionData(transactions);
-  const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.EXPENSE);
+  const [transactionType, setTransactionType] = useState<TransactionTypeValue>(TransactionType.EXPENSE);
   const filteredTransactions = (transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions;
   const {
     transactionsPerCategory,
   } = usePieChartTransactions(filteredTransactions, transactionType);
   const {
-    totalByCategory,
-    percentageByCategory,
+    transactionTotalsPerCategory,
+    percentagesPerCategory,
   } = useTransactionSummary(filteredTransactions);
 
-  const transactionBreakdown = Object.values(TransactionCategory).map((category) => {
+  const transactionBreakdown = TRANSACTION_CATEGORIES.map((category) => {
     return {
       category,
-      total: totalByCategory[category] || 0,
-      percentage: percentageByCategory[category] || 0,
+      total: transactionTotalsPerCategory[category] || 0,
+      percentage: percentagesPerCategory[category] || 0,
     };
   });
 
@@ -72,8 +76,8 @@ const App = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <Dropdown
         data={[
-          { label: 'Expense', value: 'expense' },
-          { label: 'Income', value: 'income' },
+          { label: 'Expense', value: TransactionType.EXPENSE },
+          { label: 'Income', value: TransactionType.INCOME },
         ]}
         labelField="label"
         valueField="value"
@@ -94,18 +98,16 @@ const App = () => {
       />
 
       {/* Pie Chart */}
-      <View style={[styles.centered,{
+      <View style={[styles.centered, {
         height: "40%",
         paddingVertical: 10,
       }]}>
         {(transactionsPerCategory && transactionsPerCategory.length > 0) ?
-          <PieChart 
+          <PieChart
             data={transactionsPerCategory}
           />
           : <View style={styles.centeredFlex}>
-            <Text style={[styles.text, {
-              fontWeight: 'bold',
-            }]}>No data available.</Text>
+            <Text style={styles.boldText}>No data available.</Text>
           </View>}
       </View>
 

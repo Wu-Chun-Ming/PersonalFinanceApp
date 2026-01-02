@@ -1,4 +1,4 @@
-import { IncomeGoalProps, SavingsGoalProps } from '@/constants/Types';
+import { IncomeGoalProps, SavingsGoalProps } from '@/types';
 import dayjs from 'dayjs';
 import * as SecureStore from 'expo-secure-store';
 
