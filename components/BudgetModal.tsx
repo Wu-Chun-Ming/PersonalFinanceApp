@@ -58,7 +58,7 @@ const BudgetModal = ({
                     {/* Year */}
                     <FormGroup
                         label="Year"
-                        isInvalid={formik.errors.year && formik.touched.year}
+                        isInvalid={Boolean(formik.errors.year && formik.touched.year)}
                         isRequired
                         errorText={formik.errors.year}
                     >
@@ -81,7 +81,7 @@ const BudgetModal = ({
                     {/* Month */}
                     <FormGroup
                         label="Month"
-                        isInvalid={formik.errors.month && formik.touched.month}
+                        isInvalid={Boolean(formik.errors.month && formik.touched.month)}
                         isRequired
                         errorText={formik.errors.month}
                     >
@@ -105,7 +105,7 @@ const BudgetModal = ({
                     {/* Category */}
                     <FormGroup
                         label="Category"
-                        isInvalid={formik.errors.category && formik.touched.category}
+                        isInvalid={Boolean(formik.errors.category && formik.touched.category)}
                         isRequired
                         errorText={formik.errors.category}
                     >
@@ -126,7 +126,7 @@ const BudgetModal = ({
                     {/* Amount */}
                     <FormGroup
                         label="Amount"
-                        isInvalid={formik.errors.amount && formik.touched.amount}
+                        isInvalid={Boolean(formik.errors.amount && formik.touched.amount)}
                         isRequired
                         errorText={formik.errors.amount}
                     >

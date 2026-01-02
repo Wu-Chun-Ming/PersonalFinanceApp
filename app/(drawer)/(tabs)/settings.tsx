@@ -41,7 +41,7 @@ const SettingsScreen = () => {
 
             <FormGroup
                 label='Server URL'
-                isInvalid={formik.errors.serverUrl && formik.touched.serverUrl}
+                isInvalid={Boolean(formik.errors.serverUrl && formik.touched.serverUrl)}
                 errorText={formik.errors.serverUrl}
             >
                 <Input className="text-center">
@@ -59,7 +59,7 @@ const SettingsScreen = () => {
 
             <FormGroup
                 label='Model Name'
-                isInvalid={formik.errors.model && formik.touched.model}
+                isInvalid={Boolean(formik.errors.model && formik.touched.model)}
                 errorText={formik.errors.model}
             >
                 <Input className="text-center">
@@ -75,7 +75,7 @@ const SettingsScreen = () => {
 
             <FormGroup
                 label='API Key (OpenRouter)'
-                isInvalid={formik.errors.apiKey && formik.touched.apiKey}
+                isInvalid={Boolean(formik.errors.apiKey && formik.touched.apiKey)}
                 errorText={formik.errors.apiKey}
             >
                 <Input className="text-center">
