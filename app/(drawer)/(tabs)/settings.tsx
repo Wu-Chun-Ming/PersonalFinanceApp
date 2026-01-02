@@ -9,13 +9,11 @@ import { Input, InputField } from "@/components/ui/input";
 // Custom import
 import styles from "@/app/styles";
 import FormGroup from "@/components/FormGroup";
-import { useModel } from "@/hooks/useModel";
-import { useServer } from "@/hooks/useServer";
+import { useSettings } from "@/hooks/useSettings";
 import { useSettingsFormik } from "@/hooks/useSettingsFormik";
 
 const SettingsScreen = () => {
-    const { serverConfig } = useServer();
-    const { modelConfig } = useModel();
+    const { serverConfig, modelConfig } = useSettings();
 
     // Formik setup
     const { settingsFormik: formik } = useSettingsFormik({

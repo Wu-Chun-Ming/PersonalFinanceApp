@@ -1,9 +1,8 @@
-import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
 
 import { settingsSchema } from "@/validation/settingSchema";
 import { useCustomFormik } from "./useAppFormik";
-import { useModel } from "./useModel";
+import { useSettings } from "./useSettings";
 
 interface SettingsFormikProps {
     serverUrl: string;
@@ -12,7 +11,7 @@ interface SettingsFormikProps {
 }
 
 export const useSettingsFormik = (initialSettings: SettingsFormikProps) => {
-    const { updateAndRefreshModelConfig } = useModel();
+    const { updateAndRefreshServerConfig, updateAndRefreshModelConfig } = useSettings();
 
     const settingsFormik = useCustomFormik({
         initialValues: initialSettings || {
@@ -23,7 +22,7 @@ export const useSettingsFormik = (initialSettings: SettingsFormikProps) => {
         transformValues: (values: SettingsFormikProps) => values,
         validationSchema: settingsSchema,
         onSubmitCallback: async (values) => {
-            await SecureStore.setItemAsync("serverUrl", values.serverUrl.trim());
+            updateAndRefreshServerConfig(values.serverUrl.trim());
             updateAndRefreshModelConfig(values.model.trim(), values.apiKey.trim());
 
             Alert.alert("Success", "Settings saved successfully");

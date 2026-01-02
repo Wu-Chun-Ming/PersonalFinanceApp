@@ -18,9 +18,8 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import ImageViewer from '@/components/ImageViewer';
-import { useModel } from '@/hooks/useModel';
 import { useScanContext } from '@/hooks/useScanContext';
-import { useServer } from '@/hooks/useServer';
+import { useSettings } from '@/hooks/useSettings';
 import {
     processOnlineShoppingOcr,
     sendOcrRequestToServer,
@@ -54,9 +53,8 @@ const ScanScreen = () => {
     const [permissionsChecked, setPermissionsChecked] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedMode, setSelectedMode] = useState<'receipt' | 'online_shopping'>('receipt');
-    const { isServerConfigured } = useServer();
     const model = useOCR({ model: OCR_ENGLISH });
-    const { isModelConfigured } = useModel();
+    const { isServerConfigured, isModelConfigured } = useSettings();
 
     const checkPermissions = async () => {
         try {
