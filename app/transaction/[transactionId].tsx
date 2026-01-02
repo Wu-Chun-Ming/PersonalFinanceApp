@@ -17,15 +17,19 @@ import TransactionForm from '@/components/TransactionForm';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
 import { useScanContext } from '@/hooks/useScanContext';
 import useShowToast from '@/hooks/useShowToast';
-import { useDeleteTransaction, useTransaction } from '@/hooks/useTransactions';
+import {
+    useDeleteTransaction,
+    useTransaction,
+} from '@/hooks/useTransactions';
 import { useTransactionFormik } from '@/hooks/useTransactionsFormik';
 import {
     TransactionType,
-    TransactionTypeValue
+    TransactionTypeValue,
 } from '@/types';
 
 const TransactionManager = () => {
     const { scannedData } = useScanContext();
+    const hasScannedData = scannedData.length > 0;
     const { scanNum = 0, transactionId } = useLocalSearchParams();
     const navigation = useNavigation();
     const showToast = useShowToast();       // Use the useShowToast hook (custom)
@@ -90,15 +94,16 @@ const TransactionManager = () => {
         // Show toast if transaction is not found
         if (!isNewTransaction && isSuccess && !transaction) {
             showToast({ action: 'info', messages: 'Transaction not found' });
+            router.back();
         }
         // Fill in scanned data after scanning
-        if (scannedData && scannedData.length > 0 && isNewTransaction) {
+        if (hasScannedData && isNewTransaction) {
             formik.setValues({
                 ...scannedData[Number(scanNum)],
                 amount: scannedData[Number(scanNum)].amount.toString(),
             });
         }
-    }, [transaction, scannedData]);
+    }, [transaction, hasScannedData, scannedData]);
 
     const queryState = (
         <QueryState
