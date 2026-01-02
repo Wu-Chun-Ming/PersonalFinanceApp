@@ -24,7 +24,11 @@ import {
     processOnlineShoppingOcr,
     sendOcrRequestToServer,
 } from '@/services/ocr';
-import { TransactionType } from '@/types';
+import {
+    OcrMode,
+    OcrModeType,
+    TransactionType,
+} from '@/types';
 
 const ScanScreen = () => {
     const { setScannedData } = useScanContext();
@@ -52,7 +56,7 @@ const ScanScreen = () => {
     const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
     const [permissionsChecked, setPermissionsChecked] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [selectedMode, setSelectedMode] = useState<'receipt' | 'online_shopping'>('receipt');
+    const [selectedMode, setSelectedMode] = useState<OcrModeType>(OcrMode.RECEIPT);
     const model = useOCR({ model: OCR_ENGLISH });
     const { isServerConfigured, isModelConfigured } = useSettings();
 
@@ -122,10 +126,10 @@ const ScanScreen = () => {
             ocrResult = await sendOcrRequestToServer(imageUri, selectedMode);
         } else if (isModelConfigured) {
             switch (selectedMode) {
-                case 'receipt':
+                case OcrMode.RECEIPT:
                     Alert.alert('Comming Soon', 'Receipt OCR using local model is coming soon!');
                     break;
-                case 'online_shopping':
+                case OcrMode.ONLINE_SHOPPING:
                     ocrResult = await processOnlineShoppingOcr(model, imageUri);
             }
         }
@@ -202,8 +206,8 @@ const ScanScreen = () => {
                         <Text style={styles.boldText}>Mode:</Text>
                         <Dropdown
                             data={[
-                                { label: 'Receipt', value: 'receipt' },
-                                { label: 'Online Shopping', value: 'online_shopping' },
+                                { label: 'Receipt', value: OcrMode.RECEIPT },
+                                { label: 'Online Shopping', value: OcrMode.ONLINE_SHOPPING },
                             ]}
                             labelField="label"
                             valueField="value"

@@ -1,4 +1,5 @@
 
+import { OcrMode, OcrModeType } from "@/types";
 import { getServerConfig } from "../appState";
 import { extractDescriptionTotal } from "./localService";
 import { extractDateCategoryRemote } from "./remoteService";
@@ -32,7 +33,7 @@ export const processOnlineShoppingOcr = async (
 // Send OCR request to server
 export const sendOcrRequestToServer = async (
     imageUri: string,
-    selectedMode: 'receipt' | 'online_shopping',
+    selectedMode: OcrModeType,
 ) => {
     const { serverUrl } = await getServerConfig();
     if (!serverUrl) {
@@ -51,7 +52,7 @@ export const sendOcrRequestToServer = async (
 
     // Choose the endpoint based on the selected mode
     const endpoint = serverUrl +
-        (selectedMode === 'online_shopping' ? `/online-shopping` : `/receipt`);
+        (selectedMode === OcrMode.ONLINE_SHOPPING ? `/online-shopping` : `/receipt`);
 
     const response = await fetch(endpoint, {
         method: 'POST',
