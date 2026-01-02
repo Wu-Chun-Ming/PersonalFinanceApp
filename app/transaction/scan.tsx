@@ -29,7 +29,7 @@ import { TransactionType } from '@/types';
 
 const ScanScreen = () => {
     const { setScannedData } = useScanContext();
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -39,7 +39,7 @@ const ScanScreen = () => {
         });
 
         if (!result.canceled) {
-            setSelectedImage(result.assets[0].uri);
+            setSelectedImageUri(result.assets[0].uri);
         } else {
             Alert.alert('You did not select any image.');
         }
@@ -54,8 +54,7 @@ const ScanScreen = () => {
     const [permissionsChecked, setPermissionsChecked] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedMode, setSelectedMode] = useState<'receipt' | 'online_shopping'>('receipt');
-    const { serverConfig, isServerConfigured } = useServer();
-    const { serverUrl } = serverConfig;
+    const { isServerConfigured } = useServer();
     const model = useOCR({ model: OCR_ENGLISH });
     const { isModelConfigured } = useModel();
 
@@ -95,7 +94,7 @@ const ScanScreen = () => {
                 Alert.alert("Error", "Failed to take picture.");
                 return; // Exit if photo is invalid or URI is missing
             }
-            setSelectedImage(photo.uri);
+            setSelectedImageUri(photo.uri);
         } catch (error) {
             console.error('Error taking picture:', (error as Error).message);
             Alert.alert("Error", "Something went wrong while taking the picture.");
@@ -121,7 +120,7 @@ const ScanScreen = () => {
             total: number;
         }[] = [];
 
-        if (isServerConfigured && serverUrl) {
+        if (isServerConfigured) {
             ocrResult = await sendOcrRequestToServer(imageUri, selectedMode);
         } else if (isModelConfigured) {
             switch (selectedMode) {
@@ -167,7 +166,7 @@ const ScanScreen = () => {
         if (camPerm !== null && libPerm !== null && !permissionsChecked) {
             checkPermissions();
         }
-    }, [camPerm, libPerm, permissionsChecked, selectedImage, isServerConfigured, isModelConfigured]);
+    }, [camPerm, libPerm, permissionsChecked, selectedImageUri, isServerConfigured, isModelConfigured]);
 
     return (
         <SafeAreaView style={{
@@ -236,8 +235,8 @@ const ScanScreen = () => {
                         height: '65%',
                     }}
                 >
-                    {selectedImage
-                        ? <ImageViewer selectedImage={selectedImage} />
+                    {selectedImageUri
+                        ? <ImageViewer selectedImage={selectedImageUri} />
                         : <CameraView
                             ref={camera}
                             style={{
@@ -260,7 +259,7 @@ const ScanScreen = () => {
                         <Fontisto name="picture" size={55} color="black" />
                     </Button>
 
-                    {!selectedImage
+                    {!selectedImageUri
                         ? <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
                             onPress={() => {
                                 takePicture();
@@ -269,15 +268,15 @@ const ScanScreen = () => {
                             <MaterialCommunityIcons name="circle-outline" size={70} color="black" />
                         </Button>
                         : <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
-                            onPress={() => scanImage(selectedImage)}
+                            onPress={() => scanImage(selectedImageUri)}
                         >
                             <MaterialCommunityIcons name="check-circle-outline" size={80} color="green" />
                         </Button>}
 
-                    {!selectedImage
+                    {!selectedImageUri
                         ? <View className='flex-1' />
                         : <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
-                            onPress={() => setSelectedImage(null)}
+                            onPress={() => setSelectedImageUri(null)}
                         >
                             <MaterialCommunityIcons name="reload" size={75} color="black" />
                         </Button>}
