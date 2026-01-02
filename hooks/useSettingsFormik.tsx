@@ -22,8 +22,13 @@ export const useSettingsFormik = (initialSettings: SettingsFormikProps) => {
         transformValues: (values: SettingsFormikProps) => values,
         validationSchema: settingsSchema,
         onSubmitCallback: async (values) => {
-            updateAndRefreshServerConfig(values.serverUrl.trim());
-            updateAndRefreshModelConfig(values.model.trim(), values.apiKey.trim());
+            updateAndRefreshServerConfig({
+                newServerUrl: values.serverUrl.trim(),
+            });
+            updateAndRefreshModelConfig({
+                newModelName: values.model.trim(),
+                newApiKey: values.apiKey.trim(),
+            });
 
             Alert.alert("Success", "Settings saved successfully");
         }
