@@ -1,7 +1,7 @@
 import {
     getServerConfig,
     updateServerUrl,
-} from "@/services/appState";
+} from "@/services/appConfig";
 import { useEffect, useState } from "react";
 
 type ServerConfig = {

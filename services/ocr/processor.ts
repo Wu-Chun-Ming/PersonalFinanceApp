@@ -1,6 +1,6 @@
 
 import { OcrMode, OcrModeType } from "@/types";
-import { getServerConfig } from "../appState";
+import { getServerConfig } from "../appConfig";
 import { extractDescriptionTotal } from "./localService";
 import { extractDateCategoryRemote } from "./remoteService";
 

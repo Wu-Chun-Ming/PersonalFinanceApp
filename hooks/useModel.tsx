@@ -2,7 +2,7 @@ import {
     getModelAndApiKey,
     updateApiKey,
     updateModelName,
-} from "@/services/appState";
+} from "@/services/appConfig";
 import { useEffect, useState } from "react";
 
 type ModelConfig = {
