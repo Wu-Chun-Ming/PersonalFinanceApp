@@ -49,7 +49,7 @@ const TransactionForm = ({
             {/* Date */}
             {!formik.values.recurring ? <FormGroup
                 label='Date'
-                isInvalid={formik.errors.date && formik.touched.date}
+                isInvalid={Boolean(formik.errors.date && formik.touched.date)}
                 isRequired={true}
                 errorText={formik.errors.date}
             >
@@ -73,10 +73,10 @@ const TransactionForm = ({
                 : <>
                     <FormGroup
                         label='Recurring Frequency'
-                        isInvalid={
+                        isInvalid={Boolean(
                             (formik.errors.recurring_frequency?.frequency && formik.touched.recurring_frequency?.frequency)
                             || ((typeof formik.errors.recurring_frequency?.time === 'string' ? formik.errors.recurring_frequency?.time : undefined) && formik.touched.recurring_frequency?.time)
-                        }
+                        )}
                         isRequired={true}
                         errorText={formik.errors.recurring_frequency?.frequency || (typeof formik.errors.recurring_frequency?.time === 'string' ? formik.errors.recurring_frequency?.time : undefined)}
                     >
@@ -101,11 +101,11 @@ const TransactionForm = ({
                     <HStack>
                         {/* Recurring Day/Month */}
                         <FormGroup
-                            isInvalid={
+                            isInvalid={Boolean(
                                 formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
                                     ? formik.errors.recurring_frequency?.time?.month && formik.touched.recurring_frequency?.time?.month
                                     : formik.errors.recurring_frequency?.time?.day && formik.touched.recurring_frequency?.time?.day
-                            }
+                            )}
                             errorText={
                                 formik.values.recurring_frequency.frequency === RecurringFrequency.YEARLY
                                     ? formik.errors.recurring_frequency?.time?.month
@@ -168,7 +168,7 @@ const TransactionForm = ({
 
                         {/* Recurring Date */}
                         <FormGroup
-                            isInvalid={formik.errors.recurring_frequency?.time?.date && formik.touched.recurring_frequency?.time?.date}
+                            isInvalid={Boolean(formik.errors.recurring_frequency?.time?.date && formik.touched.recurring_frequency?.time?.date)}
                             errorText={formik.errors.recurring_frequency?.time?.date}
                             style={{
                                 width: '50%',
@@ -212,7 +212,7 @@ const TransactionForm = ({
             {/* Type */}
             {isExistingTransaction && <FormGroup
                 label='Type'
-                isInvalid={formik.errors.type && formik.touched.type}
+                isInvalid={Boolean(formik.errors.type && formik.touched.type)}
                 isRequired={true}
                 errorText={formik.errors.type}
             >
@@ -239,7 +239,7 @@ const TransactionForm = ({
             {/* Category */}
             <FormGroup
                 label='Category'
-                isInvalid={formik.errors.category && formik.touched.category}
+                isInvalid={Boolean(formik.errors.category && formik.touched.category)}
                 isRequired={true}
                 errorText={formik.errors.category}
             >
@@ -263,7 +263,7 @@ const TransactionForm = ({
             {/* Amount */}
             <FormGroup
                 label='Amount (RM)'
-                isInvalid={formik.errors.amount && formik.touched.amount}
+                isInvalid={Boolean(formik.errors.amount && formik.touched.amount)}
                 isRequired={true}
                 errorText={formik.errors.amount}
             >
@@ -281,7 +281,7 @@ const TransactionForm = ({
             {/* Description */}
             <FormGroup
                 label='Description'
-                isInvalid={formik.errors.description && formik.touched.description}
+                isInvalid={Boolean(formik.errors.description && formik.touched.description)}
                 isRequired={true}
                 errorText={formik.errors.description}
             >

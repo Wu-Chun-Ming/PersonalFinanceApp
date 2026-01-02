@@ -2,7 +2,7 @@ import {
     getModelAndApiKey,
     updateApiKey,
     updateModelName,
-} from "@/services/appState";
+} from "@/services/appConfig";
 import { useEffect, useState } from "react";
 
 type ModelConfig = {
@@ -26,7 +26,13 @@ export const useModel = () => {
         }
     };
 
-    const update = async (newModelName: string, newApiKey: string) => {
+    const update = async ({
+        newModelName,
+        newApiKey,
+    }: {
+        newModelName: string;
+        newApiKey: string;
+    }) => {
         await updateModelName(newModelName);
         await updateApiKey(newApiKey);
         await refresh();

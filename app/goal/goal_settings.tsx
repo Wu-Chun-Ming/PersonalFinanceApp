@@ -125,7 +125,7 @@ const GoalSettingsScreen = () => {
                     {/* Date */}
                     <FormGroup
                         label='Date'
-                        isInvalid={formik.errors.savings?.date && formik.touched.savings?.date}
+                        isInvalid={Boolean(formik.errors.savings?.date && formik.touched.savings?.date)}
                         errorText={formik.errors.savings?.date}
                     >
                         <Input
@@ -156,7 +156,7 @@ const GoalSettingsScreen = () => {
                     {/* Savings Amount */}
                     <FormGroup
                         label='Amount'
-                        isInvalid={formik.errors.savings?.amount && formik.touched.savings?.amount}
+                        isInvalid={Boolean(formik.errors.savings?.amount && formik.touched.savings?.amount)}
                         errorText={formik.errors.savings?.amount}
                     >
                         <Input className="text-center">
@@ -215,7 +215,7 @@ const GoalSettingsScreen = () => {
                     {/* Income Per Day */}
                     <FormGroup
                         label='Per Day'
-                        isInvalid={formik.errors.income?.perDay && formik.touched.income?.perDay}
+                        isInvalid={Boolean(formik.errors.income?.perDay && formik.touched.income?.perDay)}
                         errorText={formik.errors.income?.perDay}
                     >
                         <Input className="text-center">
@@ -232,7 +232,7 @@ const GoalSettingsScreen = () => {
                     {/* Income Per Month */}
                     <FormGroup
                         label='Per Month'
-                        isInvalid={formik.errors.income?.perMonth && formik.touched.income?.perMonth}
+                        isInvalid={Boolean(formik.errors.income?.perMonth && formik.touched.income?.perMonth)}
                         errorText={formik.errors.income?.perMonth}
                     >
                         <Input className="text-center">
@@ -249,7 +249,7 @@ const GoalSettingsScreen = () => {
                     {/* Income Per Year */}
                     <FormGroup
                         label='Per Year'
-                        isInvalid={formik.errors.income?.perYear && formik.touched.income?.perYear}
+                        isInvalid={Boolean(formik.errors.income?.perYear && formik.touched.income?.perYear)}
                         errorText={formik.errors.income?.perYear}
                     >
                         <Input className="text-center">

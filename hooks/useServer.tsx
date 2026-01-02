@@ -1,7 +1,7 @@
 import {
     getServerConfig,
     updateServerUrl,
-} from "@/services/appState";
+} from "@/services/appConfig";
 import { useEffect, useState } from "react";
 
 type ServerConfig = {
@@ -23,7 +23,11 @@ export const useServer = () => {
         }
     };
 
-    const update = async (newServerUrl: string) => {
+    const update = async ({
+        newServerUrl,
+    }: {
+        newServerUrl: string;
+    }) => {
         await updateServerUrl(newServerUrl);
         await refresh();
     };

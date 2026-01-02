@@ -13,7 +13,7 @@ import TransactionFilterForm from '@/components/TransactionFilterForm';
 import TransactionListing from '@/components/TransactionListing';
 import {
     EXPENSE_CATEGORIES,
-    INCOME_CATEGORIES
+    INCOME_CATEGORIES,
 } from '@/constants/transaction';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useScanContext } from '@/hooks/useScanContext';
@@ -21,7 +21,7 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { useTransactionFilterFormik } from '@/hooks/useTransactionsFormik';
 import {
     RecurringFrequency,
-    TransactionTypeValue
+    TransactionTypeValue,
 } from '@/types';
 
 const TransactionListScreen = () => {
@@ -69,12 +69,12 @@ const TransactionListScreen = () => {
     });
 
     useEffect(() => {
-        if (scannedData && scannedData.length > 0) {
+        if (hasScannedData) {
             navigation.setOptions({
                 title: 'Pending Transactions',
             });
         }
-    }, [navigation, scannedData]);
+    }, [hasScannedData, navigation]);
 
     const queryState = (
         <QueryState

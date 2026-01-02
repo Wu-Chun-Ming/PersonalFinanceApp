@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import { OCR_ENGLISH, useOCR } from 'react-native-executorch';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
@@ -18,23 +19,32 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import ImageViewer from '@/components/ImageViewer';
 import { useScanContext } from '@/hooks/useScanContext';
-import { TransactionType } from '@/types';
+import { useSettings } from '@/hooks/useSettings';
+import {
+    processOnlineShoppingOcr,
+    sendOcrRequestToServer,
+} from '@/services/ocr';
+import {
+    OcrMode,
+    OcrModeType,
+    TransactionType,
+} from '@/types';
 
 const ScanScreen = () => {
     const { setScannedData } = useScanContext();
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: 'images',
             allowsEditing: true,
             quality: 1,
         });
 
         if (!result.canceled) {
-            setSelectedImage(result.assets[0].uri);
+            setSelectedImageUri(result.assets[0].uri);
         } else {
-            alert('You did not select any image.');
+            Alert.alert('You did not select any image.');
         }
     }
 
@@ -46,7 +56,9 @@ const ScanScreen = () => {
     const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
     const [permissionsChecked, setPermissionsChecked] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [selectedMode, setSelectedMode] = useState<'receipt' | 'online_shopping'>('receipt');
+    const [selectedMode, setSelectedMode] = useState<OcrModeType>(OcrMode.RECEIPT);
+    const model = useOCR({ model: OCR_ENGLISH });
+    const { isServerConfigured, isModelConfigured } = useSettings();
 
     const checkPermissions = async () => {
         try {
@@ -84,7 +96,7 @@ const ScanScreen = () => {
                 Alert.alert("Error", "Failed to take picture.");
                 return; // Exit if photo is invalid or URI is missing
             }
-            setSelectedImage(photo.uri);
+            setSelectedImageUri(photo.uri);
         } catch (error) {
             console.error('Error taking picture:', (error as Error).message);
             Alert.alert("Error", "Something went wrong while taking the picture.");
@@ -92,79 +104,63 @@ const ScanScreen = () => {
 
     };
 
-    const scanImage = async () => {
-        // Return if no selected image 
-        if (selectedImage == null) {
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('image_type', selectedMode);
-        formData.append('image', {
-            uri: selectedImage,
-            name: 'image.jpg',
-            type: 'image/jpeg',
-        } as any);
-
-        // Choose the endpoint based on the selected mode
-        const endpoint = (selectedMode === 'online_shopping')
-                ? `${process.env.EXPO_PUBLIC_SCAN_IMAGE_API_URL}/online-shopping`
-                : `${process.env.EXPO_PUBLIC_SCAN_IMAGE_API_URL}/receipt`;
-
+    const scanImage = async (imageUri: string) => {
         setLoading(true);
         let didTimeout = false;
 
-        // Create a 30s timeout
+        // Create a 40s timeout
         const timeoutId = setTimeout(() => {
             didTimeout = true;
             setLoading(false);
             Alert.alert('Error', 'The request timed out. Please try again.');
         }, 40000);
 
-        await fetch(endpoint, {
-            method: 'POST',
-            body: formData,
-        })
-            .then(async (response) => {
-                clearTimeout(timeoutId); // clear timeout if response arrives
-                const data = await response.json();
-                return data.result;
-            })
-            .then((data) => {
-                const lineItems = Array.isArray(data.line_items) ? data.line_items : [data.line_items];
-                setScannedData(lineItems.map((item) => ({
-                    date: dayjs().format('YYYY-MM-DD'),
-                    type: TransactionType.EXPENSE,
-                    category: '',
-                    amount: Number(item.total),
-                    description: item.description,
-                    recurring: false,
-                    recurring_frequency: {
-                        frequency: '',
-                        time: {
-                            month: '',
-                            date: '',
-                            day: '',
-                        },
-                    },
-                    currency: 'MYR',
-                })));
-                // If items detected
-                if (lineItems.length > 0) {
-                    router.dismiss(1);
-                    router.replace(`/transaction/listing`);
-                }
-            })
-            .catch((error) => {
-                clearTimeout(timeoutId); // clear timeout if error occurs
-                if (!didTimeout) {
-                    console.log(`Error: ${error.message}`);
-                    Alert.alert('Error', 'Failed to scan image. Please try again.');
-                }
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        let ocrResult: {
+            date: string;
+            category: string;
+            description: string;
+            total: number;
+        }[] = [];
+
+        if (isServerConfigured) {
+            ocrResult = await sendOcrRequestToServer(imageUri, selectedMode);
+        } else if (isModelConfigured) {
+            switch (selectedMode) {
+                case OcrMode.RECEIPT:
+                    Alert.alert('Comming Soon', 'Receipt OCR using local model is coming soon!');
+                    break;
+                case OcrMode.ONLINE_SHOPPING:
+                    ocrResult = await processOnlineShoppingOcr(model, imageUri);
+            }
+        }
+
+        // Convert OCR result to scanned data format
+        const result = ocrResult.map((item) => ({
+            date: item.date || dayjs().format('YYYY-MM-DD'),
+            type: TransactionType.EXPENSE,
+            category: item.category,
+            amount: item.total.toString(),
+            description: item.description,
+            recurring: false,
+            recurring_frequency: {
+                frequency: '',
+                time: {
+                    month: '',
+                    date: '',
+                    day: '',
+                },
+            },
+            currency: 'MYR',
+        }));
+        setScannedData(result);
+
+        // If items detected
+        if (result.length > 0) {
+            clearTimeout(timeoutId); // clear timeout if response arrives
+            setLoading(false);
+            router.dismiss(1);
+            router.replace(`/transaction/listing`);
+        }
     }
 
     useEffect(() => {
@@ -172,7 +168,7 @@ const ScanScreen = () => {
         if (camPerm !== null && libPerm !== null && !permissionsChecked) {
             checkPermissions();
         }
-    }, [camPerm, libPerm, selectedImage]);
+    }, [camPerm, libPerm, permissionsChecked, selectedImageUri, isServerConfigured, isModelConfigured]);
 
     return (
         <SafeAreaView style={{
@@ -210,8 +206,8 @@ const ScanScreen = () => {
                         <Text style={styles.boldText}>Mode:</Text>
                         <Dropdown
                             data={[
-                                { label: 'Receipt', value: 'receipt' },
-                                { label: 'Online Shopping', value: 'online_shopping' },
+                                { label: 'Receipt', value: OcrMode.RECEIPT },
+                                { label: 'Online Shopping', value: OcrMode.ONLINE_SHOPPING },
                             ]}
                             labelField="label"
                             valueField="value"
@@ -241,8 +237,8 @@ const ScanScreen = () => {
                         height: '65%',
                     }}
                 >
-                    {selectedImage
-                        ? <ImageViewer selectedImage={selectedImage} />
+                    {selectedImageUri
+                        ? <ImageViewer selectedImage={selectedImageUri} />
                         : <CameraView
                             ref={camera}
                             style={{
@@ -265,7 +261,7 @@ const ScanScreen = () => {
                         <Fontisto name="picture" size={55} color="black" />
                     </Button>
 
-                    {!selectedImage
+                    {!selectedImageUri
                         ? <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
                             onPress={() => {
                                 takePicture();
@@ -274,15 +270,15 @@ const ScanScreen = () => {
                             <MaterialCommunityIcons name="circle-outline" size={70} color="black" />
                         </Button>
                         : <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
-                            onPress={scanImage}
+                            onPress={() => scanImage(selectedImageUri)}
                         >
                             <MaterialCommunityIcons name="check-circle-outline" size={80} color="green" />
                         </Button>}
 
-                    {!selectedImage
+                    {!selectedImageUri
                         ? <View className='flex-1' />
                         : <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
-                            onPress={() => setSelectedImage(null)}
+                            onPress={() => setSelectedImageUri(null)}
                         >
                             <MaterialCommunityIcons name="reload" size={75} color="black" />
                         </Button>}

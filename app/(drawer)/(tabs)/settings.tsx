@@ -9,13 +9,11 @@ import { Input, InputField } from "@/components/ui/input";
 // Custom import
 import styles from "@/app/styles";
 import FormGroup from "@/components/FormGroup";
-import { useModel } from "@/hooks/useModel";
-import { useServer } from "@/hooks/useServer";
+import { useSettings } from "@/hooks/useSettings";
 import { useSettingsFormik } from "@/hooks/useSettingsFormik";
 
 const SettingsScreen = () => {
-    const { serverConfig } = useServer();
-    const { modelConfig } = useModel();
+    const { serverConfig, modelConfig } = useSettings();
 
     // Formik setup
     const { settingsFormik: formik } = useSettingsFormik({
@@ -41,7 +39,7 @@ const SettingsScreen = () => {
 
             <FormGroup
                 label='Server URL'
-                isInvalid={formik.errors.serverUrl && formik.touched.serverUrl}
+                isInvalid={Boolean(formik.errors.serverUrl && formik.touched.serverUrl)}
                 errorText={formik.errors.serverUrl}
             >
                 <Input className="text-center">
@@ -59,7 +57,7 @@ const SettingsScreen = () => {
 
             <FormGroup
                 label='Model Name'
-                isInvalid={formik.errors.model && formik.touched.model}
+                isInvalid={Boolean(formik.errors.model && formik.touched.model)}
                 errorText={formik.errors.model}
             >
                 <Input className="text-center">
@@ -75,7 +73,7 @@ const SettingsScreen = () => {
 
             <FormGroup
                 label='API Key (OpenRouter)'
-                isInvalid={formik.errors.apiKey && formik.touched.apiKey}
+                isInvalid={Boolean(formik.errors.apiKey && formik.touched.apiKey)}
                 errorText={formik.errors.apiKey}
             >
                 <Input className="text-center">
