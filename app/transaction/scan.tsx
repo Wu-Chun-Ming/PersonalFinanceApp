@@ -164,6 +164,16 @@ const ScanScreen = () => {
     }
 
     useEffect(() => {
+        if (!isServerConfigured || !isModelConfigured) {
+            Alert.alert('Configuration Required', 'Please configure the server or model settings first.', [
+                {
+                    text: 'Go to Settings',
+                    onPress: () => {
+                        router.push('/settings');
+                    },
+                },
+            ]);
+        }
         // Check camera and media library permissions if not checked
         if (camPerm !== null && libPerm !== null && !permissionsChecked) {
             checkPermissions();
