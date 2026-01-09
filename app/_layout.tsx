@@ -13,6 +13,7 @@ import "@/global.css";
 // Custom import
 import { checkDatabaseInitialization } from "@/database/init";
 import { useLastOpenDate } from '@/hooks/useLastOpenDate';
+import { AppProviders } from '@/providers/AppProvider';
 import { handleRecurringTransactions } from "@/services/transactionService";
 
 // Initialize QueryClient
@@ -39,15 +40,17 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <MenuProvider>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                }}
-              >
-                <Stack.Screen name="(drawer)" />
-                <Stack.Screen name="transaction" />
-                <Stack.Screen name="goal" />
-              </Stack>
+              <AppProviders>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                  }}
+                >
+                  <Stack.Screen name="(drawer)" />
+                  <Stack.Screen name="transaction" />
+                  <Stack.Screen name="goal" />
+                </Stack>
+              </AppProviders>
             </MenuProvider>
           </GestureHandlerRootView>
           <StatusBar style="auto" />

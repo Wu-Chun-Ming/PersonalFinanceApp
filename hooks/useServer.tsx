@@ -1,45 +1,10 @@
-import {
-    getServerConfig,
-    updateServerUrl,
-} from "@/services/appConfig";
-import { useEffect, useState } from "react";
-
-type ServerConfig = {
-    serverUrl: string | null;
-};
+import ServerContext from "@/contexts/ServerContext";
+import { useContext } from "react";
 
 export const useServer = () => {
-    const [serverConfig, setServerConfig] = useState<ServerConfig>({
-        serverUrl: null,
-    });
-    const [error, setError] = useState<string | null>(null);
-
-    const refresh = async () => {
-        try {
-            const serverConfig = await getServerConfig();
-            setServerConfig(serverConfig);
-        } catch (err) {
-            setError("Failed to load server configuration: " + (err as Error).message);
-        }
-    };
-
-    const update = async ({
-        newServerUrl,
-    }: {
-        newServerUrl: string;
-    }) => {
-        await updateServerUrl(newServerUrl);
-        await refresh();
-    };
-
-    useEffect(() => {
-        refresh();
-    }, []);
-
-    return {
-        serverConfig,
-        error,
-        updateAndRefreshServerConfig: update,
-        isServerConfigured: Boolean(serverConfig.serverUrl),
-    };
+    const context = useContext(ServerContext);
+    if (!context) {
+        throw new Error('useServer must be used inside a ServerProvider');
+    }
+    return context;
 };
