@@ -58,7 +58,11 @@ const ScanScreen = () => {
     const [loading, setLoading] = useState(false);
     const [selectedMode, setSelectedMode] = useState<OcrModeType>(OcrMode.RECEIPT);
     const model = useOCR({ model: OCR_ENGLISH });
-    const { isServerConfigured, isModelConfigured } = useSettings();
+    const {
+        isServerConfigured,
+        modelConfig,
+        isModelConfigured,
+    } = useSettings();
 
     const checkPermissions = async () => {
         try {
@@ -108,12 +112,17 @@ const ScanScreen = () => {
         setLoading(true);
         let didTimeout = false;
 
-        // Create a 40s timeout
+        const timeoutMs = (() => {
+            if (isServerConfigured) return (serverConfig.timeout ?? 60) * 1000;
+            if (isModelConfigured) return (modelConfig.timeout ?? 60) * 1000;
+            return 60_000;
+        })();
+        // Create timeout
         const timeoutId = setTimeout(() => {
             didTimeout = true;
             setLoading(false);
             Alert.alert('Error', 'The request timed out. Please try again.');
-        }, 40000);
+        }, timeoutMs);
 
         let ocrResult: {
             date: string;
@@ -131,6 +140,7 @@ const ScanScreen = () => {
                     break;
                 case OcrMode.ONLINE_SHOPPING:
                     ocrResult = await processOnlineShoppingOcr(model, imageUri);
+                    break;
             }
         }
 

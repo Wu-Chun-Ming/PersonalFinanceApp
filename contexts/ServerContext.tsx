@@ -1,5 +1,6 @@
 import {
     getServerConfig,
+    updateServerTimeout,
     updateServerUrl,
 } from "@/services/appConfig";
 import {
@@ -11,6 +12,7 @@ import {
 
 type ServerConfig = {
     serverUrl: string | null;
+    timeout: number | null;
 };
 
 type ServerContextType = {
@@ -18,6 +20,7 @@ type ServerContextType = {
     error: string | null;
     updateAndRefreshServerConfig: (params: {
         newServerUrl: string;
+        newTimeout: number;
     }) => Promise<void>;
     isServerConfigured: boolean;
 };
@@ -27,6 +30,7 @@ const ServerContext = createContext<ServerContextType | undefined>(undefined);
 export const ServerProvider = ({ children }: { children: ReactNode }) => {
     const [serverConfig, setServerConfig] = useState<ServerConfig>({
         serverUrl: null,
+        timeout: null,
     });
     const [error, setError] = useState<string | null>(null);
 
@@ -41,10 +45,13 @@ export const ServerProvider = ({ children }: { children: ReactNode }) => {
 
     const update = async ({
         newServerUrl,
+        newTimeout,
     }: {
         newServerUrl: string;
+        newTimeout: number;
     }) => {
         await updateServerUrl(newServerUrl);
+        await updateServerTimeout(newTimeout);
         await refresh();
     };
 

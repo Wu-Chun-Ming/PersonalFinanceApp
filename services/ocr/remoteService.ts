@@ -1,11 +1,11 @@
 import { generatePrompt } from "@/ai/prompts/promptTemplate";
 import { EXPENSE_CATEGORIES } from "@/constants/transaction";
 import * as ExpoPythonOcrModule from "@/modules/expo-python-ocr";
-import { getModelAndApiKey } from "../appConfig";
+import { getModelConfig } from "../appConfig";
 
 // Extract date and category from remote model
 export const extractDateCategoryRemote = async (imageUri: string) => {
-    const { modelName, apiKey } = await getModelAndApiKey();
+    const { modelName, apiKey } = await getModelConfig();
     if (!modelName || !apiKey) {
         throw new Error("Model name or API key is not configured.");
     }

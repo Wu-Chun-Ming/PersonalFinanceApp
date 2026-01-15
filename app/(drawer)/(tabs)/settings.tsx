@@ -20,6 +20,7 @@ const SettingsScreen = () => {
         serverUrl: serverConfig.serverUrl || "",
         model: modelConfig.modelName || "",
         apiKey: modelConfig.apiKey || "",
+        timeout: modelConfig.timeout?.toString() || "60",
     });
 
     useFocusEffect(
@@ -84,6 +85,24 @@ const SettingsScreen = () => {
                         placeholder="Enter API key"
                         inputMode='text'
                         secureTextEntry
+                    />
+                </Input>
+            </FormGroup>
+
+            <Heading size="lg" className="mt-4" underline>Preferences</Heading>
+
+            <FormGroup
+                label='Request Timeout (seconds)'
+                isInvalid={Boolean(formik.errors.timeout && formik.touched.timeout)}
+                errorText={formik.errors.timeout}
+            >
+                <Input className="text-center">
+                    <InputField
+                        type="text"
+                        value={formik.values.timeout}
+                        onChangeText={formik.handleChange('timeout')}
+                        placeholder="Enter request timeout in seconds"
+                        inputMode='numeric'
                     />
                 </Input>
             </FormGroup>
