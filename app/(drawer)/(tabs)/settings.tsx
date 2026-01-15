@@ -9,6 +9,7 @@ import { Input, InputField } from "@/components/ui/input";
 // Custom import
 import styles from "@/app/styles";
 import FormGroup from "@/components/FormGroup";
+import { DEFAULT_TIMEOUT_SEC } from "@/constants/api";
 import { useSettings } from "@/hooks/useSettings";
 import { useSettingsFormik } from "@/hooks/useSettingsFormik";
 
@@ -20,7 +21,7 @@ const SettingsScreen = () => {
         serverUrl: serverConfig.serverUrl || "",
         model: modelConfig.modelName || "",
         apiKey: modelConfig.apiKey || "",
-        timeout: modelConfig.timeout?.toString() || "60",
+        timeout: modelConfig.timeout?.toString() || DEFAULT_TIMEOUT_SEC.toString(),
     });
 
     useFocusEffect(

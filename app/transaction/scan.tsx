@@ -18,6 +18,7 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import ImageViewer from '@/components/ImageViewer';
+import { DEFAULT_TIMEOUT_SEC } from '@/constants/api';
 import { useScanContext } from '@/hooks/useScanContext';
 import { useSettings } from '@/hooks/useSettings';
 import {
@@ -59,6 +60,7 @@ const ScanScreen = () => {
     const [selectedMode, setSelectedMode] = useState<OcrModeType>(OcrMode.RECEIPT);
     const model = useOCR({ model: OCR_ENGLISH });
     const {
+        serverConfig,
         isServerConfigured,
         modelConfig,
         isModelConfigured,
@@ -113,9 +115,9 @@ const ScanScreen = () => {
         let didTimeout = false;
 
         const timeoutMs = (() => {
-            if (isServerConfigured) return (serverConfig.timeout ?? 60) * 1000;
-            if (isModelConfigured) return (modelConfig.timeout ?? 60) * 1000;
-            return 60_000;
+            if (isServerConfigured) return (serverConfig.timeout ?? DEFAULT_TIMEOUT_SEC) * 1000;
+            if (isModelConfigured) return (modelConfig.timeout ?? DEFAULT_TIMEOUT_SEC) * 1000;
+            return DEFAULT_TIMEOUT_SEC * 1000;
         })();
         // Create timeout
         const timeoutId = setTimeout(() => {

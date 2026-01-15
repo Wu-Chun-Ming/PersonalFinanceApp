@@ -1,8 +1,9 @@
+import { DEFAULT_TIMEOUT_SEC } from '@/constants/api';
 import * as SecureStore from 'expo-secure-store';
 
 // ======================== Server Configuration ========================
 let serverUrl: string | null = null;
-let serverTimeout: number = 60;        // default timeout 60 seconds
+let serverTimeout: number = DEFAULT_TIMEOUT_SEC;
 
 export const getServerConfig = async () => {
     if (serverUrl !== null && serverTimeout !== null) {
@@ -11,7 +12,7 @@ export const getServerConfig = async () => {
 
     serverUrl = await SecureStore.getItemAsync('serverUrl');
     const timeoutStr = await SecureStore.getItemAsync('serverTimeout');
-    serverTimeout = (timeoutStr !== null) ? Number(timeoutStr) : 60;
+    serverTimeout = (timeoutStr !== null) ? Number(timeoutStr) : DEFAULT_TIMEOUT_SEC;
 
     return { serverUrl, timeout: serverTimeout };
 };
@@ -29,7 +30,7 @@ export const updateServerTimeout = async (newTimeout: number) => {
 // ===================== Model Configuration ====================
 let modelName: string | null = null;
 let apiKey: string | null = null;
-let modelTimeout: number = 60;        // default timeout 60 seconds
+let modelTimeout: number = DEFAULT_TIMEOUT_SEC;
 
 export const getModelConfig = async () => {
     if (modelName !== null && apiKey !== null && modelTimeout !== null) {
@@ -39,7 +40,7 @@ export const getModelConfig = async () => {
     modelName = await SecureStore.getItemAsync('model');
     apiKey = await SecureStore.getItemAsync('apiKey');
     const timeoutStr = await SecureStore.getItemAsync('modelTimeout');
-    modelTimeout = (timeoutStr !== null) ? Number(timeoutStr) : 60;
+    modelTimeout = (timeoutStr !== null) ? Number(timeoutStr) : DEFAULT_TIMEOUT_SEC;
 
     return { modelName, apiKey, timeout: modelTimeout };
 };

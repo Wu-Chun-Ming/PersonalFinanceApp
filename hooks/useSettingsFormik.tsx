@@ -1,5 +1,6 @@
 import { Alert } from "react-native";
 
+import { DEFAULT_TIMEOUT_SEC } from "@/constants/api";
 import { settingsSchema } from "@/validation/settingSchema";
 import { useCustomFormik } from "./useAppFormik";
 import { useSettings } from "./useSettings";
@@ -19,6 +20,7 @@ export const useSettingsFormik = (initialSettings: SettingsFormikProps) => {
             serverUrl: '',
             model: '',
             apiKey: '',
+            timeout: DEFAULT_TIMEOUT_SEC.toString(),
         },
         transformValues: (values: SettingsFormikProps) => values,
         validationSchema: settingsSchema,
