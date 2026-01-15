@@ -27,12 +27,12 @@ export const useSettingsFormik = (initialSettings: SettingsFormikProps) => {
         onSubmitCallback: async (values) => {
             updateAndRefreshServerConfig({
                 newServerUrl: values.serverUrl.trim(),
-                newTimeout: Number(values.timeout),
+                newTimeoutSeconds: Number(values.timeout),
             });
             updateAndRefreshModelConfig({
                 newModelName: values.model.trim(),
                 newApiKey: values.apiKey.trim(),
-                newTimeout: Number(values.timeout),
+                newTimeoutSeconds: Number(values.timeout),
             });
 
             Alert.alert("Success", "Settings saved successfully");

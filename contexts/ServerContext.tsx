@@ -15,13 +15,15 @@ type ServerConfig = {
     timeout: number | null;
 };
 
+type UpdateServerConfigParams = {
+    newServerUrl: string;
+    newTimeoutSeconds: number;
+};
+
 type ServerContextType = {
     serverConfig: ServerConfig;
     error: string | null;
-    updateAndRefreshServerConfig: (params: {
-        newServerUrl: string;
-        newTimeout: number;
-    }) => Promise<void>;
+    updateAndRefreshServerConfig: (params: UpdateServerConfigParams) => Promise<void>;
     isServerConfigured: boolean;
 };
 
@@ -45,13 +47,10 @@ export const ServerProvider = ({ children }: { children: ReactNode }) => {
 
     const update = async ({
         newServerUrl,
-        newTimeout,
-    }: {
-        newServerUrl: string;
-        newTimeout: number;
-    }) => {
+        newTimeoutSeconds,
+    }: UpdateServerConfigParams) => {
         await updateServerUrl(newServerUrl);
-        await updateServerTimeout(newTimeout);
+        await updateServerTimeout(newTimeoutSeconds);
         await refresh();
     };
 

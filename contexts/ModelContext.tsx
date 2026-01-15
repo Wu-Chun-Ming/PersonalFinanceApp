@@ -17,14 +17,16 @@ type ModelConfig = {
     timeout: number | null;
 }
 
+type UpdateModelConfigParams = {
+    newModelName: string;
+    newApiKey: string;
+    newTimeoutSeconds: number;
+};
+
 type ModelContextType = {
     modelConfig: ModelConfig;
     error: string | null;
-    updateAndRefreshModelConfig: (params: {
-        newModelName: string;
-        newApiKey: string;
-        newTimeout: number;
-    }) => Promise<void>;
+    updateAndRefreshModelConfig: (params: UpdateModelConfigParams) => Promise<void>;
     isModelConfigured: boolean;
 };
 
@@ -50,15 +52,11 @@ export const ModelProvider = ({ children }: { children: ReactNode }) => {
     const update = async ({
         newModelName,
         newApiKey,
-        newTimeout,
-    }: {
-        newModelName: string;
-        newApiKey: string;
-        newTimeout: number;
-    }) => {
+        newTimeoutSeconds,
+    }: UpdateModelConfigParams) => {
         await updateModelName(newModelName);
         await updateApiKey(newApiKey);
-        await updateModelTimeout(newTimeout);
+        await updateModelTimeout(newTimeoutSeconds);
         await refresh();
     };
 
