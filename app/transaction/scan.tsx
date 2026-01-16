@@ -134,15 +134,27 @@ const ScanScreen = () => {
         }[] = [];
 
         if (isServerConfigured) {
-            ocrResult = await sendOcrRequestToServer(imageUri, selectedMode);
+            try {
+                ocrResult = await sendOcrRequestToServer(imageUri, selectedMode);
+            } catch (error) {
+                console.error('Error during server OCR request:', (error as Error).message);
+                Alert.alert('Error', 'Failed to scan image using server OCR. Please try again.');
+                return;
+            }
         } else if (isModelConfigured) {
-            switch (selectedMode) {
-                case OcrMode.RECEIPT:
-                    Alert.alert('Comming Soon', 'Receipt OCR using local model is coming soon!');
-                    break;
-                case OcrMode.ONLINE_SHOPPING:
-                    ocrResult = await processOnlineShoppingOcr(model, imageUri);
-                    break;
+            try {
+                switch (selectedMode) {
+                    case OcrMode.RECEIPT:
+                        Alert.alert('Comming Soon', 'Receipt OCR using local model is coming soon!');
+                        break;
+                    case OcrMode.ONLINE_SHOPPING:
+                        ocrResult = await processOnlineShoppingOcr(model, imageUri);
+                        break;
+                }
+            } catch (error) {
+                console.error('Error during model OCR request:', (error as Error).message);
+                Alert.alert('Error', 'Failed to scan image using model OCR. Please try again.');
+                return;
             }
         }
 
