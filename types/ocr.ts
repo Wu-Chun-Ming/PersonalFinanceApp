@@ -16,3 +16,8 @@ export interface TransactionMetadata {
 };
 
 export interface OcrResult extends LineItemInfo, TransactionMetadata { }
+
+export interface OcrImage {
+  uri: string;
+  base64: string;
+}

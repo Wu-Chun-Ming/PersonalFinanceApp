@@ -1,33 +1,30 @@
 
 import { fetchWithTimeout } from "@/services/api";
-import { OcrMode, OcrModeType, OcrResult } from "@/types";
+import { OcrImage, OcrMode, OcrModeType, OcrResult } from "@/types";
 import { getServerConfig } from "../appConfig";
-import { extractDescriptionTotal } from "./localService";
-import { extractDateCategoryRemote } from "./remoteService";
+import { extractLineItemInfo } from "./localService";
+import { extractTransactionMetadata } from "./remoteService";
 
 // ======================== Local ========================
 // Process online shopping screenshot
 export const processOnlineShoppingOcr = async (
     model,
-    imageUri: string,
+    image: OcrImage,
 ) => {
-    const descriptionTotalResults = await extractDescriptionTotal(model, imageUri);
-    const dateCategoryResults = await extractDateCategoryRemote(imageUri);
-    const finalResults = [];
-    // Find the maximum length
-    const maxLen = Math.max(descriptionTotalResults.length, dateCategoryResults.length);
-
+    const lineItemInfo = await extractLineItemInfo(model, image.uri);
+    const transactionMetadata = await extractTransactionMetadata(image.base64);
+    const ocrResults: OcrResult[] = [];
     // Merge results based on the maximum length
-    for (let i = 0; i < maxLen; i++) {
-        const descriptionTotal = descriptionTotalResults[i] ?? { description: "", total: null };
-        const dateCategory = dateCategoryResults[i] ?? { date: null, category: null };
-        finalResults.push({
-            ...descriptionTotal,
-            ...dateCategory,
+    for (let i = 0; i < Math.max(lineItemInfo.length, transactionMetadata.length); i++) {
+        ocrResults.push({
+            description: lineItemInfo[i]?.description ?? "",
+            total: lineItemInfo[i]?.total ?? 0,
+            date: transactionMetadata[i]?.date ?? "",
+            category: transactionMetadata[i]?.category ?? "",
         });
     }
 
-    return finalResults;
+    return ocrResults;
 }
 
 // ======================== Server ========================

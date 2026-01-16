@@ -34,18 +34,19 @@ import {
 const ScanScreen = () => {
     const { setScannedData } = useScanContext();
     const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+    const [imageBase64Str, setImageBase64Str] = useState<string>('');
 
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: 'images',
             allowsEditing: true,
             quality: 1,
+            base64: true,
         });
 
         if (!result.canceled) {
+            setImageBase64Str(result.assets[0].base64 || '');
             setSelectedImageUri(result.assets[0].uri);
-        } else {
-            Alert.alert('You did not select any image.');
         }
     }
 
@@ -102,6 +103,7 @@ const ScanScreen = () => {
                 Alert.alert("Error", "Failed to take picture.");
                 return; // Exit if photo is invalid or URI is missing
             }
+            setImageBase64Str(photo.base64 || '');
             setSelectedImageUri(photo.uri);
         } catch (error) {
             console.error('Error taking picture:', (error as Error).message);
@@ -148,7 +150,10 @@ const ScanScreen = () => {
                         Alert.alert('Comming Soon', 'Receipt OCR using local model is coming soon!');
                         break;
                     case OcrMode.ONLINE_SHOPPING:
-                        ocrResult = await processOnlineShoppingOcr(model, imageUri);
+                        ocrResult = await processOnlineShoppingOcr(model, {
+                            uri: imageUri,
+                            base64: imageBase64Str,
+                        });
                         break;
                 }
             } catch (error) {
