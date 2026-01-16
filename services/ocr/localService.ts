@@ -1,11 +1,12 @@
+import { LineItemInfo } from "@/types";
 import { OCRDetection } from "react-native-executorch";
 
 // Extract description and total amount locally
-export const extractDescriptionTotal = async (
+export const extractLineItemInfo = async (
     model,
     imageUri: string,
 ) => {
-    const results: { description: string, total: number }[] = [];
+    const results: LineItemInfo[] = [];
     let currentItem: {
         description: string | null;
         total: number | null;

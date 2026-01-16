@@ -1,32 +1,30 @@
 
-import { OcrMode, OcrModeType } from "@/types";
+import { fetchWithTimeout } from "@/services/api";
+import { OcrImage, OcrMode, OcrModeType, OcrResult } from "@/types";
 import { getServerConfig } from "../appConfig";
-import { extractDescriptionTotal } from "./localService";
-import { extractDateCategoryRemote } from "./remoteService";
+import { extractLineItemInfo } from "./localService";
+import { extractTransactionMetadata } from "./remoteService";
 
 // ======================== Local ========================
 // Process online shopping screenshot
 export const processOnlineShoppingOcr = async (
     model,
-    imageUri: string,
+    image: OcrImage,
 ) => {
-    const descriptionTotalResults = await extractDescriptionTotal(model, imageUri);
-    const dateCategoryResults = await extractDateCategoryRemote(imageUri);
-    const finalResults = [];
-    // Find the maximum length
-    const maxLen = Math.max(descriptionTotalResults.length, dateCategoryResults.length);
-
+    const lineItemInfo = await extractLineItemInfo(model, image.uri);
+    const transactionMetadata = await extractTransactionMetadata(image.base64);
+    const ocrResults: OcrResult[] = [];
     // Merge results based on the maximum length
-    for (let i = 0; i < maxLen; i++) {
-        const descriptionTotal = descriptionTotalResults[i] ?? { description: "", total: null };
-        const dateCategory = dateCategoryResults[i] ?? { date: null, category: null };
-        finalResults.push({
-            ...descriptionTotal,
-            ...dateCategory,
+    for (let i = 0; i < Math.max(lineItemInfo.length, transactionMetadata.length); i++) {
+        ocrResults.push({
+            description: lineItemInfo[i]?.description ?? "",
+            total: lineItemInfo[i]?.total ?? 0,
+            date: transactionMetadata[i]?.date ?? "",
+            category: transactionMetadata[i]?.category ?? "",
         });
     }
 
-    return finalResults;
+    return ocrResults;
 }
 
 // ======================== Server ========================
@@ -35,7 +33,7 @@ export const sendOcrRequestToServer = async (
     imageUri: string,
     selectedMode: OcrModeType,
 ) => {
-    const { serverUrl } = await getServerConfig();
+    const { serverUrl, timeout } = await getServerConfig();
     if (!serverUrl) {
         throw new Error("Server URL is not configured.");
     }
@@ -54,30 +52,18 @@ export const sendOcrRequestToServer = async (
     const endpoint = serverUrl +
         (selectedMode === OcrMode.ONLINE_SHOPPING ? `/online-shopping` : `/receipt`);
 
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
-    });
-
-    if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Server OCR request failed: ${text}`);
+    let result: OcrResult[] = [];
+    try {
+        result = await fetchWithTimeout<OcrResult[]>(
+            endpoint,
+            formData,
+            undefined,
+            { timeoutSeconds: timeout }
+        );
+    } catch (err: any) {
+        console.error("Error during fetch request to server:", err);
+        throw err;
     }
 
-    const jsonData = await response.json();
-    const result = jsonData.result as
-        | {
-            date: string;
-            category: string;
-            description: string;
-            total: number;
-        }
-        | {
-            date: string;
-            category: string;
-            description: string;
-            total: number;
-        }[];
-
-    return Array.isArray(result) ? result : [result];
+    return result;
 }

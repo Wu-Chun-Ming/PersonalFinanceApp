@@ -18,6 +18,7 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import ImageViewer from '@/components/ImageViewer';
+import { DEFAULT_TIMEOUT_SEC } from '@/constants/api';
 import { useScanContext } from '@/hooks/useScanContext';
 import { useSettings } from '@/hooks/useSettings';
 import {
@@ -33,18 +34,19 @@ import {
 const ScanScreen = () => {
     const { setScannedData } = useScanContext();
     const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+    const [imageBase64Str, setImageBase64Str] = useState<string>('');
 
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: 'images',
             allowsEditing: true,
             quality: 1,
+            base64: true,
         });
 
         if (!result.canceled) {
+            setImageBase64Str(result.assets[0].base64 || '');
             setSelectedImageUri(result.assets[0].uri);
-        } else {
-            Alert.alert('You did not select any image.');
         }
     }
 
@@ -58,7 +60,12 @@ const ScanScreen = () => {
     const [loading, setLoading] = useState(false);
     const [selectedMode, setSelectedMode] = useState<OcrModeType>(OcrMode.RECEIPT);
     const model = useOCR({ model: OCR_ENGLISH });
-    const { isServerConfigured, isModelConfigured } = useSettings();
+    const {
+        serverConfig,
+        isServerConfigured,
+        modelConfig,
+        isModelConfigured,
+    } = useSettings();
 
     const checkPermissions = async () => {
         try {
@@ -96,6 +103,7 @@ const ScanScreen = () => {
                 Alert.alert("Error", "Failed to take picture.");
                 return; // Exit if photo is invalid or URI is missing
             }
+            setImageBase64Str(photo.base64 || '');
             setSelectedImageUri(photo.uri);
         } catch (error) {
             console.error('Error taking picture:', (error as Error).message);
@@ -108,12 +116,17 @@ const ScanScreen = () => {
         setLoading(true);
         let didTimeout = false;
 
-        // Create a 40s timeout
+        const timeoutMs = (() => {
+            if (isServerConfigured) return (serverConfig.timeout ?? DEFAULT_TIMEOUT_SEC) * 1000;
+            if (isModelConfigured) return (modelConfig.timeout ?? DEFAULT_TIMEOUT_SEC) * 1000;
+            return DEFAULT_TIMEOUT_SEC * 1000;
+        })();
+        // Create timeout
         const timeoutId = setTimeout(() => {
             didTimeout = true;
             setLoading(false);
             Alert.alert('Error', 'The request timed out. Please try again.');
-        }, 40000);
+        }, timeoutMs);
 
         let ocrResult: {
             date: string;
@@ -123,14 +136,30 @@ const ScanScreen = () => {
         }[] = [];
 
         if (isServerConfigured) {
-            ocrResult = await sendOcrRequestToServer(imageUri, selectedMode);
+            try {
+                ocrResult = await sendOcrRequestToServer(imageUri, selectedMode);
+            } catch (error) {
+                console.error('Error during server OCR request:', (error as Error).message);
+                Alert.alert('Error', 'Failed to scan image using server OCR. Please try again.');
+                return;
+            }
         } else if (isModelConfigured) {
-            switch (selectedMode) {
-                case OcrMode.RECEIPT:
-                    Alert.alert('Comming Soon', 'Receipt OCR using local model is coming soon!');
-                    break;
-                case OcrMode.ONLINE_SHOPPING:
-                    ocrResult = await processOnlineShoppingOcr(model, imageUri);
+            try {
+                switch (selectedMode) {
+                    case OcrMode.RECEIPT:
+                        Alert.alert('Comming Soon', 'Receipt OCR using local model is coming soon!');
+                        break;
+                    case OcrMode.ONLINE_SHOPPING:
+                        ocrResult = await processOnlineShoppingOcr(model, {
+                            uri: imageUri,
+                            base64: imageBase64Str,
+                        });
+                        break;
+                }
+            } catch (error) {
+                console.error('Error during model OCR request:', (error as Error).message);
+                Alert.alert('Error', 'Failed to scan image using model OCR. Please try again.');
+                return;
             }
         }
 
