@@ -11,7 +11,7 @@ import { OCR_ENGLISH, useOCR } from 'react-native-executorch';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
-import { Button } from '@/components/ui/button';
+import { Button, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 
@@ -26,52 +26,43 @@ import {
     sendOcrRequestToServer,
 } from '@/services/ocr';
 import {
+    AbortReason,
+    AbortReasonType,
     OcrMode,
     OcrModeType,
     TransactionType,
 } from '@/types';
 
 const ScanScreen = () => {
+    const router = useRouter();
     const { setScannedData } = useScanContext();
     const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
     const [imageBase64Str, setImageBase64Str] = useState<string>('');
-
-    const pickImageAsync = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: 'images',
-            allowsEditing: true,
-            quality: 1,
-            base64: true,
-        });
-
-        if (!result.canceled) {
-            setImageBase64Str(result.assets[0].base64 || '');
-            setSelectedImageUri(result.assets[0].uri);
-        }
-    }
-
-    const camera = useRef<CameraView>(null);
-    const [facing, setFacing] = useState<CameraType>('back');
-    const router = useRouter();
-
-    const [camPerm, reqCamPerm] = ImagePicker.useCameraPermissions();
-    const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
-    const [permissionsChecked, setPermissionsChecked] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [selectedMode, setSelectedMode] = useState<OcrModeType>(OcrMode.RECEIPT);
-    const model = useOCR({ model: OCR_ENGLISH });
     const {
         serverConfig,
         isServerConfigured,
         modelConfig,
         isModelConfigured,
     } = useSettings();
+    const model = useOCR({ model: OCR_ENGLISH });
+    const [loading, setLoading] = useState(false);
+    const [isSlow, setIsSlow] = useState(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const abortReasonRef = useRef<AbortReasonType | null>(null);
+    // Camera ref
+    const camera = useRef<CameraView>(null);
+    const [facing, setFacing] = useState<CameraType>('back');
+    // Permissions
+    const [camPerm, reqCamPerm] = ImagePicker.useCameraPermissions();
+    const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
+    const [permissionsChecked, setPermissionsChecked] = useState(false);
 
     const checkPermissions = async () => {
         try {
-            // Only proceed if permissions are not null (i.e., after hooks resolve)
+            // Only proceed if permissions are not null
             if (camPerm === null || libPerm === null) {
-                return; // If permission state is still null, exit the function
+                return;
             }
 
             // Check camera permissions
@@ -91,10 +82,24 @@ const ScanScreen = () => {
         }
     };
 
+    const pickImageAsync = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: 'images',
+            allowsEditing: true,
+            quality: 1,
+            base64: true,
+        });
+
+        if (!result.canceled) {
+            setImageBase64Str(result.assets[0].base64 || '');
+            setSelectedImageUri(result.assets[0].uri);
+        }
+    }
+
     const takePicture = async () => {
         if (!camera.current) {
             Alert.alert("Camera is not ready yet.");
-            return; // If camera ref is null, exit the function early.
+            return;
         }
 
         try {
@@ -109,12 +114,13 @@ const ScanScreen = () => {
             console.error('Error taking picture:', (error as Error).message);
             Alert.alert("Error", "Something went wrong while taking the picture.");
         }
-
     };
 
     const scanImage = async (imageUri: string) => {
+        abortControllerRef.current?.abort(); // cancel previous run if any
+        abortControllerRef.current = new AbortController();
+        const signal = abortControllerRef.current.signal;
         setLoading(true);
-        let didTimeout = false;
 
         const timeoutMs = (() => {
             if (isServerConfigured) return (serverConfig.timeout ?? DEFAULT_TIMEOUT_SEC) * 1000;
@@ -123,9 +129,8 @@ const ScanScreen = () => {
         })();
         // Create timeout
         const timeoutId = setTimeout(() => {
-            didTimeout = true;
             setLoading(false);
-            Alert.alert('Error', 'The request timed out. Please try again.');
+            setIsSlow(true);
         }, timeoutMs);
 
         let ocrResult: {
@@ -153,12 +158,18 @@ const ScanScreen = () => {
                         ocrResult = await processOnlineShoppingOcr(model, {
                             uri: imageUri,
                             base64: imageBase64Str,
+                        }, {
+                            signal,
+                            reasonRef: abortReasonRef,
                         });
                         break;
                 }
             } catch (error) {
+                clearTimeout(timeoutId);
+                setLoading(false);
+                setIsSlow(false);
                 console.error('Error during model OCR request:', (error as Error).message);
-                Alert.alert('Error', 'Failed to scan image using model OCR. Please try again.');
+                Alert.alert('Error', 'Failed to scan image using model OCR. Please try again. (' + (error as Error).message + ')');
                 return;
             }
         }
@@ -209,13 +220,33 @@ const ScanScreen = () => {
         }
     }, [camPerm, libPerm, permissionsChecked, selectedImageUri, isServerConfigured, isModelConfigured]);
 
+    // Show model loading progress
+    if (!model.isReady) {
+        return (
+            <View style={[styles.centered, {
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.3)",
+                zIndex: 1000,
+            }]}>
+                <ActivityIndicator size={80} color="#fff" />
+                <Text style={{
+                    marginTop: 20,
+                    fontSize: 18,
+                    color: '#fff',
+                }}>
+                    {`Loading the model ${(model.downloadProgress * 100).toFixed(0)} %`}
+                </Text>
+            </View>
+        );
+    }
+
     return (
         <SafeAreaView style={{
             flex: 1,
             backgroundColor: '#25292e',
         }} edges={['bottom']}>
-
-            {loading && (
+            {(loading || isSlow) && (
                 <View style={[styles.centered, {
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
@@ -223,6 +254,25 @@ const ScanScreen = () => {
                     zIndex: 1000,
                 }]}>
                     <ActivityIndicator size={80} color="#fff" />
+                    <Text style={{
+                        marginTop: 20,
+                        fontSize: 18,
+                        color: '#fff',
+                    }}>
+                        {loading && 'Processing Image...'}
+                        {isSlow && 'Still processing... this may take a little longer'}
+                    </Text>
+                    {isSlow && <Button
+                        className='mt-4'
+                        size="md"
+                        action="negative"
+                        onPress={() => {
+                            setIsSlow(false);
+                            abortControllerRef.current?.abort(AbortReason.USER_ABORT);
+                        }}
+                    >
+                        <ButtonText>Cancel</ButtonText>
+                    </Button>}
                 </View>
             )}
 
@@ -304,7 +354,7 @@ const ScanScreen = () => {
                         ? <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
                             onPress={() => {
                                 takePicture();
-                            }}       // saved pic not working in emulator 
+                            }}
                         >
                             <MaterialCommunityIcons name="circle-outline" size={70} color="black" />
                         </Button>

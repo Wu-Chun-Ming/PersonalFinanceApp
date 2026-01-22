@@ -1,6 +1,6 @@
 
 import { fetchWithTimeout } from "@/services/api";
-import { OcrImage, OcrMode, OcrModeType, OcrResult } from "@/types";
+import { OcrCancelContext, OcrImage, OcrMode, OcrModeType, OcrResult } from "@/types";
 import { getServerConfig } from "../appConfig";
 import { extractLineItemInfo } from "./localService";
 import { extractTransactionMetadata } from "./remoteService";
@@ -10,9 +10,10 @@ import { extractTransactionMetadata } from "./remoteService";
 export const processOnlineShoppingOcr = async (
     model,
     image: OcrImage,
+    cancelContext: OcrCancelContext,
 ) => {
     const lineItemInfo = await extractLineItemInfo(model, image.uri);
-    const transactionMetadata = await extractTransactionMetadata(image.base64);
+    const transactionMetadata = await extractTransactionMetadata(image.base64, cancelContext);
     const ocrResults: OcrResult[] = [];
     // Merge results based on the maximum length
     for (let i = 0; i < Math.max(lineItemInfo.length, transactionMetadata.length); i++) {
