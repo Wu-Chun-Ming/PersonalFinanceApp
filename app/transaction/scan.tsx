@@ -220,6 +220,27 @@ const ScanScreen = () => {
         }
     }, [camPerm, libPerm, permissionsChecked, selectedImageUri, isServerConfigured, isModelConfigured]);
 
+    // Show model loading progress
+    if (!model.isReady) {
+        return (
+            <View style={[styles.centered, {
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.3)",
+                zIndex: 1000,
+            }]}>
+                <ActivityIndicator size={80} color="#fff" />
+                <Text style={{
+                    marginTop: 20,
+                    fontSize: 18,
+                    color: '#fff',
+                }}>
+                    {`Loading the model ${(model.downloadProgress * 100).toFixed(0)} %`}
+                </Text>
+            </View>
+        );
+    }
+
     return (
         <SafeAreaView style={{
             flex: 1,
