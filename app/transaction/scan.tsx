@@ -34,49 +34,35 @@ import {
 } from '@/types';
 
 const ScanScreen = () => {
+    const router = useRouter();
     const { setScannedData } = useScanContext();
     const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
     const [imageBase64Str, setImageBase64Str] = useState<string>('');
-
-    const pickImageAsync = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: 'images',
-            allowsEditing: true,
-            quality: 1,
-            base64: true,
-        });
-
-        if (!result.canceled) {
-            setImageBase64Str(result.assets[0].base64 || '');
-            setSelectedImageUri(result.assets[0].uri);
-        }
-    }
-
-    const camera = useRef<CameraView>(null);
-    const [facing, setFacing] = useState<CameraType>('back');
-    const router = useRouter();
-
-    const [camPerm, reqCamPerm] = ImagePicker.useCameraPermissions();
-    const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
-    const [permissionsChecked, setPermissionsChecked] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [isSlow, setIsSlow] = useState(false);
-    const abortControllerRef = useRef<AbortController | null>(null);
-    const abortReasonRef = useRef<AbortReasonType | null>(null);
     const [selectedMode, setSelectedMode] = useState<OcrModeType>(OcrMode.RECEIPT);
-    const model = useOCR({ model: OCR_ENGLISH });
     const {
         serverConfig,
         isServerConfigured,
         modelConfig,
         isModelConfigured,
     } = useSettings();
+    const model = useOCR({ model: OCR_ENGLISH });
+    const [loading, setLoading] = useState(false);
+    const [isSlow, setIsSlow] = useState(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const abortReasonRef = useRef<AbortReasonType | null>(null);
+    // Camera ref
+    const camera = useRef<CameraView>(null);
+    const [facing, setFacing] = useState<CameraType>('back');
+    // Permissions
+    const [camPerm, reqCamPerm] = ImagePicker.useCameraPermissions();
+    const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
+    const [permissionsChecked, setPermissionsChecked] = useState(false);
 
     const checkPermissions = async () => {
         try {
-            // Only proceed if permissions are not null (i.e., after hooks resolve)
+            // Only proceed if permissions are not null
             if (camPerm === null || libPerm === null) {
-                return; // If permission state is still null, exit the function
+                return;
             }
 
             // Check camera permissions
@@ -96,10 +82,24 @@ const ScanScreen = () => {
         }
     };
 
+    const pickImageAsync = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: 'images',
+            allowsEditing: true,
+            quality: 1,
+            base64: true,
+        });
+
+        if (!result.canceled) {
+            setImageBase64Str(result.assets[0].base64 || '');
+            setSelectedImageUri(result.assets[0].uri);
+        }
+    }
+
     const takePicture = async () => {
         if (!camera.current) {
             Alert.alert("Camera is not ready yet.");
-            return; // If camera ref is null, exit the function early.
+            return;
         }
 
         try {
@@ -114,7 +114,6 @@ const ScanScreen = () => {
             console.error('Error taking picture:', (error as Error).message);
             Alert.alert("Error", "Something went wrong while taking the picture.");
         }
-
     };
 
     const scanImage = async (imageUri: string) => {
@@ -166,6 +165,7 @@ const ScanScreen = () => {
                         break;
                 }
             } catch (error) {
+                clearTimeout(timeoutId);
                 setLoading(false);
                 setIsSlow(false);
                 console.error('Error during model OCR request:', (error as Error).message);
@@ -333,7 +333,7 @@ const ScanScreen = () => {
                         ? <Button className='h-auto flex-1 self-center' size="md" variant="link" action="secondary"
                             onPress={() => {
                                 takePicture();
-                            }}       // saved pic not working in emulator 
+                            }}
                         >
                             <MaterialCommunityIcons name="circle-outline" size={70} color="black" />
                         </Button>
