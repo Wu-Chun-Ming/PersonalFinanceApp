@@ -1,11 +1,14 @@
 import { generatePrompt } from "@/ai/prompts/promptTemplate";
 import { EXPENSE_CATEGORIES } from "@/constants/transaction";
 import { fetchWithTimeout } from "@/services/api";
-import { TransactionMetadata } from "@/types";
+import { OcrCancelContext, TransactionMetadata } from "@/types";
 import { getModelConfig } from "../appConfig";
 
 // Extract date and category from remote model
-export const extractTransactionMetadata = async (imageBase64Str: string): Promise<TransactionMetadata[]> => {
+export const extractTransactionMetadata = async (
+    imageBase64Str: string,
+    cancelContext: OcrCancelContext,
+): Promise<TransactionMetadata[]> => {
     const { modelName, apiKey, timeout } = await getModelConfig();
     if (!modelName || !apiKey) {
         throw new Error("Model configuration is incomplete.");
@@ -28,11 +31,20 @@ export const extractTransactionMetadata = async (imageBase64Str: string): Promis
             "https://openrouter.ai/api/v1/chat/completions",
             JSON.stringify(payload),
             apiKey,
-            { timeoutSeconds: timeout }
+            {
+                timeoutSeconds: timeout,
+                signal: cancelContext.signal,
+                abortReasonRef: cancelContext.reasonRef,
+            }
         );
         const choice = response.choices?.[0];
         const content: string = choice?.message?.content;
-        result = JSON.parse(content);
+        try {
+            result = JSON.parse(content);
+        } catch (parseErr) {
+            console.error("Error parsing JSON from model response:", parseErr);
+            throw new Error("Failed to parse model response.");
+        }
     } catch (err: any) {
         console.error("Error during fetch request to remote model:", err);
         throw err;

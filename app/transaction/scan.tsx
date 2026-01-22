@@ -11,7 +11,7 @@ import { OCR_ENGLISH, useOCR } from 'react-native-executorch';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
-import { Button } from '@/components/ui/button';
+import { Button, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 
@@ -26,6 +26,8 @@ import {
     sendOcrRequestToServer,
 } from '@/services/ocr';
 import {
+    AbortReason,
+    AbortReasonType,
     OcrMode,
     OcrModeType,
     TransactionType,
@@ -58,6 +60,9 @@ const ScanScreen = () => {
     const [libPerm, reqLibPerm] = ImagePicker.useMediaLibraryPermissions();
     const [permissionsChecked, setPermissionsChecked] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isSlow, setIsSlow] = useState(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const abortReasonRef = useRef<AbortReasonType | null>(null);
     const [selectedMode, setSelectedMode] = useState<OcrModeType>(OcrMode.RECEIPT);
     const model = useOCR({ model: OCR_ENGLISH });
     const {
@@ -113,8 +118,10 @@ const ScanScreen = () => {
     };
 
     const scanImage = async (imageUri: string) => {
+        abortControllerRef.current?.abort(); // cancel previous run if any
+        abortControllerRef.current = new AbortController();
+        const signal = abortControllerRef.current.signal;
         setLoading(true);
-        let didTimeout = false;
 
         const timeoutMs = (() => {
             if (isServerConfigured) return (serverConfig.timeout ?? DEFAULT_TIMEOUT_SEC) * 1000;
@@ -123,9 +130,8 @@ const ScanScreen = () => {
         })();
         // Create timeout
         const timeoutId = setTimeout(() => {
-            didTimeout = true;
             setLoading(false);
-            Alert.alert('Error', 'The request timed out. Please try again.');
+            setIsSlow(true);
         }, timeoutMs);
 
         let ocrResult: {
@@ -153,12 +159,17 @@ const ScanScreen = () => {
                         ocrResult = await processOnlineShoppingOcr(model, {
                             uri: imageUri,
                             base64: imageBase64Str,
+                        }, {
+                            signal,
+                            reasonRef: abortReasonRef,
                         });
                         break;
                 }
             } catch (error) {
+                setLoading(false);
+                setIsSlow(false);
                 console.error('Error during model OCR request:', (error as Error).message);
-                Alert.alert('Error', 'Failed to scan image using model OCR. Please try again.');
+                Alert.alert('Error', 'Failed to scan image using model OCR. Please try again. (' + (error as Error).message + ')');
                 return;
             }
         }
@@ -214,8 +225,7 @@ const ScanScreen = () => {
             flex: 1,
             backgroundColor: '#25292e',
         }} edges={['bottom']}>
-
-            {loading && (
+            {(loading || isSlow) && (
                 <View style={[styles.centered, {
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
@@ -223,6 +233,25 @@ const ScanScreen = () => {
                     zIndex: 1000,
                 }]}>
                     <ActivityIndicator size={80} color="#fff" />
+                    <Text style={{
+                        marginTop: 20,
+                        fontSize: 18,
+                        color: '#fff',
+                    }}>
+                        {loading && 'Processing Image...'}
+                        {isSlow && 'Still processing... this may take a little longer'}
+                    </Text>
+                    {isSlow && <Button
+                        className='mt-4'
+                        size="md"
+                        action="negative"
+                        onPress={() => {
+                            setIsSlow(false);
+                            abortControllerRef.current?.abort(AbortReason.USER_ABORT);
+                        }}
+                    >
+                        <ButtonText>Cancel</ButtonText>
+                    </Button>}
                 </View>
             )}
 

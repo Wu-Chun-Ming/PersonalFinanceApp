@@ -1,3 +1,5 @@
+import { AbortReasonType } from "./api";
+
 export const OcrMode = {
     RECEIPT: 'receipt',
     ONLINE_SHOPPING: 'online_shopping'
@@ -21,3 +23,8 @@ export interface OcrImage {
   uri: string;
   base64: string;
 }
+
+export interface OcrCancelContext {
+    signal: AbortSignal;
+    reasonRef: { current: AbortReasonType | null };
+};
