@@ -4,10 +4,9 @@ import dayjs from 'dayjs';
 import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { OCR_ENGLISH, useOCR } from 'react-native-executorch';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
@@ -19,6 +18,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import ImageViewer from '@/components/ImageViewer';
 import { DEFAULT_TIMEOUT_SEC } from '@/constants/api';
+import OcrContext from '@/contexts/OcrContext';
 import { useScanContext } from '@/hooks/useScanContext';
 import { useSettings } from '@/hooks/useSettings';
 import {
@@ -45,7 +45,7 @@ const ScanScreen = () => {
         modelConfig,
         isModelConfigured,
     } = useSettings();
-    const model = useOCR({ model: OCR_ENGLISH });
+    const model = useContext(OcrContext);
     const [loading, setLoading] = useState(false);
     const [isSlow, setIsSlow] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -204,6 +204,8 @@ const ScanScreen = () => {
     }
 
     useEffect(() => {
+        if (!model?.isReady) return;
+
         if (!isServerConfigured && !isModelConfigured) {
             Alert.alert('Configuration Required', 'Please configure the server or model settings first.', [
                 {
@@ -218,10 +220,10 @@ const ScanScreen = () => {
         if (camPerm !== null && libPerm !== null && !permissionsChecked) {
             checkPermissions();
         }
-    }, [camPerm, libPerm, permissionsChecked, selectedImageUri, isServerConfigured, isModelConfigured]);
+    }, [model?.isReady, isServerConfigured, isModelConfigured, camPerm, libPerm, permissionsChecked]);
 
     // Show model loading progress
-    if (!model.isReady) {
+    if (model && !model.isReady) {
         return (
             <View style={[styles.centered, {
                 position: 'absolute',
