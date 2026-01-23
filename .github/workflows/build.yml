@@ -93,15 +93,24 @@ jobs:
         with:
           path: |
             android/app/.cxx
-            android/app/build/intermediates/cxx
-            android/app/build/intermediates/merged_native_libs
-            android/app/build/intermediates/merged_jni_libs
             node_modules/@shopify/react-native-skia/android/.cxx
             node_modules/expo-modules-core/android/.cxx
             node_modules/react-native-gesture-handler/android/.cxx
             node_modules/react-native-reanimated/android/.cxx
             node_modules/react-native-screens/android/.cxx
-          key: native-${{ runner.os }}-${{ hashFiles('package-lock.json', 'android/app/build.gradle') }}
+          key: >
+            native-${{ runner.os }}-${{ hashFiles(
+              'android/app/build.gradle',
+              'android/app/CMakeLists.txt',
+              'android/app/src/main/**/*',
+              'modules/**/android/src/**/*',
+              'modules/**/android/CMakeLists.txt',
+              'node_modules/@shopify/react-native-skia/android/**/*',
+              'node_modules/expo-modules-core/android/**/*',
+              'node_modules/react-native-gesture-handler/android/**/*',
+              'node_modules/react-native-reanimated/android/**/*',
+              'node_modules/react-native-screens/android/**/*'
+            ) }}
           restore-keys: |
             native-${{ runner.os }}-
 
