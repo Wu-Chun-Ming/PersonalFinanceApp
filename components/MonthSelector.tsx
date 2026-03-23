@@ -29,7 +29,7 @@ const MonthSelector = ({
                 disabled={selectedLocalMonth <= 1}
                 onPress={() => changeMonth(selectedLocalMonth - 1)}
             >
-                <AntDesign name="leftcircle" size={24} color={selectedLocalMonth <= 1 ? 'gray' : 'white'} style={{ paddingHorizontal: 10 }} />
+                <AntDesign name="left-circle" size={24} color={selectedLocalMonth <= 1 ? 'gray' : 'white'} style={{ paddingHorizontal: 10 }} />
             </TouchableOpacity>
 
             <Text style={{ fontSize: 18, fontWeight: "bold", color: 'white' }}>
@@ -40,7 +40,7 @@ const MonthSelector = ({
                 disabled={selectedLocalMonth >= 12}
                 onPress={() => changeMonth(selectedLocalMonth + 1)}
             >
-                <AntDesign name="rightcircle" size={24} color={selectedLocalMonth >= 12 ? 'gray' : 'white'} style={{ paddingHorizontal: 10 }} />
+                <AntDesign name="right-circle" size={24} color={selectedLocalMonth >= 12 ? 'gray' : 'white'} style={{ paddingHorizontal: 10 }} />
             </TouchableOpacity>
         </HStack>
     );
