@@ -53,7 +53,7 @@ export default function RootLayout() {
               </AppProviders>
             </MenuProvider>
           </GestureHandlerRootView>
-          <StatusBar style="auto" />
+          <StatusBar style="auto" backgroundColor="#25292e" translucent={false} />
         </QueryClientProvider>
       </GluestackUIProvider>
     </SafeAreaProvider>

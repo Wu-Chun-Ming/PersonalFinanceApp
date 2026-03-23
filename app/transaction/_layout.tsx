@@ -33,7 +33,7 @@ export default function RootLayout() {
           title: 'Image Scanning',
         }} />
       </Stack>
-      <StatusBar style="light" backgroundColor="transparent" translucent />
+      <StatusBar style="auto" backgroundColor="#25292e" translucent={false} />
     </ScanContext.Provider>
   );
 }

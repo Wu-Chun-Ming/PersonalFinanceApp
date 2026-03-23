@@ -18,7 +18,7 @@ export default function RootLayout() {
           title: 'Goal Settings',
         }} />
       </Stack>
-      <StatusBar style="light" backgroundColor="transparent" translucent />
+      <StatusBar style="auto" backgroundColor="#25292e" translucent={false} />
     </>
   );
 }
