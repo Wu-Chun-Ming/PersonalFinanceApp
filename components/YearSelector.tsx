@@ -23,7 +23,7 @@ const YearSelector = ({
     return (
         <HStack className="justify-center items-center m-2">
             <TouchableOpacity onPress={() => changeYear(selectedLocalYear - 1)}>
-                <AntDesign name="leftcircle" size={24} color={iconColor} style={{ paddingHorizontal: 10 }} />
+                <AntDesign name="left-circle" size={24} color={iconColor} style={{ paddingHorizontal: 10 }} />
             </TouchableOpacity>
 
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
@@ -31,7 +31,7 @@ const YearSelector = ({
             </Text>
 
             <TouchableOpacity onPress={() => changeYear(selectedLocalYear + 1)}>
-                <AntDesign name="rightcircle" size={24} color={iconColor} style={{ paddingHorizontal: 10 }} />
+                <AntDesign name="right-circle" size={24} color={iconColor} style={{ paddingHorizontal: 10 }} />
             </TouchableOpacity>
         </HStack>
     );

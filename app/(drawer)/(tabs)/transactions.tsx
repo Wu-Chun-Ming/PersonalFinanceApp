@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
+import { ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
 import { HStack } from '@/components/ui/hstack';
@@ -67,7 +68,7 @@ const TransactionScreen = () => {
     if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
             <YearSelector
                 onYearChange={(year) => setSelectedYear(year)}
             />
