@@ -66,7 +66,7 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
             android/.gradle
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/build.gradle', 'android/settings.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
@@ -78,41 +78,6 @@ jobs:
             build-tools;35.0.0
             ndk;27.1.12297006
             cmake;3.22.1
-
-      - name: Cache JS Bundle
-        uses: actions/cache@v5
-        with:
-          path: |
-            android/app/build/generated/assets
-            android/app/build/generated/res
-            android/app/build/intermediates
-          key: metro-bundle-${{ runner.os }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', 'package-lock.json') }}
-
-      - name: Cache Native Build Artifacts
-        uses: actions/cache@v5
-        with:
-          path: |
-            android/app/.cxx
-            node_modules/@shopify/react-native-skia/android/.cxx
-            node_modules/expo-modules-core/android/.cxx
-            node_modules/react-native-gesture-handler/android/.cxx
-            node_modules/react-native-reanimated/android/.cxx
-            node_modules/react-native-screens/android/.cxx
-          key: >
-            native-${{ runner.os }}-${{ hashFiles(
-              'android/app/build.gradle',
-              'android/app/CMakeLists.txt',
-              'android/app/src/main/**/*',
-              'modules/**/android/src/**/*',
-              'modules/**/android/CMakeLists.txt',
-              'node_modules/@shopify/react-native-skia/android/**/*',
-              'node_modules/expo-modules-core/android/**/*',
-              'node_modules/react-native-gesture-handler/android/**/*',
-              'node_modules/react-native-reanimated/android/**/*',
-              'node_modules/react-native-screens/android/**/*'
-            ) }}
-          restore-keys: |
-            native-${{ runner.os }}-
 
       - name: Verify important cache folders
         run: |
@@ -151,71 +116,6 @@ jobs:
         working-directory: android
         run: chmod +x ./gradlew
 
-      - name: Cache Gradle task list
-        id: cache-tasks
-        uses: actions/cache@v5
-        with:
-          path: gradle_tasks.txt
-          key: gradle-tasks-${{ runner.os }}-${{ hashFiles('**/build.gradle*') }}
-          restore-keys: gradle-tasks-${{ runner.os }}-
-
-      - name: Check for .cxx and Metro caches
-        working-directory: android
-        run: |
-          if [ -f ../gradle_tasks.txt ]; then
-            echo "✅ Using cached Gradle task list"
-            ALL_TASKS=$(cat ../gradle_tasks.txt)
-          else
-            echo "⚙️ Generating Gradle task list (first run only)"
-            ./gradlew tasks --all > ../gradle_tasks.txt
-            ALL_TASKS=$(cat ../gradle_tasks.txt)
-          fi
-
-          SKIP_TASKS=""
-          NATIVE_SAFE=true
-          MIN_SIZE_KB=1500
-
-          echo "🔍 Checking native cache consistency..."
-          MODULE_PATHS=(
-            "android/app/.cxx"
-            "node_modules/expo-modules-core/android/.cxx"
-            "node_modules/react-native-reanimated/android/.cxx"
-            "node_modules/react-native-gesture-handler/android/.cxx"
-            "node_modules/react-native-screens/android/.cxx"
-          )
-
-          for DIR in "${MODULE_PATHS[@]}"; do
-            if [ -d "$GITHUB_WORKSPACE/$DIR" ]; then
-              SIZE=$(du -sk "$GITHUB_WORKSPACE/$DIR" | cut -f1)
-              echo "✅ Found $DIR — ${SIZE}KB"
-              if [ "$SIZE" -lt "$MIN_SIZE_KB" ]; then
-                echo "⚠️ $DIR cache seems too small, might be incomplete."
-                NATIVE_SAFE=false
-              fi
-            else
-              echo "⚠️ Missing cache folder: $DIR"
-              NATIVE_SAFE=false
-            fi
-          done
-
-          if [ "$NATIVE_SAFE" = true ]; then
-            echo "✅ All native caches look healthy — skipping redundant native build tasks"
-            SKIP_TASKS+=" $(echo "$ALL_TASKS" | grep -E 'buildCMakeRelWithDebInfo|externalNativeBuildRelease' | awk '{print "-x "$1}' | tr '\n' ' ')"
-          else
-            echo "⚠️ Some native caches are missing or incomplete — will rebuild native modules"
-          fi
-
-          echo "---------------------------------------------------"
-          echo "⏩  Skipping Gradle tasks:"
-          if [ -n "$SKIP_TASKS" ]; then
-            echo "  $SKIP_TASKS"
-          else
-            echo "  (none)"
-          fi
-          echo "---------------------------------------------------"
-
-          echo "SKIP_TASKS=$SKIP_TASKS" >> $GITHUB_ENV
-
       - name: Decode keystore
         run: echo "${{ secrets.MYAPP_UPLOAD_STORE_FILE_BASE64 }}" | base64 --decode > android/app/my-upload-key.keystore
 
@@ -230,7 +130,7 @@ jobs:
       - name: Build Release APK
         working-directory: android
         run: |
-          ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
+          ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
