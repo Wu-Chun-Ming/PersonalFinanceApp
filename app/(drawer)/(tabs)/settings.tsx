@@ -1,6 +1,7 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
-import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Gluestack UI
 import { Heading } from "@/components/ui/heading";
@@ -36,7 +37,7 @@ const SettingsScreen = () => {
         <SafeAreaView style={{
             flex: 1,
             paddingHorizontal: 16,
-        }}>
+        }} edges={['bottom']}>
             <Heading size="lg" className="mt-4" underline>Server Configuration</Heading>
 
             <FormGroup

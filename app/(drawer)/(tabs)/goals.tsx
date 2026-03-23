@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
+import { ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import * as Progress from 'react-native-progress';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
 import { Divider } from '@/components/ui/divider';
@@ -159,7 +160,7 @@ const GoalsScreen = () => {
     if (isTransactionsLoading || isTransactionsRefetching || isTransactionsError || isTransactionsRefetchError) return queryState;
 
     return (
-        <SafeAreaView style={{ flex: 1, }}>
+        <SafeAreaView style={{ flex: 1, }} edges={['bottom']}>
             <ScrollView>
                 <HStack className='my-2'>
                     {/* Savings Goal Progress */}

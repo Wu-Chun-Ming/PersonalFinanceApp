@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gluestack UI
 import { Heading } from '@/components/ui/heading';
@@ -111,7 +112,7 @@ const BudgetScreen = () => {
     if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
             {/* Bar Chart */}
             <View style={[styles.centered, {
                 height: "40%",
