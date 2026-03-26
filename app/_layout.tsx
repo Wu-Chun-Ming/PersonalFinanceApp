@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from "react";
+import { initExecutorch } from 'react-native-executorch';
+import { ExpoResourceFetcher } from 'react-native-executorch-expo-resource-fetcher';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { MenuProvider } from 'react-native-popup-menu';
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -18,6 +20,10 @@ import { handleRecurringTransactions } from "@/services/transactionService";
 
 // Initialize QueryClient
 const queryClient = new QueryClient();
+
+initExecutorch({
+  resourceFetcher: ExpoResourceFetcher,
+})
 
 export default function RootLayout() {
   const { lastOpenDate, updateAndRefreshLastOpenDate } = useLastOpenDate();

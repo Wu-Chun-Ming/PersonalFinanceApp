@@ -18,6 +18,7 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import ImageViewer from '@/components/ImageViewer';
 import { DEFAULT_TIMEOUT_SEC } from '@/constants/api';
+import LLMContext from '@/contexts/LLMContext';
 import OcrContext from '@/contexts/OcrContext';
 import { useScanContext } from '@/hooks/useScanContext';
 import { useSettings } from '@/hooks/useSettings';
@@ -45,7 +46,9 @@ const ScanScreen = () => {
         modelConfig,
         isModelConfigured,
     } = useSettings();
-    const model = useContext(OcrContext);
+    const ocrModel = useContext(OcrContext);
+    const llmModel = useContext(LLMContext);
+    const isModelLoading = (ocrModel && !ocrModel.isReady) || (llmModel && !llmModel.isReady);
     const [loading, setLoading] = useState(false);
     const [isSlow, setIsSlow] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -148,14 +151,14 @@ const ScanScreen = () => {
                 Alert.alert('Error', 'Failed to scan image using server OCR. Please try again.');
                 return;
             }
-        } else if (isModelConfigured) {
+        } else if (isModelConfigured && ocrModel && llmModel) {
             try {
                 switch (selectedMode) {
                     case OcrMode.RECEIPT:
                         Alert.alert('Comming Soon', 'Receipt OCR using local model is coming soon!');
                         break;
                     case OcrMode.ONLINE_SHOPPING:
-                        ocrResult = await processOnlineShoppingOcr(model, {
+                        ocrResult = await processOnlineShoppingOcr(ocrModel, llmModel, {
                             uri: imageUri,
                             base64: imageBase64Str,
                         }, {
@@ -204,7 +207,7 @@ const ScanScreen = () => {
     }
 
     useEffect(() => {
-        if (!model?.isReady) return;
+        if (!ocrModel?.isReady || !llmModel?.isReady) return;
 
         if (!isServerConfigured && !isModelConfigured) {
             Alert.alert('Configuration Required', 'Please configure the server or model settings first.', [
@@ -220,10 +223,13 @@ const ScanScreen = () => {
         if (camPerm !== null && libPerm !== null && !permissionsChecked) {
             checkPermissions();
         }
-    }, [model?.isReady, isServerConfigured, isModelConfigured, camPerm, libPerm, permissionsChecked]);
+    }, [ocrModel?.isReady, llmModel?.isReady, isServerConfigured, isModelConfigured, camPerm, libPerm, permissionsChecked]);
 
     // Show model loading progress
-    if (model && !model.isReady) {
+    if (isModelLoading) {
+        const ocrProgress = ocrModel?.downloadProgress ?? 0;
+        const llmProgress = llmModel?.downloadProgress ?? 0;
+
         return (
             <View style={[styles.centered, {
                 position: 'absolute',
@@ -232,13 +238,27 @@ const ScanScreen = () => {
                 zIndex: 1000,
             }]}>
                 <ActivityIndicator size={80} color="#fff" />
-                <Text style={{
-                    marginTop: 20,
-                    fontSize: 18,
-                    color: '#fff',
-                }}>
-                    {`Loading the model ${(model.downloadProgress * 100).toFixed(0)} %`}
-                </Text>
+                {/* OCR */}
+                {ocrModel && !ocrModel.isReady && (
+                    <Text style={{
+                        marginTop: 20,
+                        fontSize: 18,
+                        color: '#fff',
+                    }}>
+                        {`Loading OCR model ${(ocrProgress * 100).toFixed(0)} %`}
+                    </Text>
+                )}
+
+                {/* LLM */}
+                {llmModel && !llmModel.isReady && (
+                    <Text style={{
+                        marginTop: 20,
+                        fontSize: 18,
+                        color: '#fff',
+                    }}>
+                        {`Loading LLM model ${(llmProgress * 100).toFixed(0)} %`}
+                    </Text>
+                )}
             </View>
         );
     }

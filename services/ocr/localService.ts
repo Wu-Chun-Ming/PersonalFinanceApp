@@ -1,5 +1,7 @@
-import { LineItemInfo } from "@/types";
-import { OCRDetection } from "react-native-executorch";
+import { generatePrompt } from "@/ai/prompts/promptTemplate";
+import { EXPENSE_CATEGORIES } from "@/constants/transaction";
+import { LineItemInfo, TransactionMetadata } from "@/types";
+import { LLMTypeMultimodal, OCRDetection } from "react-native-executorch";
 
 // Extract description and total amount locally
 export const extractLineItemInfo = async (
@@ -53,4 +55,25 @@ export const extractLineItemInfo = async (
     }
 
     return results;
+}
+
+export const extractTransactionMetadata = async (
+    llmModel: LLMTypeMultimodal,
+    imageUri: string,
+) => {
+    const prompt = generatePrompt(EXPENSE_CATEGORIES);
+
+    await llmModel.sendMessage(prompt, {
+        imagePath: imageUri,
+    });
+
+    let result: TransactionMetadata[] = [];
+    try {
+        result = JSON.parse(llmModel.response);
+    } catch (parseErr) {
+        console.error("Error parsing JSON from model response:", parseErr);
+        throw new Error("Failed to parse model response.");
+    }
+
+    return result;
 }
