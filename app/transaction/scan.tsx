@@ -1,5 +1,4 @@
-import Fontisto from '@expo/vector-icons/build/Fontisto';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Fontisto, MaterialCommunityIcons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
