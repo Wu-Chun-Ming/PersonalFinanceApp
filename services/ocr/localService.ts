@@ -57,6 +57,20 @@ export const extractLineItemInfo = async (
     return results;
 }
 
+function extractJSON(text: string) {
+    const match = text.match(/\[.*\]/s); // for array JSON
+    return match ? match[0] : text;
+}
+
+function cleanJSON(text: string) {
+    return text
+        .replace(/```json/g, '')   // remove markdown start
+        .replace(/```/g, '')       // remove markdown end
+        .replace(/,\s*]/g, ']')    // remove trailing commas in arrays
+        .replace(/,\s*}/g, '}')    // remove trailing commas in objects
+        .trim();
+}
+
 export const extractTransactionMetadata = async (
     llmModel: LLMTypeMultimodal,
     imageUri: string,
@@ -69,7 +83,10 @@ export const extractTransactionMetadata = async (
 
     let result: TransactionMetadata[] = [];
     try {
-        result = JSON.parse(llmModel.response);
+        const raw = llmModel.response;
+        const extracted = extractJSON(raw);
+        const cleaned = cleanJSON(extracted);
+        result = JSON.parse(cleaned);
     } catch (parseErr) {
         console.error("Error parsing JSON from model response:", parseErr);
         throw new Error("Failed to parse model response.");
