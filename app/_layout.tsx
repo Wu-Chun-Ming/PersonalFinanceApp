@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { initExecutorch } from 'react-native-executorch';
 import { ExpoResourceFetcher } from 'react-native-executorch-expo-resource-fetcher';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { MenuProvider } from 'react-native-popup-menu';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Gluestack UI
@@ -45,7 +44,6 @@ export default function RootLayout() {
       <GluestackUIProvider mode="light">
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <MenuProvider>
               <AppProviders>
                 <Stack
                   screenOptions={{
@@ -57,7 +55,6 @@ export default function RootLayout() {
                   <Stack.Screen name="goal" />
                 </Stack>
               </AppProviders>
-            </MenuProvider>
           </GestureHandlerRootView>
           <StatusBar style="auto" backgroundColor="#25292e" translucent={false} />
         </QueryClientProvider>

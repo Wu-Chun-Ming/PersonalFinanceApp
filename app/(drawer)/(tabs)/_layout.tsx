@@ -4,17 +4,16 @@ import { Tabs, useNavigation } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import {
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-} from 'react-native-popup-menu';
 
 // Gluestack UI
 import { Button, ButtonText } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
+import {
+  Menu,
+  MenuItem,
+  MenuItemLabel,
+} from '@/components/ui/menu';
 import {
   Modal,
   ModalBackdrop,
@@ -25,7 +24,6 @@ import {
 } from '@/components/ui/modal';
 
 // Custom import
-import styles from '@/app/styles';
 import FormGroup from '@/components/FormGroup';
 import useShowToast from '@/hooks/useShowToast';
 import { useImportTransactions } from '@/hooks/useTransactions';
@@ -57,34 +55,36 @@ export default function TabLayout() {
   const renderMoreOptions = () => {
     return (
       <View>
-        <Menu>
-          <MenuTrigger>
-            <Feather name="more-vertical" size={25} color="white" style={{ marginRight: 10 }} />
-          </MenuTrigger>
-          <MenuOptions customStyles={{
-            optionsContainer: {
-              width: 'auto',
-            },
-            optionText: styles.text,
-            optionWrapper: {
-              padding: 15,
-            },
-          }}>
-            <MenuOption
-              onSelect={() => {
-                setActionType('export');
-                setModalVisible(true);
-              }}
-              text="Export All Transactions"
-            />
-            <MenuOption
-              onSelect={() => {
-                setActionType('import');
-                setModalVisible(true);
-              }}
-              text="Import Transactions"
-            />
-          </MenuOptions>
+        <Menu
+          offset={-30}
+          trigger={({ ...triggerProps }) => {
+            return (
+              <Pressable {...triggerProps}>
+                <Feather name="more-vertical" size={25} color="white" style={{ marginRight: 10 }} />
+              </Pressable>
+            );
+          }}
+        >
+          <MenuItem
+            key="Export"
+            textValue="Export All Transactions"
+            onPress={() => {
+              setActionType('export');
+              setModalVisible(true);
+            }}
+          >
+            <MenuItemLabel size="md">Export All Transactions</MenuItemLabel>
+          </MenuItem>
+          <MenuItem
+            key="import"
+            textValue="Import Transactions"
+            onPress={() => {
+              setActionType('import');
+              setModalVisible(true);
+            }}
+          >
+            <MenuItemLabel size="md">Import Transactions</MenuItemLabel>
+          </MenuItem>
         </Menu>
 
         {/* Export/Import Transactions Modal */}
