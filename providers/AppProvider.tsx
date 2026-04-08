@@ -1,3 +1,4 @@
+import { LLMProvider } from "@/contexts/LLMContext";
 import { ModelProvider } from "@/contexts/ModelContext";
 import { OcrProvider } from "@/contexts/OcrContext";
 import { ServerProvider } from "@/contexts/ServerContext";
@@ -7,9 +8,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
     return (
         <ServerProvider>
             <ModelProvider>
-                <OcrProvider>
-                    {children}
-                </OcrProvider>
+                <LLMProvider>
+                    <OcrProvider>
+                        {children}
+                    </OcrProvider>
+                </LLMProvider>
             </ModelProvider>
         </ServerProvider>
     );
