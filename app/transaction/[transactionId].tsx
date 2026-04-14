@@ -61,7 +61,7 @@ const TransactionManager = () => {
             setTransactionType(transaction.type);
             // Set the formik values
             formik.setValues({
-                date: transaction.date ? transaction.date.toString() : '',
+                date: transaction.date ? [transaction.date.toString()] : [''],
                 type: transaction.type,
                 category: transaction.category,
                 amount: transaction.amount.toString(),
@@ -180,7 +180,7 @@ const TransactionManager = () => {
                             onPress={() => {
                                 formik.setValues({
                                     ...formik.values,
-                                    date: formik.values.date ? '' : new Date().toString(),
+                                    date: formik.values.date.length > 0 ? [] : [new Date().toString()],
                                     recurring: !formik.values.recurring,
                                 });
                             }}

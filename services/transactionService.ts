@@ -2,10 +2,11 @@ import {
     destroyTransaction,
     getTransactions,
     showTransaction,
+    storeBatchTransactions,
     storeTransaction,
     updateTransaction,
 } from "@/database/transactionDatabase";
-import { TransactionProps } from "@/types";
+import { TransactionMultiDateProps, TransactionProps } from "@/types";
 import { Parser } from '@json2csv/plainjs';
 import { csv } from 'csvtojson';
 import * as DocumentPicker from 'expo-document-picker';
@@ -24,9 +25,9 @@ export const fetchTransaction = async (id: number) => {
     return response.data;
 };
 
-// Create transaction
-export const createTransaction = async (newTransactionData: TransactionProps) => {
-    const response = await storeTransaction(newTransactionData);
+// Create transactions
+export const createTransactions = async (newBatchTransactionData: TransactionProps | TransactionMultiDateProps) => {
+    const response = await storeBatchTransactions(newBatchTransactionData);
     return response.data;
 }
 

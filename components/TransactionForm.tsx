@@ -51,7 +51,10 @@ const TransactionForm = ({
                 label='Date'
                 isInvalid={Boolean(formik.errors.date && formik.touched.date)}
                 isRequired={true}
-                errorText={formik.errors.date}
+                errorText={Array.isArray(formik.errors.date)
+                    ? formik.errors.date.join(", ")
+                    : formik.errors.date
+                }
             >
                 <Input
                     className="text-center"
@@ -62,7 +65,12 @@ const TransactionForm = ({
                     >
                         <InputField
                             type="text"
-                            value={dayjs((formik.values.date)).format('YYYY-MM-DD')}
+                            value={formik.values.date
+                                .slice(0, 2)
+                                .map(d => dayjs(d).format('YYYY-MM-DD'))
+                                .join(', ') +
+                                (formik.values.date?.length > 2 ? ` (+ ${formik.values.date.length - 2} more)` : '')
+                            }
                             placeholder='YYYY-MM-DD'
                             inputMode='text'
                         />

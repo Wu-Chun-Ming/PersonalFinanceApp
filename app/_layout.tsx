@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { initExecutorch } from 'react-native-executorch';
 import { ExpoResourceFetcher } from 'react-native-executorch-expo-resource-fetcher';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { en, registerTranslation } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Gluestack UI
@@ -20,6 +21,10 @@ import { handleRecurringTransactions } from "@/services/transactionService";
 // Initialize QueryClient
 const queryClient = new QueryClient();
 
+// Register translations for react-native-paper-dates
+registerTranslation('en', en)
+
+// Initialize Executorch with ExpoResourceFetcher
 initExecutorch({
   resourceFetcher: ExpoResourceFetcher,
 })

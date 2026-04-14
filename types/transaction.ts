@@ -87,3 +87,7 @@ export type TransactionProps = BaseTransactionProps & {
     type: TransactionTypeValue;
     category: TransactionCategoryType;
 };
+
+export type TransactionMultiDateProps = Omit<TransactionProps, 'date'> & {
+    date: Date[] | null;
+};
