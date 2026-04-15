@@ -181,14 +181,10 @@ export const handleRecurringTransactions = async (
                 // Generate dates using RRule
                 const rule = RRule.fromString(rruleStr);
                 // Create transactions for each generated date
-                for (const recurringDate of rule.all()) {
-                    await createTransaction({
-                        ...transaction,
-                        date: recurringDate,
-                        recurring: false,
-                        recurring_frequency: null,
-                    });
-                }
+                await createTransactions({
+                    ...transaction,
+                    date: rule.all()
+                });
             }
         }
     } catch (error) {
