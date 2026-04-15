@@ -2,7 +2,7 @@ import { mockTransactions } from "@/__mocks__/mockData";
 import useShowToast from "@/hooks/useShowToast";
 import { useCreateTransaction, useDeleteTransaction, useTransaction, useTransactions, useUpdateTransaction } from "@/hooks/useTransactions";
 import {
-	createTransaction,
+	createTransactions,
 	deleteTransaction,
 	editTransaction,
 	fetchTransaction,
@@ -30,7 +30,7 @@ jest.mock('@/hooks/useShowToast', () => ({
 jest.mock("@/services/transactionService", () => ({
 	fetchTransaction: jest.fn(),
 	fetchTransactions: jest.fn(),
-	createTransaction: jest.fn(),
+	createTransactions: jest.fn(),
 	editTransaction: jest.fn(),
 	deleteTransaction: jest.fn(),
 }));
@@ -140,7 +140,7 @@ describe('useCreateTransaction', () => {
 		const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 		const mockShowToast = jest.fn();
 		(useShowToast as jest.Mock).mockReturnValue(mockShowToast);
-		(createTransaction as jest.Mock).mockResolvedValue({
+		(createTransactions as jest.Mock).mockResolvedValue({
 			success: true,
 			messages: 'Transaction created successfully',
 		});
@@ -164,7 +164,7 @@ describe('useCreateTransaction', () => {
 		const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 		const mockShowToast = jest.fn();
 		(useShowToast as jest.Mock).mockReturnValue(mockShowToast);
-		(createTransaction as jest.Mock).mockResolvedValue({
+		(createTransactions as jest.Mock).mockResolvedValue({
 			success: false,
 			messages: 'Failed to create transaction',
 		});
@@ -187,7 +187,7 @@ describe('useCreateTransaction', () => {
 		const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 		const mockShowToast = jest.fn();
 		(useShowToast as jest.Mock).mockReturnValue(mockShowToast);
-		(createTransaction as jest.Mock).mockRejectedValue(new Error("createTransaction error"));
+		(createTransactions as jest.Mock).mockRejectedValue(new Error("createTransactions error"));
 
 		const { result } = renderHook(() => useCreateTransaction(), { wrapper });
 		await act(async () => {
@@ -197,7 +197,7 @@ describe('useCreateTransaction', () => {
 		await waitFor(() => {
 			expect(mockShowToast).toHaveBeenCalledWith({
 				action: 'warning',
-				messages: 'createTransaction error',
+				messages: 'createTransactions error',
 			});
 			expect(invalidateSpy).not.toHaveBeenCalled();
 		});

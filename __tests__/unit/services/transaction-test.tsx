@@ -5,11 +5,11 @@ import {
     destroyTransaction,
     getTransactions,
     showTransaction,
-    storeTransaction,
+    storeBatchTransactions,
     updateTransaction,
 } from "@/database/transactionDatabase";
 import {
-    createTransaction,
+    createTransactions,
     deleteTransaction,
     editTransaction,
     fetchTransaction,
@@ -21,6 +21,7 @@ jest.mock("@/database/transactionDatabase", () => ({
     getTransactions: jest.fn(),
     showTransaction: jest.fn(),
     storeTransaction: jest.fn(),
+    storeBatchTransactions: jest.fn(),
     updateTransaction: jest.fn(),
     destroyTransaction: jest.fn(),
 }));
@@ -49,11 +50,11 @@ test('should returns response.data when creating transaction', async () => {
         success: true,
         messages: "Transaction created successfully",
     };
-    (storeTransaction as jest.Mock).mockResolvedValue({ data: response });
+    (storeBatchTransactions as jest.Mock).mockResolvedValue({ data: response });
 
-    const result = await createTransaction(mockTransactions[0]);
+    const result = await createTransactions(mockTransactions[0]);
 
-    expect(storeTransaction).toHaveBeenCalled();
+    expect(storeBatchTransactions).toHaveBeenCalled();
     expect(result).toEqual(response);
 });
 
