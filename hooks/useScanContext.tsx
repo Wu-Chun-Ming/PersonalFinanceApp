@@ -1,4 +1,4 @@
-import { ScanContext } from '@/app/transaction/_layout';
+import ScanContext from '@/contexts/ScanContext';
 import { useContext } from 'react';
 
 export const useScanContext = () => {

@@ -1,20 +1,10 @@
-import { TransactionFormikProps } from '@/hooks/useTransactionsFormik';
+import { ScanProvider } from '@/contexts/ScanContext';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { createContext, useState } from 'react';
-
-interface ScanContextType {
-  scannedData: TransactionFormikProps[];
-  setScannedData: React.Dispatch<React.SetStateAction<TransactionFormikProps[]>>;
-}
-
-export const ScanContext = createContext<ScanContextType | undefined>(undefined);
 
 export default function RootLayout() {
-  const [scannedData, setScannedData] = useState<TransactionFormikProps[]>([]);
-
   return (
-    <ScanContext.Provider value={{ scannedData, setScannedData }}>
+    <ScanProvider>
       <Stack
         screenOptions={{
           headerStyle: {
@@ -34,6 +24,6 @@ export default function RootLayout() {
         }} />
       </Stack>
       <StatusBar style="auto" backgroundColor="#25292e" translucent={false} />
-    </ScanContext.Provider>
+    </ScanProvider>
   );
 }
