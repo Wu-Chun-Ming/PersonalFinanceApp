@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,8 +17,8 @@ import { VStack } from '@/components/ui/vstack';
 import styles from '@/app/styles';
 import ImageViewer from '@/components/ImageViewer';
 import { DEFAULT_TIMEOUT_SEC } from '@/constants/api';
-import LLMContext from '@/contexts/LLMContext';
-import OcrContext from '@/contexts/OcrContext';
+import { useLLMContext } from '@/hooks/useLLMContext';
+import { useOCRContext } from '@/hooks/useOCRContext';
 import { useScanContext } from '@/hooks/useScanContext';
 import { useSettings } from '@/hooks/useSettings';
 import {
@@ -45,8 +45,8 @@ const ScanScreen = () => {
         modelConfig,
         isModelConfigured,
     } = useSettings();
-    const ocrModel = useContext(OcrContext);
-    const llmModel = useContext(LLMContext);
+    const ocrModel = useOCRContext();
+    const llmModel = useLLMContext();
     const isModelLoading = (ocrModel && !ocrModel.isReady) || (llmModel && !llmModel.isReady);
     const [loading, setLoading] = useState(false);
     const [isSlow, setIsSlow] = useState(false);

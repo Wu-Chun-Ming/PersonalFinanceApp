@@ -1,6 +1,6 @@
 import { LLMProvider } from "@/contexts/LLMContext";
 import { ModelProvider } from "@/contexts/ModelContext";
-import { OcrProvider } from "@/contexts/OcrContext";
+import { OCRProvider } from "@/contexts/OCRContext";
 import { ServerProvider } from "@/contexts/ServerContext";
 import { ReactNode } from "react";
 
@@ -9,9 +9,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
         <ServerProvider>
             <ModelProvider>
                 <LLMProvider>
-                    <OcrProvider>
+                    <OCRProvider>
                         {children}
-                    </OcrProvider>
+                    </OCRProvider>
                 </LLMProvider>
             </ModelProvider>
         </ServerProvider>

@@ -8,16 +8,16 @@ import {
     useOCR,
 } from 'react-native-executorch';
 
-const OcrContext = createContext<OCRType | undefined>(undefined);
+const OCRContext = createContext<OCRType | undefined>(undefined);
 
-export const OcrProvider = ({ children }: { children: ReactNode }) => {
+export const OCRProvider = ({ children }: { children: ReactNode }) => {
     const ocrModel = useOCR({ model: OCR_ENGLISH });
 
     return (
-        <OcrContext.Provider value={ocrModel}>
+        <OCRContext.Provider value={ocrModel}>
             {children}
-        </OcrContext.Provider>
+        </OCRContext.Provider>
     );
 };
 
-export default OcrContext;
+export default OCRContext;
