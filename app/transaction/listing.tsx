@@ -51,7 +51,7 @@ const TransactionListScreen = () => {
 
     // Formik setup
     const { transactionFilterFormik: formik } = useTransactionFilterFormik({
-        date: date?.toString(),
+        date: date ? (Array.isArray(date) ? date : [date]) : [],
         type: type?.toString(),
         category: category?.toString(),
         amount: amount?.toString(),
@@ -59,8 +59,12 @@ const TransactionListScreen = () => {
         frequency: frequency?.toString(),
     });
 
+    const dates = formik.values.date;
+    const hasMultipleDates = dates.length > 1;
     const filteredTransactions = useFilteredTransactions(transactions ?? [], {
-        date: formik.values.date ? new Date(formik.values.date) : undefined,
+        date: dates.length === 1 ? new Date(dates[0]) : undefined,
+        startDate: hasMultipleDates ? new Date(dates[0]) : undefined,
+        endDate: hasMultipleDates ? new Date(dates[dates.length - 1]) : undefined,
         type: formik.values.type ? formik.values.type as TransactionTypeValue : undefined,
         category: formik.values.category ? formik.values.category as (typeof EXPENSE_CATEGORIES[number] | typeof INCOME_CATEGORIES[number]) : undefined,
         amount: formik.values.amount ? Number(formik.values.amount) : undefined,

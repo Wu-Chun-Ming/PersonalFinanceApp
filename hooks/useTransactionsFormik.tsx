@@ -112,7 +112,7 @@ export const useTransactionFormik = (
 };
 
 interface TransactionFilterFormikProps {
-    date?: string;
+    date?: string[];
     type?: string | TransactionTypeValue | '';
     category?: string | TransactionCategoryType | '';
     amount?: string;
@@ -130,7 +130,7 @@ export const useTransactionFilterFormik = ({
 }: TransactionFilterFormikProps) => {
     const transactionFilterFormik = useCustomFormik({
         initialValues: {
-            date: date || '',
+            date: date || [],
             type: type || '',
             category: category || '',
             amount: amount || '',
