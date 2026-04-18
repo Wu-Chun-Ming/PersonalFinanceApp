@@ -2,7 +2,7 @@ import {
     RecurringDay,
     RecurringFrequency,
     TransactionCategoryType,
-    TransactionProps,
+    TransactionMultiDateProps,
     TransactionType,
     TransactionTypeValue,
 } from "@/types";
@@ -14,7 +14,7 @@ import { useCustomFormik } from "./useAppFormik";
 import { useCreateTransaction, useUpdateTransaction } from "./useTransactions";
 
 export interface TransactionFormikProps {
-    date: string;
+    date: string[];
     type: TransactionTypeValue;
     category: string;
     amount: string;
@@ -43,7 +43,7 @@ export const useTransactionFormik = (
 
     const transactionFormik = useCustomFormik({
         initialValues: initialTransaction || {
-            date: new Date().toString(),
+            date: [new Date().toString()],
             type: TransactionType.EXPENSE,
             category: '',
             amount: '',
@@ -62,9 +62,9 @@ export const useTransactionFormik = (
             () => getTransactionSchema(transactionType),
             [transactionType]
         ),
-        transformValues: (values: TransactionFormikProps): TransactionProps => ({
+        transformValues: (values: TransactionFormikProps): TransactionMultiDateProps => ({
             ...values,
-            date: !values.recurring ? new Date(values.date) : null,
+            date: !values.recurring ? values.date.map((d) => new Date(d)) : null,
             type: transactionType,
             category: values.category as TransactionCategoryType,
             amount: Number(values.amount),
@@ -78,7 +78,7 @@ export const useTransactionFormik = (
                     },
                 } : null,
         }),
-        onSubmitCallback: (transformedTransactionData: TransactionProps) => {
+        onSubmitCallback: (transformedTransactionData: TransactionMultiDateProps) => {
             switch (formAction) {
                 case 'create':
                     createMutation.mutate(transformedTransactionData);
@@ -94,7 +94,12 @@ export const useTransactionFormik = (
                 case 'update':
                     updateMutation.mutate({
                         id: Number(transactionId),
-                        updatedTransactionData: transformedTransactionData
+                        updatedTransactionData: {
+                            ...transformedTransactionData,
+                            date: Array.isArray(transformedTransactionData.date) 
+                                ? transformedTransactionData.date[0]
+                                : transformedTransactionData.date,
+                        }
                     });
                     break;
             }
@@ -107,7 +112,7 @@ export const useTransactionFormik = (
 };
 
 interface TransactionFilterFormikProps {
-    date?: string;
+    date?: string[];
     type?: string | TransactionTypeValue | '';
     category?: string | TransactionCategoryType | '';
     amount?: string;
@@ -125,7 +130,7 @@ export const useTransactionFilterFormik = ({
 }: TransactionFilterFormikProps) => {
     const transactionFilterFormik = useCustomFormik({
         initialValues: {
-            date: date || '',
+            date: date || [],
             type: type || '',
             category: category || '',
             amount: amount || '',

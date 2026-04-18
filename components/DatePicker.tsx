@@ -1,6 +1,5 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
-import dayjs from 'dayjs';
 import { FormikValues, getIn } from 'formik';
+import { DatePickerModal } from 'react-native-paper-dates';
 
 interface DateModalProps {
     visible?: boolean;
@@ -19,26 +18,26 @@ const DatePicker = ({
 }: DateModalProps) => {
     if (!visible) return null;
 
-    const fieldValue = getIn(formik.values, fieldName);
-    const currentDate = fieldValue ? new Date(fieldValue) : new Date();
+    const fieldValue: string[] = getIn(formik.values, fieldName);
+    const dates = fieldValue ? fieldValue.map((d: string) => new Date(d)) : [new Date()];
 
     return (
-        <DateTimePicker
-            value={currentDate}
-            mode='date'
-            minimumDate={minimumDate}
-            onChange={(event, selectedDate) => {
-                // If user selected date and pressed OK
-                if (event.type === 'set' && selectedDate) {
-                    formik.setFieldValue(
-                        fieldName,
-                        dayjs(selectedDate).format('YYYY-MM-DD')
-                    );
-                }
-                onClose?.();
+        <DatePickerModal
+            locale='en'
+            mode='multiple'
+            visible={visible}
+            onDismiss={() => onClose?.()}
+            dates={dates}
+            onConfirm={({ dates }) => {
+                formik.setFieldValue(
+                    fieldName,
+                    dates.map((d) => d.toString())
+                );
+            }}
+            validRange={{
+                startDate: minimumDate,
             }}
         />
-
     );
 }
 

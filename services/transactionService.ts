@@ -2,14 +2,15 @@ import {
     destroyTransaction,
     getTransactions,
     showTransaction,
+    storeBatchTransactions,
     storeTransaction,
     updateTransaction,
 } from "@/database/transactionDatabase";
-import { TransactionProps } from "@/types";
+import { TransactionMultiDateProps, TransactionProps } from "@/types";
 import { Parser } from '@json2csv/plainjs';
 import { csv } from 'csvtojson';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
+import { Directory, File } from 'expo-file-system';
 import { RRule } from 'rrule';
 
 // Fetch transactions
@@ -24,9 +25,9 @@ export const fetchTransaction = async (id: number) => {
     return response.data;
 };
 
-// Create transaction
-export const createTransaction = async (newTransactionData: TransactionProps) => {
-    const response = await storeTransaction(newTransactionData);
+// Create transactions
+export const createTransactions = async (newBatchTransactionData: TransactionProps | TransactionMultiDateProps) => {
+    const response = await storeBatchTransactions(newBatchTransactionData);
     return response.data;
 }
 
@@ -68,37 +69,30 @@ export const exportAllTransactions = async (fileType: 'json' | 'csv') => {
 
     try {
         // Ask user to pick a folder
-        const folderUri = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-        if (!folderUri.granted) {
+        const directory = await Directory.pickDirectoryAsync();
+        if (!directory) {
             return {
                 success: false,
-                messages: 'Permission to access storage was denied.'
-            }
+                messages: 'No directory selected.',
+            };
         }
 
-        const filename = 'exported_transactions.' + fileType;
+        const filename = 'exported_transactions';
         const mimeType = (fileType === 'json') ? 'application/json' : 'text/csv';
-        const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
-            folderUri.directoryUri,
-            filename,
-            mimeType
-        );
+        const file = directory.createFile(filename, mimeType);
 
-        // Write the file
-        await FileSystem.StorageAccessFramework.writeAsStringAsync(fileUri, transactionData, {
-            encoding: FileSystem.EncodingType.UTF8,
-        });
+        // Write the content
+        file.write(transactionData);
 
         // Make sure the file exists
-        const fileInfo = await FileSystem.getInfoAsync(fileUri);
-        if (!fileInfo.exists) {
+        if (!file.exists) {
             throw new Error('File was not created successfully.');
         }
 
         // Return success message
         return {
             success: true,
-            messages: `Transaction data exported successfully as ${filename}`
+            messages: `Transaction data exported successfully as ${filename}.${fileType}`
         }
     } catch (error) {
         throw new Error(`Error exporting transactions: ${(error as Error).message}`);
@@ -116,9 +110,8 @@ export const importTransactions = async (fileType: 'json' | 'csv') => {
     // If user picked a file
     if (!result.canceled) {
         // Read the file content
-        const fileContent = await FileSystem.readAsStringAsync(result.assets[0].uri, {
-            encoding: FileSystem.EncodingType.UTF8,
-        });
+        const file = new File(result.assets[0].uri);
+        const fileContent = await file.text();
 
         let transactionData;
         // Parse the file content based on file type
@@ -188,14 +181,10 @@ export const handleRecurringTransactions = async (
                 // Generate dates using RRule
                 const rule = RRule.fromString(rruleStr);
                 // Create transactions for each generated date
-                for (const recurringDate of rule.all()) {
-                    await createTransaction({
-                        ...transaction,
-                        date: recurringDate,
-                        recurring: false,
-                        recurring_frequency: null,
-                    });
-                }
+                await createTransactions({
+                    ...transaction,
+                    date: rule.all()
+                });
             }
         }
     } catch (error) {

@@ -1,6 +1,6 @@
 import { CATEGORY_COLORS } from "@/constants/colors";
 import {
-    createTransaction,
+    createTransactions,
     deleteTransaction,
     editTransaction,
     fetchTransaction,
@@ -9,6 +9,7 @@ import {
 } from "@/services/transactionService";
 import {
     TransactionCategoryType,
+    TransactionMultiDateProps,
     TransactionProps,
     TransactionType,
     TransactionTypeValue,
@@ -49,7 +50,7 @@ export const useTransaction = (transactionId: number) => {
 // Custom hook to create a transaction
 export const useCreateTransaction = () => {
     return useCustomMutation({
-        mutationFn: (newTransactionData: TransactionProps) => createTransaction(newTransactionData),
+        mutationFn: (newTransactionData: TransactionProps | TransactionMultiDateProps) => createTransactions(newTransactionData),
         invalidateKeys: () => [['transactions']],       // Invalidate transactions query on success
         onInvalidationComplete: () => router.back(),    // Navigate to previous page after creating transaction
     });

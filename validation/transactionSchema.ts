@@ -45,7 +45,7 @@ export const transactionFilterSchema = Yup.object().shape({
 });
 
 export const getTransactionSchema = (transactionType: TransactionTypeValue) => Yup.object().shape({
-    date: Yup.date()
+    date: Yup.array().of(Yup.date())
         .when(['recurring'], ([recurring], schema) => {
             return recurring === false
                 ? schema.required('Date is required')

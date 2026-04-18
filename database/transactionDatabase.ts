@@ -2,7 +2,7 @@ import { getDatabaseInstance } from '@/database/init';
 import * as SQLite from 'expo-sqlite';
 
 // Custom import
-import { TransactionProps } from '@/types';
+import { TransactionMultiDateProps, TransactionProps } from '@/types';
 
 // Fetch all transaction
 export const getTransactions = async (dbInstance?: SQLite.SQLiteDatabase) => {
@@ -100,6 +100,51 @@ export const storeTransaction = async (transaction: TransactionProps, dbInstance
     } catch (error) {
         throw new Error(`Error creating transaction: ${(error as Error).message}`);
     }
+};
+
+export const storeBatchTransactions = async (transaction: TransactionProps | TransactionMultiDateProps, dbInstance?: SQLite.SQLiteDatabase) => {
+    const db = dbInstance || (await getDatabaseInstance());
+
+    let result:
+        | { data: { success: boolean; messages: string } }
+        | undefined;
+    await db.withTransactionAsync(async () => {
+        // SINGLE / MULTIPLE DATES
+        if (transaction.date) {
+            const dates = Array.isArray(transaction.date) ? transaction.date : [transaction.date];
+            const results = await Promise.all(
+                dates.map((date) =>
+                    storeTransaction({
+                        ...transaction,
+                        date,
+                    }, db)
+                )
+            );
+
+            const successCount = results.filter(r => r.data.success).length;
+            const failCount = results.length - successCount;
+
+            result = {
+                data: {
+                    success: failCount === 0,
+                    messages: failCount === 0
+                        ? `${successCount} transaction${successCount === 1 ? '' : 's'} created successfully`
+                        : `${successCount} succeeded, ${failCount} failed to create`,
+                },
+            };
+
+            return;
+        } else {
+            // RECURRING
+            result = await storeTransaction(transaction as TransactionProps, db);
+        }
+    });
+
+    if (!result) {
+        throw new Error(`Error creating batch transactions`);
+    }
+
+    return result;
 };
 
 // Update transaction details

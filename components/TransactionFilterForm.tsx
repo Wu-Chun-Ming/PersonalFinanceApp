@@ -20,7 +20,7 @@ import {
 import DatePicker from "./DatePicker";
 
 interface FilterValues {
-    date: string;
+    date: string[];
     type: string;
     category: string;
     amount: string;
@@ -39,6 +39,14 @@ const TransactionFilterForm = ({
 }: TransactionFilterFormProps) => {
     const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
 
+    const dates = formik.values.date || [];
+    const hasDates = dates.length > 0;
+
+    const startDate = hasDates ? dayjs(dates[0]).format('YYYY-MM-DD') : null;
+    const endDate = dates.length > 1
+        ? dayjs(dates[dates.length - 1]).format('YYYY-MM-DD')
+        : null;
+
     return (
         <>
             <Collapsible collapsed={isCollapsed}>
@@ -47,70 +55,78 @@ const TransactionFilterForm = ({
                         backgroundColor: '#fff',
                     }}
                 >
-                    {/* Date & Type */}
-                    <HStack style={{
-                        margin: 5,
-                    }}>
-                        {/* Date */}
-                        <HStack style={[{
-                            width: '45%',
+                    {/* Date */}
+                    <HStack
+                        style={[{
+                            margin: 5,
                             alignItems: 'center',
-                            marginRight: '5%',
                             padding: 10,
                             backgroundColor: '#d8e0e6ff',
                             borderRadius: 10,
-                        }]}>
-                            <Text style={[styles.boldText, {
-                                marginRight: 10,
-                            }]}>Date:</Text>
-                            <TouchableOpacity
-                                onPress={() => setDateModalVisible(true)}
-                                style={styles.centeredFlex}
-                            >
-                                <Text style={[styles.text]}>
-                                    {formik.values.date ? dayjs(formik.values.date).format('YYYY-MM-DD') : 'Select date'}
-                                </Text>
-                            </TouchableOpacity>
-                        </HStack>
+                        }]}
+                    >
+                        <Text style={[styles.boldText, {
+                            marginRight: 10,
+                        }]}>Date:</Text>
+                        <TouchableOpacity
+                            onPress={() => setDateModalVisible(true)}
+                            style={{
+                                flex: 1,
+                            }}
+                        >
+                            {hasDates ? (
+                                <HStack style={{ justifyContent: 'space-evenly' }}>
+                                    <Text style={styles.text}>{startDate}</Text>
+                                    {endDate && <Text style={styles.text}> to </Text>}
+                                    {endDate && <Text style={styles.text}>{endDate}</Text>}
+                                </HStack>
+                            ) : (
+                                <Text style={[styles.text, styles.centeredFlex, {
+                                    textAlign: 'center',
+                                }]}>Select date</Text>
+                            )}
+                        </TouchableOpacity>
+                    </HStack>
 
-                        {/* Type */}
-                        <HStack style={[{
-                            width: '50%',
+                    {/* Type */}
+                    <HStack
+                        style={[{
+                            margin: 5,
                             alignItems: 'center',
                             padding: 10,
                             backgroundColor: '#d8e0e6ff',
                             borderRadius: 10,
-                        }]}>
-                            <Text style={[styles.boldText, {
-                                marginRight: 10,
-                            }]}>Type:</Text>
-                            <Dropdown
-                                data={[
-                                    { label: 'All', value: '' },
-                                    ...TRANSACTION_TYPES.map((type) => ({
-                                        label: type.charAt(0).toUpperCase() + type.slice(1),
-                                        value: type,
-                                    }))
-                                ]}
-                                placeholder='...'
-                                placeholderStyle={{
-                                    textAlign: 'center',
-                                }}
-                                labelField="label"
-                                valueField="value"
-                                value={formik.values.type.toString()}
-                                onChange={(item) => formik.setFieldValue('type', item.value)}
-                                style={{
-                                    flex: 1,
-                                }}
-                                selectedTextStyle={{
-                                    textAlign: 'center',
-                                }}
-                                itemTextStyle={[styles.text, {
-                                    textAlign: 'center',
-                                }]}
-                            />
-                        </HStack>
+                        }]}
+                    >
+                        <Text style={[styles.boldText, {
+                            marginRight: 10,
+                        }]}>Type:</Text>
+                        <Dropdown
+                            data={[
+                                { label: 'All', value: '' },
+                                ...TRANSACTION_TYPES.map((type) => ({
+                                    label: type.charAt(0).toUpperCase() + type.slice(1),
+                                    value: type,
+                                }))
+                            ]}
+                            placeholder='...'
+                            placeholderStyle={{
+                                textAlign: 'center',
+                            }}
+                            labelField="label"
+                            valueField="value"
+                            value={formik.values.type.toString()}
+                            onChange={(item) => formik.setFieldValue('type', item.value)}
+                            style={{
+                                flex: 1,
+                            }}
+                            selectedTextStyle={{
+                                textAlign: 'center',
+                            }}
+                            itemTextStyle={[styles.text, {
+                                textAlign: 'center',
+                            }]}
+                        />
                     </HStack>
 
                     {/* Category */}
@@ -155,13 +171,15 @@ const TransactionFilterForm = ({
                     </HStack>
 
                     {/* Amount */}
-                    <HStack style={[{
-                        margin: 5,
-                        alignItems: 'center',
-                        padding: 10,
-                        backgroundColor: '#d8e0e6ff',
-                        borderRadius: 10,
-                    }]}>
+                    <HStack
+                        style={[{
+                            margin: 5,
+                            alignItems: 'center',
+                            padding: 10,
+                            backgroundColor: '#d8e0e6ff',
+                            borderRadius: 10,
+                        }]}
+                    >
                         <Text style={[styles.boldText, {
                             marginRight: 10,
                         }]}>Amount:</Text>
@@ -267,7 +285,7 @@ const TransactionFilterForm = ({
                         onPress={() => {
                             formik.resetForm({
                                 values: {
-                                    date: '',
+                                    date: [],
                                     type: '',
                                     category: '',
                                     amount: '',

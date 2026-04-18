@@ -1,10 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { getLocales } from 'expo-localization';
 import { Stack } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from "react";
 import { initExecutorch } from 'react-native-executorch';
 import { ExpoResourceFetcher } from 'react-native-executorch-expo-resource-fetcher';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { en, registerTranslation, zh } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Gluestack UI
@@ -20,9 +22,27 @@ import { handleRecurringTransactions } from "@/services/transactionService";
 // Initialize QueryClient
 const queryClient = new QueryClient();
 
+// Register translations for react-native-paper-dates
+const locale = getLocales()[0];
+const languageTag = locale.languageTag;
+const translations = {
+  en,
+  zh,
+}
+const map: Record<string, keyof typeof translations> = {
+  'en-US': 'en',
+  'en-GB': 'en',
+  'zh-CN': 'zh',
+  'zh-SG': 'zh',
+}
+const languageCode = map[languageTag] || locale.languageCode || 'en';
+
+registerTranslation(languageCode, translations[languageCode] || en);
+
+// Initialize Executorch with ExpoResourceFetcher
 initExecutorch({
   resourceFetcher: ExpoResourceFetcher,
-})
+});
 
 export default function RootLayout() {
   const { lastOpenDate, updateAndRefreshLastOpenDate } = useLastOpenDate();
@@ -44,17 +64,17 @@ export default function RootLayout() {
       <GluestackUIProvider mode="light">
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
-              <AppProviders>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                  }}
-                >
-                  <Stack.Screen name="(drawer)" />
-                  <Stack.Screen name="transaction" />
-                  <Stack.Screen name="goal" />
-                </Stack>
-              </AppProviders>
+            <AppProviders>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                }}
+              >
+                <Stack.Screen name="(drawer)" />
+                <Stack.Screen name="transaction" />
+                <Stack.Screen name="goal" />
+              </Stack>
+            </AppProviders>
           </GestureHandlerRootView>
           <StatusBar style="auto" backgroundColor="#25292e" translucent={false} />
         </QueryClientProvider>
