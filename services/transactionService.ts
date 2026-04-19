@@ -126,13 +126,33 @@ export const importTransactions = async (fileType: 'json' | 'csv') => {
         }
 
         // Store each transaction entry
+        let importedCount = 0;
+        let failedCount = 0;
         for (const transaction of transactionData) {
-            await storeTransaction(transaction);
+            try {
+                const response = await storeTransaction(transaction);
+                if (response.data.success) {
+                    importedCount += 1;
+                } else {
+                    failedCount += 1;
+                }
+            } catch {
+                failedCount += 1;
+            }
+        }
+
+        if (importedCount === 0) {
+            return {
+                success: false,
+                messages: `Failed to import transactions from ${fileType.toUpperCase()} file.`
+            };
         }
 
         return {
             success: true,
-            messages: `Imported ${transactionData.length} transactions from ${fileType.toUpperCase()} file.`
+            messages: `Imported ${importedCount} transactions from ${fileType.toUpperCase()} file` + (failedCount > 0
+                ? ` (${failedCount} failed)`
+                : `.`),
         };
     } else {
         return {
