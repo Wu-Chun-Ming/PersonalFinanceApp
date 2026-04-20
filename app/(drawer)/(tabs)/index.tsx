@@ -47,6 +47,7 @@ const App = () => {
   const {
     transactionsPerCategory,
   } = usePieChartTransactions(filteredTransactions, transactionType);
+  const shouldRenderPieChart = transactionsPerCategory && transactionsPerCategory.length && Object.values(transactionsPerCategory).some(item => item.value > 0);
   const {
     transactionTotalsPerCategory,
     percentagesPerCategory,
@@ -103,7 +104,7 @@ const App = () => {
         height: "40%",
         paddingVertical: 10,
       }]}>
-        {(transactionsPerCategory && transactionsPerCategory.length > 0) ?
+        {shouldRenderPieChart ?
           <PieChart
             data={transactionsPerCategory}
           />
