@@ -38,6 +38,7 @@ const TransactionScreen = () => {
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const { selectedYearTransactions } = useTransactionData(transactions, selectedYear);
+    const shouldRenderBarChart = selectedYearTransactions && selectedYearTransactions.length > 0;
     const {
         transactionTotalsPerCategory: selectedYearTxTotalsPerCategory,
         transactionTotalsPerMonth: selectedYearTxTotalsPerMonth,
@@ -81,7 +82,7 @@ const TransactionScreen = () => {
                     width: '95%',
                     height: "100%",
                 }}>
-                    {(selectedYearTransactions && selectedYearTransactions.length > 0) ?
+                    {shouldRenderBarChart ?
                         <BarChart
                             data={selectedYearTxTotalsPerMonth}
                             xKey='month'
@@ -95,49 +96,58 @@ const TransactionScreen = () => {
                             ]}
                         />
                         : <View style={styles.centeredFlex}>
-                            <Text style={styles.boldText}>No data available.</Text>
+                            <Text style={styles.boldText}>
+                                No transactions for {selectedYear}.
+                            </Text>
+                            <Text style={[styles.text, {
+                                marginTop: 10,
+                            }]}>
+                                Try selecting another year or start adding transactions.
+                            </Text>
                         </View>}
                 </View>
             </View>
 
-            <ScrollView>
-                <View style={{
-                    margin: 10,
-                }}>
-                    {/* Transactions Breakdown */}
-                    {TRANSACTION_TYPES.map((type, index) => (
-                        <View key={index}>
-                            <HStack
-                                className='justify-between'
-                                style={{
-                                    backgroundColor: TRANSACTION_TYPE_COLORS[type],
-                                    paddingHorizontal: 20,
-                                    paddingVertical: 15,
-                                    borderRadius: 20,
-                                    alignItems: 'center',
-                                }}>
-                                <Text style={[styles.boldText, {
-                                    textDecorationLine: 'underline',
-                                }]}>Top 5 {type.charAt(0).toUpperCase() + type.slice(1)} Categories</Text>
-                                <TouchableNativeFeedback
-                                    onPress={() => router.navigate(`/transaction/listing?type=${type}&recurring=false`)}
-                                >
-                                    <Text style={[styles.text, {
-                                        backgroundColor: type === TransactionType.EXPENSE ? '#2bae2bff' : '#bebe09ff',
-                                        padding: 8,
-                                        borderRadius: 10,
-                                    }]}>View All</Text>
-                                </TouchableNativeFeedback>
-                            </HStack>
-                            {/* Total by Categories */}
-                            {transactions && <TransactionBreakdown data={getTransactionBreakdownByType(type)} type={type} />}
-                        </View>
-                    ))}
-                </View>
+            {shouldRenderBarChart &&
+                <ScrollView>
+                    <View style={{
+                        margin: 10,
+                    }}>
+                        {/* Transactions Breakdown */}
+                        {TRANSACTION_TYPES.map((type, index) => (
+                            <View key={index}>
+                                <HStack
+                                    className='justify-between'
+                                    style={{
+                                        backgroundColor: TRANSACTION_TYPE_COLORS[type],
+                                        paddingHorizontal: 20,
+                                        paddingVertical: 15,
+                                        borderRadius: 20,
+                                        alignItems: 'center',
+                                    }}>
+                                    <Text style={[styles.boldText, {
+                                        textDecorationLine: 'underline',
+                                    }]}>Top 5 {type.charAt(0).toUpperCase() + type.slice(1)} Categories</Text>
+                                    <TouchableNativeFeedback
+                                        onPress={() => router.navigate(`/transaction/listing?type=${type}&recurring=false`)}
+                                    >
+                                        <Text style={[styles.text, {
+                                            backgroundColor: type === TransactionType.EXPENSE ? '#2bae2bff' : '#bebe09ff',
+                                            padding: 8,
+                                            borderRadius: 10,
+                                        }]}>View All</Text>
+                                    </TouchableNativeFeedback>
+                                </HStack>
+                                {/* Total by Categories */}
+                                {transactions && <TransactionBreakdown data={getTransactionBreakdownByType(type)} type={type} />}
+                            </View>
+                        ))}
+                    </View>
 
-                {/* Reserve Space for Floating Action Button */}
-                <View style={{ minHeight: 60 }} />
-            </ScrollView>
+                    {/* Reserve Space for Floating Action Button */}
+                    <View style={{ minHeight: 60 }} />
+                </ScrollView>
+            }
 
             {/* Floating action button to add new transaction */}
             <ActionFab
