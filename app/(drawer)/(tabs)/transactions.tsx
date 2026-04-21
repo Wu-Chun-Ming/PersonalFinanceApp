@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -20,6 +20,7 @@ import {
     useTransactionData,
     useTransactions,
     useTransactionSummary,
+    useTransactionYears,
 } from '@/hooks/useTransactions';
 import {
     TransactionCategoryType,
@@ -36,6 +37,7 @@ const TransactionScreen = () => {
         isRefetching,
         refetch
     } = useTransactions();
+    const { data: availableTxYears } = useTransactionYears();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const { selectedYearTransactions } = useTransactionData(transactions, selectedYear);
     const shouldRenderBarChart = selectedYearTransactions && selectedYearTransactions.length > 0;
@@ -55,6 +57,12 @@ const TransactionScreen = () => {
             .sort((a, b) => b.total - a.total)  // Sort in descending order by 'total'
             .slice(0, 5);                       // Limit to the top 5 categories
 
+    useEffect(() => {
+        if (availableTxYears && availableTxYears.length > 0) {
+            setSelectedYear(availableTxYears[availableTxYears.length - 1]);
+        }
+    }, [availableTxYears]);
+
     const queryState = (
         <QueryState
             isLoading={isLoading}
@@ -72,6 +80,7 @@ const TransactionScreen = () => {
         <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
             <YearSelector
                 onYearChange={(year) => setSelectedYear(year)}
+                yearRange={availableTxYears}
             />
             {/* Bar Chart */}
             <View style={[styles.centered, {

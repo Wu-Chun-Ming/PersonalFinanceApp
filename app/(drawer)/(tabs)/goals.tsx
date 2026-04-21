@@ -28,6 +28,7 @@ import {
     useIncomeGraphTransactions,
     useTransactionData,
     useTransactions,
+    useTransactionYears,
 } from '@/hooks/useTransactions';
 
 const GoalsScreen = () => {
@@ -44,6 +45,7 @@ const GoalsScreen = () => {
         isRefetching: isTransactionsRefetching,
         refetch: refetchTransactions
     } = useTransactions();
+    const { data: availableTxYears } = useTransactionYears();
     const [currentSavingsRate, setCurrentSavingsRate] = useState<number>(0);       // Current savings rate = (income - expenses) / income * 100
     const now = new Date();
     const [selectedYear, setSelectedYear] = useState(now.getFullYear());
@@ -76,6 +78,12 @@ const GoalsScreen = () => {
             setCurrentSavingsRate(currentSavingsRate);
         }
     }, [goals]);
+
+    useEffect(() => {
+        if (availableTxYears && availableTxYears.length > 0) {
+            setSelectedYear(availableTxYears[availableTxYears.length - 1]);
+        }
+    }, [availableTxYears]);
 
     const GoalProgress = ({ goalType }: {
         goalType: "savings" | "income"
@@ -213,6 +221,7 @@ const GoalsScreen = () => {
                     <YearSelector
                         onYearChange={(year) => setSelectedYear(year)}
                         iconColor={GOALS_COLOR['savings']}
+                        yearRange={availableTxYears}
                     />
                     {(selectedYearTransactions && selectedYearTransactions.length > 0) ? <BarChart
                         data={getSavingsPerMonth(selectedYearTransactions)}

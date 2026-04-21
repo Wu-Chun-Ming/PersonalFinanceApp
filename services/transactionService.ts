@@ -1,5 +1,6 @@
 import {
     destroyTransaction,
+    getTransactionYears,
     getTransactions,
     showTransaction,
     storeBatchTransactions,
@@ -210,4 +211,10 @@ export const handleRecurringTransactions = async (
     } catch (error) {
         console.error('Error updating recurring transactions:', (error as Error).message);
     }
+};
+
+// Fetch available transaction years
+export const fetchTransactionYears = async () => {
+    const response = await getTransactionYears();
+    return response.data;
 };

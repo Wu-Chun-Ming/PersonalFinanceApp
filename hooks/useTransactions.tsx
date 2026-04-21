@@ -5,6 +5,7 @@ import {
     editTransaction,
     fetchTransaction,
     fetchTransactions,
+    fetchTransactionYears,
     importTransactions,
 } from "@/services/transactionService";
 import {
@@ -44,6 +45,15 @@ export const useTransaction = (transactionId: number) => {
         options: {
             enabled: !!transactionId,
         },
+    });
+};
+
+// Custom hook to fetch transaction years
+export const useTransactionYears = () => {
+    return useCustomQuery<number[]>({
+        queryKey: ['transactionYears'],
+        queryFn: fetchTransactionYears,
+        fallbackValue: [],
     });
 };
 
