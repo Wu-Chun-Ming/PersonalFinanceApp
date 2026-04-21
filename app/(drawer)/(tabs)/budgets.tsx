@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import * as Progress from 'react-native-progress';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,6 +27,7 @@ import {
     useTransactionData,
     useTransactions,
     useTransactionSummary,
+    useTransactionYears,
 } from '@/hooks/useTransactions';
 import {
     BudgetProps,
@@ -53,6 +54,7 @@ const BudgetScreen = () => {
     } = useTransactions();
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    const { data: availableTxYears } = useTransactionYears();
     // Transaction data
     const {
         selectedYearExpenseTransactions,
@@ -98,6 +100,12 @@ const BudgetScreen = () => {
         setBudgetModalVisible,
     } = useBudgetFormik();
 
+    useEffect(() => {
+        if (availableTxYears && availableTxYears.length > 0) {
+            setSelectedYear(availableTxYears[availableTxYears.length - 1]);
+        }
+    }, [availableTxYears]);
+
     const queryState = (
         <QueryState
             isLoading={isLoading}
@@ -123,6 +131,7 @@ const BudgetScreen = () => {
                 }}>
                     <YearSelector
                         onYearChange={(year) => setSelectedYear(year)}
+                        yearRange={availableTxYears}
                     />
                     {(
                         (selectedYearExpenseTransactions && selectedYearExpenseTransactions.length > 0)

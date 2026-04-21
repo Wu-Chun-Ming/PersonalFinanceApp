@@ -216,3 +216,35 @@ export const destroyTransaction = async (id: number, dbInstance?: SQLite.SQLiteD
         throw new Error(`Error deleting transaction: ${(error as Error).message}`);
     }
 }
+
+// Fetch available years from transactions
+export const getTransactionYears = async (dbInstance?: SQLite.SQLiteDatabase) => {
+    try {
+        // Get the database instance
+        const db = dbInstance || (await getDatabaseInstance());
+
+        // Query for distinct years
+        const result = await db.getAllAsync<{
+            year: number;
+        }>(`
+            SELECT DISTINCT strftime('%Y', date) AS year
+            FROM transactions
+            WHERE date IS NOT NULL
+            ORDER BY year ASC
+        `);
+
+        // Return transaction years
+        if (result.length > 0) {
+            return {
+                data: result.map((row) => Number(row.year)),
+            };
+        }
+
+        // No years found
+        return {
+            data: [],
+        };
+    } catch (error) {
+        throw new Error(`Error fetching available years from transactions table: ${(error as Error).message}`);
+    }
+};
