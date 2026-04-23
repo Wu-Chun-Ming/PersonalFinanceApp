@@ -73,7 +73,8 @@ export default function TabLayout() {
               setModalVisible(true);
             }}
           >
-            <MenuItemLabel size="md">Export All Transactions</MenuItemLabel>
+            <Feather name="share" size={20} color="black" />
+            <MenuItemLabel size="md" className='ml-2'>Export All Transactions</MenuItemLabel>
           </MenuItem>
           <MenuItem
             key="import"
@@ -83,7 +84,8 @@ export default function TabLayout() {
               setModalVisible(true);
             }}
           >
-            <MenuItemLabel size="md">Import Transactions</MenuItemLabel>
+            <Feather name="file-plus" size={20} color="black" />
+            <MenuItemLabel size="md" className='ml-2'>Import Transactions</MenuItemLabel>
           </MenuItem>
         </Menu>
 
@@ -185,13 +187,13 @@ export default function TabLayout() {
       <Tabs.Screen name="goals" options={{
         title: 'Goals',
         tabBarIcon: ({ color, focused }) => (
-          <Ionicons name={focused ? 'flag' : 'flag-outline'} color={color} size={24} />
+          <Ionicons name={focused ? 'trophy' : 'trophy-outline'} color={color} size={24} />
         ),
       }} />
       <Tabs.Screen name="transactions" options={{
         title: 'Transactions',
         tabBarIcon: ({ color, focused }) => (
-          <Ionicons name={focused ? 'wallet' : 'wallet-outline'} color={color} size={24} />
+          <Ionicons name={focused ? 'receipt' : 'receipt-outline'} color={color} size={24} />
         ),
       }} />
       <Tabs.Screen name="index" options={{
@@ -203,7 +205,7 @@ export default function TabLayout() {
       <Tabs.Screen name="budgets" options={{
         title: 'Budgets',
         tabBarIcon: ({ color, focused }) => (
-          <Ionicons name={focused ? 'funnel' : 'funnel-outline'} color={color} size={24} />
+          <Ionicons name={focused ? 'pie-chart' : 'pie-chart-outline'} color={color} size={24} />
         ),
       }} />
       <Tabs.Screen name="settings" options={{
