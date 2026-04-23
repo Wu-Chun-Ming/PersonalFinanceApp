@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [master, ci]
+    branches: [master, dev, ci]
 
 concurrency:
   group: build-${{ github.ref }}
@@ -79,39 +79,6 @@ jobs:
             ndk;27.1.12297006
             cmake;3.22.1
 
-      - name: Verify important cache folders
-        run: |
-          echo "=== Verifying cache folders ==="
-
-          # List the folders you expect to be cached
-          FOLDERS=(
-            "$HOME/.gradle/caches"
-            "$HOME/.gradle/wrapper"
-            "/usr/local/lib/android/sdk/ndk"
-            "/usr/local/lib/android/sdk/build-tools"
-            "android/app/build/generated/assets"
-            "android/app/build/generated/res"
-            "android/app/build/intermediates"
-            "android/app/.cxx"
-            "node_modules/@shopify/react-native-skia/android/.cxx"
-            "node_modules/expo-modules-core/android/.cxx"
-            "node_modules/react-native-gesture-handler/android/.cxx"
-            "node_modules/react-native-reanimated/android/.cxx"
-            "node_modules/react-native-screens/android/.cxx"
-          )
-
-          for folder in "${FOLDERS[@]}"; do
-            if [ -d "$folder" ]; then
-              SIZE=$(du -sh "$folder" 2>/dev/null | cut -f1)
-              FILE_COUNT=$(find "$folder" -type f | wc -l)
-              echo "✅ $folder exists — size: $SIZE ($FILE_COUNT files)"
-            else
-              echo "⚠️ $folder not found — cache might have missed it"
-            fi
-          done
-
-          echo "=== Cache verification complete ==="
-
       - name: Make Gradle executable
         working-directory: android
         run: chmod +x ./gradlew
@@ -127,13 +94,28 @@ jobs:
           echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.MYAPP_UPLOAD_KEY_ALIAS }}" >> ~/.gradle/gradle.properties
           echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.MYAPP_UPLOAD_KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
 
+      - name: Build Debug APK
+        working-directory: android
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        run: |
+          ./gradlew assembleDebug --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
+
       - name: Build Release APK
         working-directory: android
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/ci'
         run: |
           ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon
 
-      - name: Upload Release APK
+      - name: Upload Debug APK
+        if: ${{ github.ref == 'refs/heads/dev' }}
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: debug-apk-${{ github.ref_name }}-${{ github.run_number }}-${{ github.sha }}
+          path: android/app/build/outputs/apk/debug/*.apk
+
+      - name: Upload Release APK
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/ci'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk-${{ github.ref_name }}-${{ github.run_number }}-${{ github.sha }}
           path: android/app/build/outputs/apk/release/*.apk

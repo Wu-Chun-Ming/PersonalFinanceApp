@@ -2,10 +2,10 @@ name: Build with Cache
 
 on:
   push:
-    branches: [master, ci]
+    branches: [ci]
 
 concurrency:
-  group: build-${{ github.ref }}
+  group: build-cache-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -227,13 +227,28 @@ jobs:
           echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.MYAPP_UPLOAD_KEY_ALIAS }}" >> ~/.gradle/gradle.properties
           echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.MYAPP_UPLOAD_KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
 
+      - name: Build Debug APK
+        working-directory: android
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        run: |
+          ./gradlew assembleDebug --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
+
       - name: Build Release APK
         working-directory: android
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/ci'
         run: |
-          ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon $SKIP_TASKS
+          ./gradlew assembleRelease --build-cache --parallel --configure-on-demand --no-daemon
 
-      - name: Upload Release APK
+      - name: Upload Debug APK
+        if: ${{ github.ref == 'refs/heads/dev' }}
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: debug-apk-${{ github.ref_name }}-${{ github.run_number }}-${{ github.sha }}
+          path: android/app/build/outputs/apk/debug/*.apk
+
+      - name: Upload Release APK
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/ci'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk-${{ github.ref_name }}-${{ github.run_number }}-${{ github.sha }}
           path: android/app/build/outputs/apk/release/*.apk
