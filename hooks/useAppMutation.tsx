@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import useShowToast from './useShowToast';
 
 interface MutationResponse {
@@ -24,10 +25,7 @@ export const useCustomMutation = <TVariables, TData extends MutationResponse>({
 
   return useMutation<TData, Error, TVariables>({
     mutationFn,
-    onSuccess: (response: {
-      success: boolean;
-      messages: string;
-    }) => {
+    onSuccess: (response: { success: boolean; messages: string }) => {
       const { success, messages } = response;
       const actionType = success ? 'success' : 'info';
       showToast({ action: actionType, messages: messages });
@@ -39,11 +37,13 @@ export const useCustomMutation = <TVariables, TData extends MutationResponse>({
       if (!error && invalidateKeys) {
         setTimeout(() => {
           const keys = invalidateKeys(variables);
-          keys.forEach((key) => queryClient.invalidateQueries({
-            queryKey: Array.isArray(key) ? key : [key]
-          }));
+          keys.forEach((key) =>
+            queryClient.invalidateQueries({
+              queryKey: Array.isArray(key) ? key : [key],
+            }),
+          );
           onInvalidationComplete && onInvalidationComplete();
-        }, delayInvalidate);    // Wait 300ms to allow refetch to avoid warning 'useInsertionEffect must not schedule updates'
+        }, delayInvalidate); // Wait 300ms to allow refetch to avoid warning 'useInsertionEffect must not schedule updates'
       }
     },
   });

@@ -1,29 +1,27 @@
-import {
-    getLastOpenDate,
-    updateLastOpenDate,
-} from "@/services/appState";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+
+import { getLastOpenDate, updateLastOpenDate } from '@/services/appState';
 
 export const useLastOpenDate = () => {
-    const [lastOpenDate, setLastOpenDate] = useState<Date | null>(null);
+  const [lastOpenDate, setLastOpenDate] = useState<Date | null>(null);
 
-    const refresh = async () => {
-        const date = await getLastOpenDate();
-        setLastOpenDate(date);
-    };
+  const refresh = async () => {
+    const date = await getLastOpenDate();
+    setLastOpenDate(date);
+  };
 
-    const update = async () => {
-        await updateLastOpenDate();
-        await refresh();
-    };
+  const update = async () => {
+    await updateLastOpenDate();
+    await refresh();
+  };
 
-    useEffect(() => {
-        refresh();
-    }, []);
+  useEffect(() => {
+    refresh();
+  }, []);
 
-    return {
-        lastOpenDate,
-        updateAndRefreshLastOpenDate: update,
-        refreshLastOpenDate: refresh,
-    };
-}
+  return {
+    lastOpenDate,
+    updateAndRefreshLastOpenDate: update,
+    refreshLastOpenDate: refresh,
+  };
+};

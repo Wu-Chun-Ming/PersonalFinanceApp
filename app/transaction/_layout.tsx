@@ -1,6 +1,7 @@
-import { ScanProvider } from '@/contexts/ScanContext';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+
+import { ScanProvider } from '@/contexts/ScanContext';
 
 export default function RootLayout() {
   return (
@@ -15,15 +16,28 @@ export default function RootLayout() {
           headerTitleAlign: 'center',
         }}
       >
-        <Stack.Screen name="[transactionId]" options={{ title: '' }} />
-        <Stack.Screen name="listing" options={{
-          title: 'Transaction Listing',
-        }} />
-        <Stack.Screen name="scan" options={{
-          title: 'Image Scanning',
-        }} />
+        <Stack.Screen
+          name='[transactionId]'
+          options={{ title: '' }}
+        />
+        <Stack.Screen
+          name='listing'
+          options={{
+            title: 'Transaction Listing',
+          }}
+        />
+        <Stack.Screen
+          name='scan'
+          options={{
+            title: 'Image Scanning',
+          }}
+        />
       </Stack>
-      <StatusBar style="auto" backgroundColor="#25292e" translucent={false} />
+      <StatusBar
+        style='auto'
+        backgroundColor='#25292e'
+        translucent={false}
+      />
     </ScanProvider>
   );
 }

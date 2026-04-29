@@ -1,10 +1,11 @@
-import ModelContext from "@/contexts/ModelContext";
-import { useContext } from "react";
+import { useContext } from 'react';
+
+import ModelContext from '@/contexts/ModelContext';
 
 export const useModel = () => {
-    const context = useContext(ModelContext);
-    if (!context) {
-        throw new Error('useModel must be used inside a ModelProvider');
-    }
-    return context;
+  const context = useContext(ModelContext);
+  if (!context) {
+    throw new Error('useModel must be used inside a ModelProvider');
+  }
+  return context;
 };

@@ -14,11 +14,18 @@ export default function RootLayout() {
           headerTitleAlign: 'center',
         }}
       >
-        <Stack.Screen name="goal_settings" options={{
-          title: 'Goal Settings',
-        }} />
+        <Stack.Screen
+          name='goal_settings'
+          options={{
+            title: 'Goal Settings',
+          }}
+        />
       </Stack>
-      <StatusBar style="auto" backgroundColor="#25292e" translucent={false} />
+      <StatusBar
+        style='auto'
+        backgroundColor='#25292e'
+        translucent={false}
+      />
     </>
   );
 }

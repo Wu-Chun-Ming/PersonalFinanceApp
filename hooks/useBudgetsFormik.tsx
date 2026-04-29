@@ -1,46 +1,45 @@
-import { TransactionCategoryType } from "@/types";
-import { budgetSchema } from "@/validation/budgetSchema";
-import { useState } from "react";
-import { useCustomFormik } from "./useAppFormik";
-import { useUpdateBudget } from "./useBudgets";
+import { useState } from 'react';
+
+import { TransactionCategoryType } from '@/types';
+import { budgetSchema } from '@/validation/budgetSchema';
+import { useCustomFormik } from './useAppFormik';
+import { useUpdateBudget } from './useBudgets';
 
 interface BudgetFormikProps {
-    year: string;
-    month: string;
-    category: string;
-    amount: string;
+  year: string;
+  month: string;
+  category: string;
+  amount: string;
 }
 
 // Formik setup
-export const useBudgetFormik = (
-    initialBudget?: BudgetFormikProps,
-) => {
-    const updateMutation = useUpdateBudget();
-    const [budgetModalVisible, setBudgetModalVisible] = useState(false);
+export const useBudgetFormik = (initialBudget?: BudgetFormikProps) => {
+  const updateMutation = useUpdateBudget();
+  const [budgetModalVisible, setBudgetModalVisible] = useState(false);
 
-    const budgetFormik = useCustomFormik({
-        initialValues: initialBudget || {
-            year: (new Date().getFullYear()).toString(),
-            month: (new Date().getMonth() + 1).toString(),
-            category: '',
-            amount: '0',
-        },
-        validationSchema: budgetSchema,
-        transformValues: (values) => ({
-            year: Number(values.year),
-            month: Number(values.month),
-            category: values.category as TransactionCategoryType,
-            amount: Number(values.amount),
-        }),
-        onSubmitCallback: (transformedBudgetData) => {
-            updateMutation.mutate(transformedBudgetData);
-            setBudgetModalVisible(false);
-        }
-    });
+  const budgetFormik = useCustomFormik({
+    initialValues: initialBudget || {
+      year: new Date().getFullYear().toString(),
+      month: (new Date().getMonth() + 1).toString(),
+      category: '',
+      amount: '0',
+    },
+    validationSchema: budgetSchema,
+    transformValues: (values) => ({
+      year: Number(values.year),
+      month: Number(values.month),
+      category: values.category as TransactionCategoryType,
+      amount: Number(values.amount),
+    }),
+    onSubmitCallback: (transformedBudgetData) => {
+      updateMutation.mutate(transformedBudgetData);
+      setBudgetModalVisible(false);
+    },
+  });
 
-    return {
-        budgetFormik,
-        budgetModalVisible,
-        setBudgetModalVisible,
-    };
+  return {
+    budgetFormik,
+    budgetModalVisible,
+    setBudgetModalVisible,
+  };
 };

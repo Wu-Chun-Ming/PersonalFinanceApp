@@ -1,10 +1,10 @@
 export interface SavingsGoalProps {
-    date: Date,
-    amount: number,
-};
+  date: Date;
+  amount: number;
+}
 
 export interface IncomeGoalProps {
-    perDay: number,
-    perMonth: number,
-    perYear: number,
-};
+  perDay: number;
+  perMonth: number;
+  perYear: number;
+}

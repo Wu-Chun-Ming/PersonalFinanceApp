@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { PieChart } from "react-native-gifted-charts";
+import { PieChart } from 'react-native-gifted-charts';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 
 // Gluestack UI
 import { Heading } from '@/components/ui/heading';
@@ -23,10 +23,7 @@ import {
   useTransactions,
   useTransactionSummary,
 } from '@/hooks/useTransactions';
-import {
-  TransactionType,
-  TransactionTypeValue,
-} from '@/types';
+import { TransactionType, TransactionTypeValue } from '@/types';
 
 const App = () => {
   const {
@@ -36,22 +33,27 @@ const App = () => {
     isSuccess,
     isRefetchError,
     isRefetching,
-    refetch
+    refetch,
   } = useTransactions();
-  const {
-    expenseTransactions,
-    incomeTransactions,
-  } = useTransactionData(transactions);
-  const [transactionType, setTransactionType] = useState<TransactionTypeValue>(TransactionType.EXPENSE);
-  const filteredTransactions = (transactionType === TransactionType.EXPENSE) ? expenseTransactions : incomeTransactions;
-  const {
-    transactionsPerCategory,
-  } = usePieChartTransactions(filteredTransactions, transactionType);
-  const shouldRenderPieChart = transactionsPerCategory && transactionsPerCategory.length && Object.values(transactionsPerCategory).some(item => item.value > 0);
-  const {
-    transactionTotalsPerCategory,
-    percentagesPerCategory,
-  } = useTransactionSummary(filteredTransactions);
+  const { expenseTransactions, incomeTransactions } =
+    useTransactionData(transactions);
+  const [transactionType, setTransactionType] = useState<TransactionTypeValue>(
+    TransactionType.EXPENSE,
+  );
+  const filteredTransactions =
+    transactionType === TransactionType.EXPENSE
+      ? expenseTransactions
+      : incomeTransactions;
+  const { transactionsPerCategory } = usePieChartTransactions(
+    filteredTransactions,
+    transactionType,
+  );
+  const shouldRenderPieChart =
+    transactionsPerCategory &&
+    transactionsPerCategory.length &&
+    Object.values(transactionsPerCategory).some((item) => item.value > 0);
+  const { transactionTotalsPerCategory, percentagesPerCategory } =
+    useTransactionSummary(filteredTransactions);
 
   const transactionBreakdown = TRANSACTION_CATEGORIES.map((category) => {
     return {
@@ -75,14 +77,17 @@ const App = () => {
   if (isLoading || isRefetching || isError || isRefetchError) return queryState;
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+    <SafeAreaView
+      style={{ flex: 1 }}
+      edges={['bottom']}
+    >
       <Dropdown
         data={[
           { label: 'Expense', value: TransactionType.EXPENSE },
           { label: 'Income', value: TransactionType.INCOME },
         ]}
-        labelField="label"
-        valueField="value"
+        labelField='label'
+        valueField='value'
         value={transactionType}
         onChange={(item) => setTransactionType(item.value)}
         style={{
@@ -100,54 +105,80 @@ const App = () => {
       />
 
       {/* Pie Chart */}
-      <View style={[styles.centered, {
-        height: "40%",
-        paddingVertical: 10,
-      }]}>
-        {shouldRenderPieChart ?
-          <PieChart
-            data={transactionsPerCategory}
-          />
-          : <View style={styles.centeredFlex}>
+      <View
+        style={[
+          styles.centered,
+          {
+            height: '40%',
+            paddingVertical: 10,
+          },
+        ]}
+      >
+        {shouldRenderPieChart ? (
+          <PieChart data={transactionsPerCategory} />
+        ) : (
+          <View style={styles.centeredFlex}>
             <Text style={styles.boldText}>No data available.</Text>
-          </View>}
+          </View>
+        )}
       </View>
 
       <ScrollView>
-        <View style={{
-          margin: 10,
-        }}>
-          <View style={{
-            paddingHorizontal: 20,
-            paddingVertical: 15,
-            backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
-            borderRadius: 20,
-          }}>
+        <View
+          style={{
+            margin: 10,
+          }}
+        >
+          <View
+            style={{
+              paddingHorizontal: 20,
+              paddingVertical: 15,
+              backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
+              borderRadius: 20,
+            }}
+          >
             <HStack className='justify-between items-center'>
-              <Heading style={{
-                textDecorationLine: 'underline',
-              }}>
+              <Heading
+                style={{
+                  textDecorationLine: 'underline',
+                }}
+              >
                 {transactionType[0].toUpperCase() + transactionType.slice(1)}
               </Heading>
               <TouchableNativeFeedback
-                onPress={() => router.navigate(`/transaction/listing?type=${transactionType}`)}
+                onPress={() =>
+                  router.navigate(
+                    `/transaction/listing?type=${transactionType}`,
+                  )
+                }
               >
-                <Text style={[styles.text, {
-                  backgroundColor: transactionType === TransactionType.EXPENSE ? '#2bae2bff' : '#bebe09ff',
-                  padding: 8,
-                  borderRadius: 10,
-                }]}>View All</Text>
+                <Text
+                  style={[
+                    styles.text,
+                    {
+                      backgroundColor:
+                        transactionType === TransactionType.EXPENSE
+                          ? '#2bae2bff'
+                          : '#bebe09ff',
+                      padding: 8,
+                      borderRadius: 10,
+                    },
+                  ]}
+                >
+                  View All
+                </Text>
               </TouchableNativeFeedback>
             </HStack>
           </View>
           {/* Total by Category */}
-          {transactionsPerCategory &&
+          {transactionsPerCategory && (
             <TransactionBreakdown
               data={transactionBreakdown}
               type={transactionType}
               colorBoxVisible={true}
               percentageVisible={true}
-            />}
+            />
+          )}
         </View>
 
         {/* Reserve Space for Floating Action Button */}

@@ -5,14 +5,16 @@ type Props = {
 };
 
 const ImageViewer = ({ selectedImage }: Props) => {
-  return <Image
-    source={{ uri: selectedImage }}
-    style={{
-      width: '100%',
-      height: '100%',
-    }}
-    contentFit="fill"
-  />
-}
+  return (
+    <Image
+      source={{ uri: selectedImage }}
+      style={{
+        width: '100%',
+        height: '100%',
+      }}
+      contentFit='fill'
+    />
+  );
+};
 
 export default ImageViewer;

@@ -1,8 +1,8 @@
 import {
-    EXPENSE_CATEGORIES,
-    TRANSACTION_CATEGORIES,
-    TRANSACTION_TYPES,
-} from "@/constants/transaction";
+  EXPENSE_CATEGORIES,
+  TRANSACTION_CATEGORIES,
+  TRANSACTION_TYPES,
+} from '@/constants/transaction';
 
 /* 
 Table: transactions
@@ -22,8 +22,12 @@ currency                VARCHAR
 */
 
 // Define allowed values for transaction types and categories
-const allowedTransactionTypes = TRANSACTION_TYPES.map(type => `'${type}'`).join(', ');
-const allowedTransactionCategories = TRANSACTION_CATEGORIES.map(category => `'${category}'`).join(', ');
+const allowedTransactionTypes = TRANSACTION_TYPES.map(
+  (type) => `'${type}'`,
+).join(', ');
+const allowedTransactionCategories = TRANSACTION_CATEGORIES.map(
+  (category) => `'${category}'`,
+).join(', ');
 
 export const transactionTableSchema = `
     CREATE TABLE IF NOT EXISTS transactions (
@@ -51,7 +55,9 @@ amount                  DOUBLE
 */
 
 // Define allowed values for budget categories
-const allowedBudgetCategories = EXPENSE_CATEGORIES.map(category => `'${category}'`).join(', ');
+const allowedBudgetCategories = EXPENSE_CATEGORIES.map(
+  (category) => `'${category}'`,
+).join(', ');
 
 export const budgetTableSchema = `
     CREATE TABLE IF NOT EXISTS budgets (

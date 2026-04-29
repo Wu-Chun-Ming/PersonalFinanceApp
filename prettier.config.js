@@ -10,4 +10,4 @@ module.exports = {
   bracketSpacing: true,
   singleAttributePerLine: true,
   endOfLine: 'auto',
-}
+};

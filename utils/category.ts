@@ -1,16 +1,10 @@
-import {
-    EXPENSE_CATEGORIES,
-    INCOME_CATEGORIES,
-} from "@/constants/transaction";
-import {
-    TransactionType,
-    TransactionTypeValue,
-} from "@/types";
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/constants/transaction';
+import { TransactionType, TransactionTypeValue } from '@/types';
 
 export function getCategoriesByTransactionType(
-    transactionType: TransactionTypeValue
+  transactionType: TransactionTypeValue,
 ) {
-    return transactionType === TransactionType.EXPENSE
-        ? EXPENSE_CATEGORIES
-        : INCOME_CATEGORIES;
+  return transactionType === TransactionType.EXPENSE
+    ? EXPENSE_CATEGORIES
+    : INCOME_CATEGORIES;
 }

@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 // Gluestack UI
 import {
@@ -10,8 +10,8 @@ import {
   FormControlHelper,
   FormControlHelperText,
   FormControlLabel,
-  FormControlLabelText
-} from "@/components/ui/form-control";
+  FormControlLabelText,
+} from './ui/form-control';
 
 interface FormGroupProps {
   isRequired?: boolean;
@@ -19,7 +19,7 @@ interface FormGroupProps {
   isReadOnly?: boolean;
   isInvalid?: boolean;
   style?: StyleProp<ViewStyle>;
-  direction?: "row" | "column";
+  direction?: 'row' | 'column';
   label?: string;
   children: React.ReactNode;
   helperText?: string;
@@ -32,7 +32,7 @@ const FormGroup = ({
   isReadOnly,
   isInvalid,
   style,
-  direction = "column",
+  direction = 'column',
   label,
   children,
   helperText,
@@ -40,37 +40,43 @@ const FormGroup = ({
 }: FormGroupProps) => {
   return (
     <FormControl
-      size="lg"
+      size='lg'
       isRequired={isRequired}
       isDisabled={isDisabled}
       isReadOnly={isReadOnly}
       isInvalid={isInvalid}
       style={style}
     >
-      <View style={[
-        direction === "row" && {
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }
-      ]}>
-        {label && <FormControlLabel className="my-2">
-          <FormControlLabelText>{label}</FormControlLabelText>
-        </FormControlLabel>}
+      <View
+        style={[
+          direction === 'row' && {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          },
+        ]}
+      >
+        {label && (
+          <FormControlLabel className='my-2'>
+            <FormControlLabelText>{label}</FormControlLabelText>
+          </FormControlLabel>
+        )}
 
         {children}
       </View>
       {helperText && (
         <FormControlHelper>
-          <FormControlHelperText>
-            {helperText}
-          </FormControlHelperText>
+          <FormControlHelperText>{helperText}</FormControlHelperText>
         </FormControlHelper>
       )}
 
       {isInvalid && errorText && (
         <FormControlError>
-          <Ionicons name="alert-circle-outline" size={22} color="red" />
+          <Ionicons
+            name='alert-circle-outline'
+            size={22}
+            color='red'
+          />
           <FormControlErrorText style={{ flexShrink: 1 }}>
             {errorText}
           </FormControlErrorText>

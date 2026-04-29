@@ -11,7 +11,10 @@ export default function DrawerLayout() {
         drawerPosition: 'right',
       }}
     >
-      <Drawer.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Drawer.Screen
+        name='(tabs)'
+        options={{ headerShown: false }}
+      />
     </Drawer>
   );
 }

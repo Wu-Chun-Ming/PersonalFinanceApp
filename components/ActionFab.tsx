@@ -1,27 +1,27 @@
 import React from 'react';
+import { Href, router } from 'expo-router';
 
 // Gluestack UI
-import { Href, router } from 'expo-router';
 import { Fab, FabIcon } from './ui/fab';
 
 interface ActionFabProps {
-    icon: React.ElementType;
-    href: Href;
+  icon: React.ElementType;
+  href: Href;
 }
 
-const ActionFab = ({
-    icon,
-    href,
-}: ActionFabProps) => {
-    return (
-        <Fab
-            size="lg"
-            placement="bottom right"
-            onPress={() => router.push(href)}
-        >
-            <FabIcon as={icon} size='xl' />
-        </Fab>
-    );
+const ActionFab = ({ icon, href }: ActionFabProps) => {
+  return (
+    <Fab
+      size='lg'
+      placement='bottom right'
+      onPress={() => router.push(href)}
+    >
+      <FabIcon
+        as={icon}
+        size='xl'
+      />
+    </Fab>
+  );
 };
 
 export default ActionFab;

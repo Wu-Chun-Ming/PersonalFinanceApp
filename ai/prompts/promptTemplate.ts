@@ -1,9 +1,11 @@
-import { TransactionCategoryType } from "@/types";
+import { TransactionCategoryType } from '@/types';
 
 export const generatePrompt = (categories: TransactionCategoryType[]) => {
-    const categoriesString = categories.map(category => `'${category}'`).join(', ');
+  const categoriesString = categories
+    .map((category) => `'${category}'`)
+    .join(', ');
 
-    return `
+  return `
         Extract the date and category for each item in the image and return them strictly in the following JSON format:
         [{
             "date": "<item_1_date>",
