@@ -57,18 +57,19 @@ export const filterTransactions = (
   const endDateObj = endDate ? new Date(endDate) : undefined;
 
   return transactions.filter((transaction) => {
-    const tDate = new Date(transaction.date);
+    const tDate = transaction.date ? new Date(transaction.date) : null;
     return (
-      (!date || tDate.getTime() === dateObj) &&
-      (!startDate || tDate >= startDateObj!) &&
-      (!endDate || tDate < endDateObj!) &&
+      (!date || (tDate !== null && tDate.getTime() === dateObj)) &&
+      (!startDate || (tDate !== null && tDate >= startDateObj!)) &&
+      (!endDate || (tDate !== null && tDate < endDateObj!)) &&
       (!type || transaction.type === type) &&
       (!category || transaction.category === category) &&
-      (!amount || transaction.amount === amount) &&
-      (!minAmount || transaction.amount >= minAmount) &&
-      (!maxAmount || transaction.amount < maxAmount) &&
+      (amount === undefined || transaction.amount === amount) &&
+      (minAmount === undefined || transaction.amount >= minAmount) &&
+      (maxAmount === undefined || transaction.amount <= maxAmount) &&
       (recurring === undefined || transaction.recurring === recurring) &&
-      (!frequency || transaction.recurring_frequency?.frequency === frequency)
+      (frequency === undefined ||
+        transaction.recurring_frequency?.frequency === frequency)
     );
   });
 };

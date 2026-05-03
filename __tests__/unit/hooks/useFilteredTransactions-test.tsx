@@ -33,6 +33,7 @@ describe('useFilteredTransactions', () => {
     expect(filtered.current).toEqual([mockTransactions[0]]);
 
     filtered.current.forEach((item) => {
+      expect(item.date).not.toBeNull();
       expect(item.date?.getTime()).toBe(new Date('2025-01-01').getTime());
     });
   });
@@ -52,7 +53,8 @@ describe('useFilteredTransactions', () => {
     ]);
 
     filtered.current.forEach((item) => {
-      const transactionDate = new Date(item.date).getTime();
+      expect(item.date).not.toBeNull();
+      const transactionDate = item.date!.getTime();
       const startDate = new Date('2024-12-31').getTime();
       const endDate = new Date('2025-01-03').getTime();
 
@@ -69,9 +71,9 @@ describe('useFilteredTransactions', () => {
     );
 
     expect(filtered.current).toHaveLength(2);
-    filtered.current.forEach((item) => {
-      expect(item.type).toBe(TransactionType.INCOME);
-    });
+    expect(
+      filtered.current.every((item) => item.type === TransactionType.INCOME),
+    ).toBe(true);
   });
 
   test('should returns only transactions matching the category', async () => {
@@ -82,9 +84,11 @@ describe('useFilteredTransactions', () => {
     );
 
     expect(filtered.current).toHaveLength(2);
-    filtered.current.forEach((item) => {
-      expect(item.category).toBe(TransactionCategory.TRANSPORTATION);
-    });
+    expect(
+      filtered.current.every(
+        (item) => item.category === TransactionCategory.TRANSPORTATION,
+      ),
+    ).toBe(true);
   });
 
   test('should returns only transactions matching the amount', async () => {
@@ -95,9 +99,29 @@ describe('useFilteredTransactions', () => {
     );
 
     expect(filtered.current).toHaveLength(2);
-    filtered.current.forEach((item) => {
-      expect(item.amount).toBe(200);
-    });
+    expect(filtered.current.every((item) => item.amount === 200)).toBe(true);
+  });
+
+  test('should returns only transactions above minAmount', async () => {
+    const { result: filtered } = renderHook(() =>
+      useFilteredTransactions(mockTransactions, {
+        minAmount: 200,
+      }),
+    );
+
+    expect(filtered.current).toHaveLength(4);
+    expect(filtered.current.every((item) => item.amount >= 200)).toBe(true);
+  });
+
+  test('should returns only transactions below maxAmount', async () => {
+    const { result: filtered } = renderHook(() =>
+      useFilteredTransactions(mockTransactions, {
+        maxAmount: 1000,
+      }),
+    );
+
+    expect(filtered.current).toHaveLength(4);
+    expect(filtered.current.every((item) => item.amount <= 1000)).toBe(true);
   });
 
   test('should returns only transactions matching the amount range', async () => {
@@ -108,11 +132,12 @@ describe('useFilteredTransactions', () => {
       }),
     );
 
-    expect(filtered.current).toHaveLength(3);
-    filtered.current.forEach((item) => {
-      expect(item.amount).toBeGreaterThanOrEqual(100); // Ensure amount is >= 100
-      expect(item.amount).toBeLessThan(500); // Ensure amount is < 500
-    });
+    expect(filtered.current).toHaveLength(4);
+    expect(
+      filtered.current.every(
+        (item) => item.amount >= 100 && item.amount <= 500,
+      ),
+    ).toBe(true);
   });
 
   test('should returns only recurring transactions when recurring is true', async () => {
@@ -123,9 +148,9 @@ describe('useFilteredTransactions', () => {
     );
 
     expect(filtered.current).toHaveLength(2);
-    filtered.current.forEach((item) => {
-      expect(item.recurring).toBe(true);
-    });
+    expect(filtered.current.every((item) => item.recurring === true)).toBe(
+      true,
+    );
   });
 
   test('should returns only transactions matching the recurring frequency', async () => {
@@ -136,11 +161,12 @@ describe('useFilteredTransactions', () => {
     );
 
     expect(filtered.current).toHaveLength(1);
-    filtered.current.forEach((item) => {
-      expect(item.recurring_frequency?.frequency).toBe(
-        RecurringFrequency.MONTHLY,
-      );
-    });
+    expect(
+      filtered.current.every(
+        (item) =>
+          item.recurring_frequency?.frequency === RecurringFrequency.MONTHLY,
+      ),
+    ).toBe(true);
   });
 
   test('should returns all transactions when no filters are applied', async () => {
