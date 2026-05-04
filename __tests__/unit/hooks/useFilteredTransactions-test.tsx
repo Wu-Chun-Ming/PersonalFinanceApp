@@ -23,9 +23,11 @@ describe('useFilteredTransactions', () => {
   });
 
   test('should returns only transactions matching the exact date', async () => {
+    const dateToFilter = '2025-01-01';
+    const dateObj = new Date(dateToFilter).getTime();
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions(mockTransactions, {
-        date: '2025-01-01',
+        date: dateToFilter,
       }),
     );
 
@@ -34,15 +36,20 @@ describe('useFilteredTransactions', () => {
 
     filtered.current.forEach((item) => {
       expect(item.date).not.toBeNull();
-      expect(item.date?.getTime()).toBe(new Date('2025-01-01').getTime());
+      expect(item.date?.getTime()).toBe(dateObj);
     });
   });
 
   test('should returns only transactions within the date range', async () => {
+    const startDate = '2024-12-31';
+    const endDate = '2025-01-03';
+    const startDateObj = new Date(startDate).getTime();
+    const endDateObj = new Date(endDate).getTime();
+
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions(mockTransactions, {
-        startDate: '2024-12-31',
-        endDate: '2025-01-03',
+        startDate: startDate,
+        endDate: endDate,
       }),
     );
 
@@ -55,11 +62,8 @@ describe('useFilteredTransactions', () => {
     filtered.current.forEach((item) => {
       expect(item.date).not.toBeNull();
       const transactionDate = item.date!.getTime();
-      const startDate = new Date('2024-12-31').getTime();
-      const endDate = new Date('2025-01-03').getTime();
-
-      expect(transactionDate).toBeGreaterThanOrEqual(startDate);
-      expect(transactionDate).toBeLessThanOrEqual(endDate);
+      expect(transactionDate).toBeGreaterThanOrEqual(startDateObj);
+      expect(transactionDate).toBeLessThanOrEqual(endDateObj);
     });
   });
 
@@ -92,50 +96,62 @@ describe('useFilteredTransactions', () => {
   });
 
   test('should returns only transactions matching the amount', async () => {
+    const amountToFilter = 200;
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions(mockTransactions, {
-        amount: 200,
+        amount: amountToFilter,
       }),
     );
 
     expect(filtered.current).toHaveLength(2);
-    expect(filtered.current.every((item) => item.amount === 200)).toBe(true);
+    expect(
+      filtered.current.every((item) => item.amount === amountToFilter),
+    ).toBe(true);
   });
 
   test('should returns only transactions above minAmount', async () => {
+    const minAmountToFilter = 200;
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions(mockTransactions, {
-        minAmount: 200,
+        minAmount: minAmountToFilter,
       }),
     );
 
     expect(filtered.current).toHaveLength(4);
-    expect(filtered.current.every((item) => item.amount >= 200)).toBe(true);
+    expect(
+      filtered.current.every((item) => item.amount >= minAmountToFilter),
+    ).toBe(true);
   });
 
   test('should returns only transactions below maxAmount', async () => {
+    const maxAmountToFilter = 1000;
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions(mockTransactions, {
-        maxAmount: 1000,
+        maxAmount: maxAmountToFilter,
       }),
     );
 
     expect(filtered.current).toHaveLength(4);
-    expect(filtered.current.every((item) => item.amount <= 1000)).toBe(true);
+    expect(
+      filtered.current.every((item) => item.amount <= maxAmountToFilter),
+    ).toBe(true);
   });
 
   test('should returns only transactions matching the amount range', async () => {
+    const minAmountToFilter = 100;
+    const maxAmountToFilter = 500;
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions(mockTransactions, {
-        minAmount: 100,
-        maxAmount: 500,
+        minAmount: minAmountToFilter,
+        maxAmount: maxAmountToFilter,
       }),
     );
 
     expect(filtered.current).toHaveLength(4);
     expect(
       filtered.current.every(
-        (item) => item.amount >= 100 && item.amount <= 500,
+        (item) =>
+          item.amount >= minAmountToFilter && item.amount <= maxAmountToFilter,
       ),
     ).toBe(true);
   });
@@ -178,9 +194,10 @@ describe('useFilteredTransactions', () => {
   });
 
   test('should returns empty array when empty transactions array is provided', async () => {
+    const dateToFilter = '2025-01-01';
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions([], {
-        date: '2025-01-01',
+        date: dateToFilter,
       }),
     );
 
@@ -188,9 +205,10 @@ describe('useFilteredTransactions', () => {
   });
 
   test('should returns empty array when no matching transactions are found', async () => {
+    const dateToFilter = '2027-01-01';
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions(mockTransactions, {
-        date: '2027-01-01',
+        date: dateToFilter,
       }),
     );
 

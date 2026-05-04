@@ -26,6 +26,15 @@ const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
+beforeEach(() => {
+  jest.useFakeTimers(); // Use fake timers in tests
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers(); // Run any pending timers to ensure all async operations are completed
+  jest.useRealTimers(); // Restore real timers after all tests
+});
+
 // Tests for useGoals
 describe('useGoals', () => {
   beforeAll(() => {
