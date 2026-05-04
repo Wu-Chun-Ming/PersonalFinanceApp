@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
 import * as Progress from 'react-native-progress';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,6 +13,7 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import styles from '@/app/styles';
 import ActionFab from '@/components/ActionFab';
+import AppDropdown from '@/components/AppDropdown';
 import BarChart from '@/components/BarChart';
 import Graph from '@/components/Graph';
 import QueryState from '@/components/QueryState';
@@ -311,16 +311,14 @@ const GoalsScreen = () => {
             <Heading>Income</Heading>
           </View>
 
-          <Dropdown
+          <AppDropdown
             data={[
               { label: 'Per Day', value: 'day' },
               { label: 'Per Month', value: 'month' },
               { label: 'Per Year', value: 'year' },
             ]}
-            labelField='label'
-            valueField='value'
             value={incomeGraphMode}
-            onChange={(item) => setIncomeGraphMode(item.value)}
+            onChange={(value) => setIncomeGraphMode(value)}
             style={{
               flex: 1,
               padding: 5,

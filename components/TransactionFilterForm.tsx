@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Text, TextInput, TouchableOpacity } from 'react-native';
 import Collapsible from 'react-native-collapsible';
-import { Dropdown } from 'react-native-element-dropdown';
 import dayjs from 'dayjs';
 import { FormikProps } from 'formik';
 
@@ -17,6 +16,7 @@ import {
   TRANSACTION_CATEGORIES,
   TRANSACTION_TYPES,
 } from '@/constants/transaction';
+import AppDropdown from './AppDropdown';
 import DatePicker from './DatePicker';
 
 interface FilterValues {
@@ -128,7 +128,7 @@ const TransactionFilterForm = ({
             >
               Type:
             </Text>
-            <Dropdown
+            <AppDropdown
               data={[
                 { label: 'All', value: '' },
                 ...TRANSACTION_TYPES.map((type) => ({
@@ -140,10 +140,8 @@ const TransactionFilterForm = ({
               placeholderStyle={{
                 textAlign: 'center',
               }}
-              labelField='label'
-              valueField='value'
               value={formik.values.type.toString()}
-              onChange={(item) => formik.setFieldValue('type', item.value)}
+              onChange={(value) => formik.setFieldValue('type', value)}
               style={{
                 flex: 1,
               }}
@@ -181,7 +179,7 @@ const TransactionFilterForm = ({
             >
               Category:
             </Text>
-            <Dropdown
+            <AppDropdown
               data={[
                 { label: '-', value: '' },
                 ...TRANSACTION_CATEGORIES.map((category) => ({
@@ -193,10 +191,8 @@ const TransactionFilterForm = ({
               placeholderStyle={{
                 textAlign: 'center',
               }}
-              labelField='label'
-              valueField='value'
               value={formik.values.category.toString()}
-              onChange={(item) => formik.setFieldValue('category', item.value)}
+              onChange={(value) => formik.setFieldValue('category', value)}
               style={[
                 {
                   flex: 1,
@@ -275,7 +271,7 @@ const TransactionFilterForm = ({
               >
                 Recurring:
               </Text>
-              <Dropdown
+              <AppDropdown
                 data={[
                   { label: '-', value: '' },
                   { label: 'Yes', value: 'true' },
@@ -285,12 +281,8 @@ const TransactionFilterForm = ({
                 placeholderStyle={{
                   textAlign: 'center',
                 }}
-                labelField='label'
-                valueField='value'
                 value={formik.values.recurring.toString()}
-                onChange={(item) =>
-                  formik.setFieldValue('recurring', item.value)
-                }
+                onChange={(value) => formik.setFieldValue('recurring', value)}
                 style={[
                   {
                     flex: 1,
@@ -330,7 +322,7 @@ const TransactionFilterForm = ({
               >
                 Frequency:
               </Text>
-              <Dropdown
+              <AppDropdown
                 data={[
                   { label: '-', value: '' },
                   ...RECURRING_FREQUENCIES.map((frequency) => ({
@@ -343,12 +335,8 @@ const TransactionFilterForm = ({
                 placeholderStyle={{
                   textAlign: 'center',
                 }}
-                labelField='label'
-                valueField='value'
                 value={formik.values.frequency.toString()}
-                onChange={(item) =>
-                  formik.setFieldValue('frequency', item.value)
-                }
+                onChange={(value) => formik.setFieldValue('frequency', value)}
                 style={[
                   {
                     flex: 1,

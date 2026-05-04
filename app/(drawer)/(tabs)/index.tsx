@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
 import { PieChart } from 'react-native-gifted-charts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -13,6 +12,7 @@ import { AddIcon } from '@/components/ui/icon';
 // Custom import
 import styles from '@/app/styles';
 import ActionFab from '@/components/ActionFab';
+import AppDropdown from '@/components/AppDropdown';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
@@ -100,15 +100,13 @@ const App = () => {
           margin: 10,
         }}
       >
-        <Dropdown
+        <AppDropdown
           data={[
             { label: 'Expense', value: TransactionType.EXPENSE },
             { label: 'Income', value: TransactionType.INCOME },
           ]}
-          labelField='label'
-          valueField='value'
           value={transactionType}
-          onChange={(item) => setTransactionType(item.value)}
+          onChange={(value) => setTransactionType(value)}
           style={{
             padding: 5,
             paddingLeft: 10,
@@ -118,7 +116,7 @@ const App = () => {
           }}
           itemTextStyle={styles.centeredText}
         />
-        <Dropdown
+        <AppDropdown
           data={[
             { label: 'All Years', value: ALL_OPTION_VALUE },
             ...transactionYears.map((year) => ({
@@ -126,11 +124,9 @@ const App = () => {
               value: year,
             })),
           ]}
-          labelField='label'
-          valueField='value'
           value={selectedYear}
           placeholder='Year'
-          onChange={(item) => setSelectedYear(item.value)}
+          onChange={(value) => setSelectedYear(value)}
           style={{
             padding: 5,
             paddingLeft: 10,
@@ -140,16 +136,14 @@ const App = () => {
           }}
           itemTextStyle={styles.centeredText}
         />
-        <Dropdown
+        <AppDropdown
           data={[
             { label: 'All Months', value: ALL_OPTION_VALUE },
             ...MONTH_OPTIONS,
           ]}
-          labelField='label'
-          valueField='value'
           value={selectedMonth}
           placeholder='Month'
-          onChange={(item) => setSelectedMonth(item.value)}
+          onChange={(value) => setSelectedMonth(value)}
           style={{
             padding: 5,
             paddingLeft: 10,

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
 import { Tabs, useNavigation } from 'expo-router';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
@@ -20,6 +19,7 @@ import {
 } from '@/components/ui/modal';
 
 // Custom import
+import AppDropdown from '@/components/AppDropdown';
 import FormGroup from '@/components/FormGroup';
 import useShowToast from '@/hooks/useShowToast';
 import { useImportTransactions } from '@/hooks/useTransactions';
@@ -130,15 +130,13 @@ export default function TabLayout() {
                 label='Select File Type'
                 isRequired={true}
               >
-                <Dropdown
+                <AppDropdown
                   data={[
                     { label: '.json', value: 'json' },
                     { label: '.csv', value: 'csv' },
                   ]}
-                  labelField='label'
-                  valueField='value'
                   value={fileType}
-                  onChange={(item) => setFileType(item.value)}
+                  onChange={(value) => setFileType(value)}
                   style={{
                     padding: 5,
                     paddingLeft: 10,

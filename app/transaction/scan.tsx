@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraType, CameraView } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
@@ -15,6 +14,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
+import AppDropdown from '@/components/AppDropdown';
 import ImageViewer from '@/components/ImageViewer';
 import { DEFAULT_TIMEOUT_SEC } from '@/constants/api';
 import { useLLMContext } from '@/hooks/useLLMContext';
@@ -394,15 +394,13 @@ const ScanScreen = () => {
           </Text>
           <HStack style={styles.centered}>
             <Text style={styles.boldText}>Mode:</Text>
-            <Dropdown
+            <AppDropdown
               data={[
                 { label: 'Receipt', value: OcrMode.RECEIPT },
                 { label: 'Online Shopping', value: OcrMode.ONLINE_SHOPPING },
               ]}
-              labelField='label'
-              valueField='value'
               value={selectedMode}
-              onChange={(item) => setSelectedMode(item.value)}
+              onChange={(value) => setSelectedMode(value)}
               style={{
                 marginTop: 5,
                 marginLeft: 5,
