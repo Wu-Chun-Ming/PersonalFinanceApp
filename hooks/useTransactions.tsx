@@ -19,7 +19,7 @@ import {
   TransactionTypeValue,
 } from '@/types';
 import { getCategoriesByTransactionType } from '@/utils/category';
-import { getMonthRange, getYearRange } from '@/utils/dateRanges';
+import { getMonthRange, getYearRange } from '@/utils/time';
 import { useCustomMutation } from './useAppMutation';
 import { useCustomQuery } from './useAppQuery';
 import { useFilteredTransactions } from './useFilteredTransactions';
