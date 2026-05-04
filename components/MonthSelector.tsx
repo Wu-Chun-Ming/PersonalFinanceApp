@@ -4,26 +4,14 @@ import { AntDesign } from '@expo/vector-icons';
 
 import { HStack } from './ui/hstack';
 
+import { getMonthName } from '@/utils/time';
+
 interface MonthSelectorProps {
   onMonthChange: (month: number) => void;
 }
 
 const MonthSelector = ({ onMonthChange }: MonthSelectorProps) => {
   const now = new Date();
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
   const [selectedLocalMonth, setSelectedLocalMonth] = useState(
     now.getMonth() + 1,
   ); // 1-12 range
@@ -48,7 +36,7 @@ const MonthSelector = ({ onMonthChange }: MonthSelectorProps) => {
       </TouchableOpacity>
 
       <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>
-        {monthNames[selectedLocalMonth - 1]}
+        {getMonthName(selectedLocalMonth)}
       </Text>
 
       <TouchableOpacity

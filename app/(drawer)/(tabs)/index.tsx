@@ -16,14 +16,19 @@ import ActionFab from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import { MONTH_OPTIONS } from '@/constants/time';
 import { TRANSACTION_CATEGORIES } from '@/constants/transaction';
+import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import {
   usePieChartTransactions,
   useTransactionData,
   useTransactions,
   useTransactionSummary,
+  useTransactionYears,
 } from '@/hooks/useTransactions';
 import { TransactionType, TransactionTypeValue } from '@/types';
+
+const ALL_OPTION_VALUE = 0;
 
 const App = () => {
   const {
@@ -35,8 +40,16 @@ const App = () => {
     isRefetching,
     refetch,
   } = useTransactions();
-  const { expenseTransactions, incomeTransactions } =
-    useTransactionData(transactions);
+  const { data: transactionYears = [] } = useTransactionYears();
+  const [selectedYear, setSelectedYear] = useState(ALL_OPTION_VALUE);
+  const [selectedMonth, setSelectedMonth] = useState(ALL_OPTION_VALUE);
+  const selectedPeriodTransactions = useFilteredTransactions(transactions, {
+    year: selectedYear !== ALL_OPTION_VALUE ? selectedYear : undefined,
+    month: selectedMonth !== ALL_OPTION_VALUE ? selectedMonth : undefined,
+  });
+  const { expenseTransactions, incomeTransactions } = useTransactionData(
+    selectedPeriodTransactions,
+  );
   const [transactionType, setTransactionType] = useState<TransactionTypeValue>(
     TransactionType.EXPENSE,
   );
@@ -81,28 +94,72 @@ const App = () => {
       style={{ flex: 1 }}
       edges={['bottom']}
     >
-      <Dropdown
-        data={[
-          { label: 'Expense', value: TransactionType.EXPENSE },
-          { label: 'Income', value: TransactionType.INCOME },
-        ]}
-        labelField='label'
-        valueField='value'
-        value={transactionType}
-        onChange={(item) => setTransactionType(item.value)}
+      <HStack
+        className='justify-between items-center'
         style={{
           margin: 10,
-          padding: 5,
-          paddingLeft: 10,
-          borderWidth: 1,
-          borderRadius: 10,
-          maxWidth: '25%',
         }}
-        itemTextStyle={{
-          justifyContent: 'center',
-          textAlign: 'center',
-        }}
-      />
+      >
+        <Dropdown
+          data={[
+            { label: 'Expense', value: TransactionType.EXPENSE },
+            { label: 'Income', value: TransactionType.INCOME },
+          ]}
+          labelField='label'
+          valueField='value'
+          value={transactionType}
+          onChange={(item) => setTransactionType(item.value)}
+          style={{
+            padding: 5,
+            paddingLeft: 10,
+            borderWidth: 1,
+            borderRadius: 10,
+            width: '32%',
+          }}
+          itemTextStyle={styles.centeredText}
+        />
+        <Dropdown
+          data={[
+            { label: 'All Years', value: ALL_OPTION_VALUE },
+            ...transactionYears.map((year) => ({
+              label: String(year),
+              value: year,
+            })),
+          ]}
+          labelField='label'
+          valueField='value'
+          value={selectedYear}
+          placeholder='Year'
+          onChange={(item) => setSelectedYear(item.value)}
+          style={{
+            padding: 5,
+            paddingLeft: 10,
+            borderWidth: 1,
+            borderRadius: 10,
+            width: '32%',
+          }}
+          itemTextStyle={styles.centeredText}
+        />
+        <Dropdown
+          data={[
+            { label: 'All Months', value: ALL_OPTION_VALUE },
+            ...MONTH_OPTIONS,
+          ]}
+          labelField='label'
+          valueField='value'
+          value={selectedMonth}
+          placeholder='Month'
+          onChange={(item) => setSelectedMonth(item.value)}
+          style={{
+            padding: 5,
+            paddingLeft: 10,
+            borderWidth: 1,
+            borderRadius: 10,
+            width: '32%',
+          }}
+          itemTextStyle={styles.centeredText}
+        />
+      </HStack>
 
       {/* Pie Chart */}
       <View

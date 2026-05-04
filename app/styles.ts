@@ -12,6 +12,10 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  centeredText: {
+    justifyContent: 'center',
+    textAlign: 'center',
+  },
   centeredFlex: {
     flex: 1,
     justifyContent: 'center',

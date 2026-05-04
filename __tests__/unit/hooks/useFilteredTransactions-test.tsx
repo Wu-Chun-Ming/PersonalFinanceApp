@@ -67,6 +67,74 @@ describe('useFilteredTransactions', () => {
     });
   });
 
+  test('should returns only transactions matching the year', async () => {
+    const yearToFilter = 2025;
+
+    const { result: filtered } = renderHook(() =>
+      useFilteredTransactions(mockTransactions, {
+        year: yearToFilter,
+      }),
+    );
+
+    expect(filtered.current).toHaveLength(3);
+    expect(filtered.current).toEqual([
+      mockTransactions[0],
+      mockTransactions[3],
+      mockTransactions[4],
+    ]);
+
+    filtered.current.forEach((item) => {
+      expect(item.date).not.toBeNull();
+      expect(item.date!.getFullYear()).toBe(yearToFilter);
+    });
+  });
+
+  test('should returns only transactions matching the month', async () => {
+    const monthToFilter = 1;
+
+    const { result: filtered } = renderHook(() =>
+      useFilteredTransactions(mockTransactions, {
+        month: monthToFilter,
+      }),
+    );
+
+    expect(filtered.current).toHaveLength(3);
+    expect(filtered.current).toEqual([
+      mockTransactions[0],
+      mockTransactions[3],
+      mockTransactions[4],
+    ]);
+
+    filtered.current.forEach((item) => {
+      expect(item.date).not.toBeNull();
+      expect(item.date!.getMonth() + 1).toBe(monthToFilter);
+    });
+  });
+
+  test('should returns empty array when year filter has no matches', async () => {
+    const yearToFilter = 2024;
+
+    const { result: filtered } = renderHook(() =>
+      useFilteredTransactions(mockTransactions, {
+        year: yearToFilter,
+      }),
+    );
+
+    expect(filtered.current).toEqual([]);
+  });
+
+  test('should returns empty array when month filter has no matches', async () => {
+    const monthToFilter = 12;
+
+    const { result: filtered } = renderHook(() =>
+      useFilteredTransactions(mockTransactions, {
+        month: monthToFilter,
+      }),
+    );
+
+    expect(filtered.current).toEqual([]);
+  });
+
   test('should returns only transactions matching the type', async () => {
     const { result: filtered } = renderHook(() =>
       useFilteredTransactions(mockTransactions, {

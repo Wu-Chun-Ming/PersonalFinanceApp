@@ -12,6 +12,8 @@ interface FilterParams {
   date?: Date | string;
   startDate?: Date | string;
   endDate?: Date | string;
+  year?: number;
+  month?: number;
   type?: TransactionTypeValue | string;
   category?: TransactionCategoryType | string;
   amount?: number;
@@ -40,6 +42,8 @@ export const filterTransactions = (
     date,
     startDate,
     endDate,
+    year,
+    month,
     type,
     category,
     amount,
@@ -62,6 +66,10 @@ export const filterTransactions = (
       (!date || (tDate !== null && tDate.getTime() === dateObj)) &&
       (!startDate || (tDate !== null && tDate >= startDateObj!)) &&
       (!endDate || (tDate !== null && tDate < endDateObj!)) &&
+      (year === undefined ||
+        (tDate !== null && tDate.getFullYear() === year)) &&
+      (month === undefined ||
+        (tDate !== null && tDate.getMonth() + 1 === month)) &&
       (!type || transaction.type === type) &&
       (!category || transaction.category === category) &&
       (amount === undefined || transaction.amount === amount) &&

@@ -13,6 +13,8 @@ import {
 } from './ui/modal';
 import { SelectItem } from './ui/select';
 
+import { MONTH_OPTIONS } from '@/constants/time';
+import { getMonthName } from '@/utils/time';
 import FormGroup from './FormGroup';
 import SelectGroup from './SelectGroup';
 
@@ -24,21 +26,6 @@ type BudgetModalProps = {
   selectedMonth: number;
   expenseCategories: string[];
 };
-
-const MONTHS: readonly [string, number][] = [
-  ['January', 1],
-  ['February', 2],
-  ['March', 3],
-  ['April', 4],
-  ['May', 5],
-  ['June', 6],
-  ['July', 7],
-  ['August', 8],
-  ['September', 9],
-  ['October', 10],
-  ['November', 11],
-  ['December', 12],
-];
 
 const BudgetModal = ({
   isOpen,
@@ -92,14 +79,14 @@ const BudgetModal = ({
             errorText={formik.errors.month}
           >
             <SelectGroup
-              initialLabel={MONTHS[selectedMonth - 1]?.[0] ?? ''}
+              initialLabel={getMonthName(selectedMonth)}
               selectedValue={formik.values.month}
               onValueChange={formik.handleChange('month')}
             >
-              {MONTHS.map(([name, value]) => (
+              {MONTH_OPTIONS.map(({ label, value }) => (
                 <SelectItem
                   key={value}
-                  label={name}
+                  label={label}
                   value={value.toString()}
                 />
               ))}
