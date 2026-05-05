@@ -9,7 +9,7 @@ import { budgetTableSchema, transactionTableSchema } from './schema';
 let dbInstance: SQLite.SQLiteDatabase | null = null; // To store the singleton instance
 
 // Open local database
-export const getDatabaseInstance = async () => {
+const getDatabaseInstance = async () => {
   try {
     if (!dbInstance) {
       // Open the database if no instance exists
@@ -19,6 +19,26 @@ export const getDatabaseInstance = async () => {
   } catch (error) {
     throw new Error(`Error opening database: ${(error as Error).message}`);
   }
+};
+
+// Query queue to serialize database access
+let dbQueue: Promise<unknown> = Promise.resolve();
+
+export const runWithDb = async <T>(
+  fn: (db: SQLite.SQLiteDatabase) => Promise<T>,
+  dbInstance?: SQLite.SQLiteDatabase,
+) => {
+  if (dbInstance) {
+    return fn(dbInstance);
+  }
+
+  const result = dbQueue.then(async () => {
+    const db = await getDatabaseInstance();
+    return fn(db);
+  });
+
+  dbQueue = result.catch(() => {}); // keep queue alive after failures
+  return result;
 };
 
 // Initialise database
