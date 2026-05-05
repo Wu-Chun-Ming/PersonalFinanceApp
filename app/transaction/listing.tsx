@@ -21,7 +21,7 @@ import { RecurringFrequency, TransactionTypeValue } from '@/types';
 const TransactionListScreen = () => {
   const navigation = useNavigation();
   // Filters
-  const { date, type, category, amount, recurring, frequency } =
+  const { date, year, month, type, category, amount, recurring, frequency } =
     useLocalSearchParams();
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState<boolean>(true);
   const { scannedData } = useScanContext();
@@ -29,7 +29,7 @@ const TransactionListScreen = () => {
 
   // Transactions Data
   const {
-    data: transactions,
+    data: transactions = [],
     isLoading,
     isError,
     isRefetchError,
@@ -49,10 +49,12 @@ const TransactionListScreen = () => {
 
   const dates = formik.values.date;
   const hasMultipleDates = dates.length > 1;
-  const filteredTransactions = useFilteredTransactions(transactions ?? [], {
+  const filteredTransactions = useFilteredTransactions(transactions, {
     date: dates.length === 1 ? new Date(dates[0]) : undefined,
     startDate: hasMultipleDates ? new Date(dates[0]) : undefined,
     endDate: hasMultipleDates ? new Date(dates[dates.length - 1]) : undefined,
+    year: year ? Number(year.toString()) : undefined,
+    month: month ? Number(month.toString()) : undefined,
     type: formik.values.type
       ? (formik.values.type as TransactionTypeValue)
       : undefined,

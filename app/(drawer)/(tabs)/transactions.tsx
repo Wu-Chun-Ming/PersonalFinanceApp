@@ -209,7 +209,11 @@ const TransactionScreen = () => {
                 {transactions && (
                   <TransactionBreakdown
                     data={getTransactionBreakdownByType(type)}
-                    type={type}
+                    onItemPress={(item) =>
+                      router.navigate(
+                        `/transaction/listing?type=${type}&category=${item.category}&recurring=false`,
+                      )
+                    }
                   />
                 )}
               </View>

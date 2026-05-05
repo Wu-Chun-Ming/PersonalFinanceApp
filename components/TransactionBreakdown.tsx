@@ -1,5 +1,4 @@
 import { Text, TouchableNativeFeedback, View } from 'react-native';
-import { router } from 'expo-router';
 
 import { Box } from './ui/box';
 import { HStack } from './ui/hstack';
@@ -14,16 +13,21 @@ interface TransactionBreakdownProps {
     total: number;
     percentage?: number;
   }[];
-  type: 'expense' | 'income';
-  colorBoxVisible?: boolean;
-  percentageVisible?: boolean;
+  onItemPress?: (item: {
+    category: keyof typeof CATEGORY_COLORS;
+    total: number;
+    percentage?: number;
+  }) => void;
+  displayOptions?: {
+    colorBoxVisible?: boolean;
+    percentageVisible?: boolean;
+  };
 }
 
 const TransactionBreakdown = ({
   data,
-  type,
-  colorBoxVisible = false,
-  percentageVisible = false,
+  onItemPress,
+  displayOptions: { colorBoxVisible = false, percentageVisible = false } = {},
 }: TransactionBreakdownProps) => {
   return (
     <VStack>
@@ -43,13 +47,7 @@ const TransactionBreakdown = ({
                   }}
                 />
               )}
-              <TouchableNativeFeedback
-                onPress={() =>
-                  router.navigate(
-                    `/transaction/listing?type=${type}&category=${item.category}&recurring=false`,
-                  )
-                }
-              >
+              <TouchableNativeFeedback onPress={() => onItemPress?.(item)}>
                 {/* Category Label */}
                 <View
                   style={[

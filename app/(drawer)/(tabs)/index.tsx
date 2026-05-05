@@ -42,7 +42,7 @@ const App = () => {
   } = useTransactions();
   const { data: transactionYears = [] } = useTransactionYears();
   const [selectedYear, setSelectedYear] = useState(ALL_OPTION_VALUE);
-  const [selectedMonth, setSelectedMonth] = useState(ALL_OPTION_VALUE);
+  const [selectedMonth, setSelectedMonth] = useState(ALL_OPTION_VALUE); // 1-12 for months, 0 for all months
   const selectedPeriodTransactions = useFilteredTransactions(transactions, {
     year: selectedYear !== ALL_OPTION_VALUE ? selectedYear : undefined,
     month: selectedMonth !== ALL_OPTION_VALUE ? selectedMonth : undefined,
@@ -225,9 +225,15 @@ const App = () => {
           {transactionsPerCategory && (
             <TransactionBreakdown
               data={transactionBreakdown}
-              type={transactionType}
-              colorBoxVisible={true}
-              percentageVisible={true}
+              onItemPress={(item) =>
+                router.navigate(
+                  `/transaction/listing?type=${transactionType}&category=${item.category}&recurring=false${selectedYear !== ALL_OPTION_VALUE ? `&year=${selectedYear}` : ''}${selectedMonth !== ALL_OPTION_VALUE ? `&month=${selectedMonth}` : ''}`,
+                )
+              }
+              displayOptions={{
+                colorBoxVisible: true,
+                percentageVisible: true,
+              }}
             />
           )}
         </View>
