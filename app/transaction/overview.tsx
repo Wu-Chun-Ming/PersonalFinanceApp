@@ -7,11 +7,9 @@ import { router } from 'expo-router';
 // Gluestack UI
 import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
-import { AddIcon } from '@/components/ui/icon';
 
 // Custom import
 import styles from '@/app/styles';
-import ActionFab from '@/components/ActionFab';
 import AppDropdown from '@/components/AppDropdown';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
@@ -173,79 +171,69 @@ const TransactionOverviewScreen = () => {
         )}
       </View>
 
-      <ScrollView>
+      <ScrollView
+        style={{
+          margin: 10,
+        }}
+      >
         <View
           style={{
-            margin: 10,
+            paddingHorizontal: 20,
+            paddingVertical: 15,
+            backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
+            borderRadius: 20,
           }}
         >
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingVertical: 15,
-              backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
-              borderRadius: 20,
-            }}
-          >
-            <HStack className='justify-between items-center'>
-              <Heading
-                style={{
-                  textDecorationLine: 'underline',
-                }}
-              >
-                {transactionType[0].toUpperCase() + transactionType.slice(1)}
-              </Heading>
-              <TouchableNativeFeedback
-                onPress={() =>
-                  router.navigate(
-                    `/transaction/listing?type=${transactionType}`,
-                  )
-                }
-              >
-                <Text
-                  style={[
-                    styles.text,
-                    {
-                      backgroundColor:
-                        transactionType === TransactionType.EXPENSE
-                          ? '#2bae2bff'
-                          : '#bebe09ff',
-                      padding: 8,
-                      borderRadius: 10,
-                    },
-                  ]}
-                >
-                  View All
-                </Text>
-              </TouchableNativeFeedback>
-            </HStack>
-          </View>
-          {/* Total by Category */}
-          {transactionsPerCategory && (
-            <TransactionBreakdown
-              data={transactionBreakdown}
-              onItemPress={(item) =>
-                router.navigate(
-                  `/transaction/listing?type=${transactionType}&category=${item.category}&recurring=false${selectedYear !== ALL_OPTION_VALUE ? `&year=${selectedYear}` : ''}${selectedMonth !== ALL_OPTION_VALUE ? `&month=${selectedMonth}` : ''}`,
-                )
-              }
-              displayOptions={{
-                colorBoxVisible: true,
-                percentageVisible: true,
+          <HStack className='justify-between items-center'>
+            <Heading
+              style={{
+                textDecorationLine: 'underline',
               }}
-            />
-          )}
+            >
+              {transactionType[0].toUpperCase() + transactionType.slice(1)}
+            </Heading>
+            <TouchableNativeFeedback
+              onPress={() =>
+                router.navigate(`/transaction/listing?type=${transactionType}`)
+              }
+            >
+              <Text
+                style={[
+                  styles.text,
+                  {
+                    backgroundColor:
+                      transactionType === TransactionType.EXPENSE
+                        ? '#2bae2bff'
+                        : '#bebe09ff',
+                    padding: 8,
+                    borderRadius: 10,
+                  },
+                ]}
+              >
+                View All
+              </Text>
+            </TouchableNativeFeedback>
+          </HStack>
         </View>
+        {/* Total by Category */}
+        {transactionsPerCategory && (
+          <TransactionBreakdown
+            data={transactionBreakdown}
+            onItemPress={(item) =>
+              router.navigate(
+                `/transaction/listing?type=${transactionType}&category=${item.category}&recurring=false${selectedYear !== ALL_OPTION_VALUE ? `&year=${selectedYear}` : ''}${selectedMonth !== ALL_OPTION_VALUE ? `&month=${selectedMonth}` : ''}`,
+              )
+            }
+            displayOptions={{
+              colorBoxVisible: true,
+              percentageVisible: true,
+            }}
+          />
+        )}
 
         {/* Reserve Space for Floating Action Button */}
         <View style={{ minHeight: 60 }} />
       </ScrollView>
-
-      {/* Floating action button to add new transaction */}
-      <ActionFab
-        href={`/transaction/new`}
-        icon={AddIcon}
-      />
     </SafeAreaView>
   );
 };

@@ -5,8 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import dayjs from 'dayjs';
 
+// Gluestack UI
+import { AddIcon } from '@/components/ui/icon';
+
 // Custom import
 import styles from '@/app/styles';
+import ActionFab from '@/components/ActionFab';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
 import { TRANSACTION_CATEGORIES } from '@/constants/transaction';
@@ -160,7 +164,16 @@ const App = () => {
             }
           />
         )}
+
+        {/* Reserve Space for Floating Action Button */}
+        <View style={{ minHeight: 60 }} />
       </ScrollView>
+
+      {/* Floating action button to add new transaction */}
+      <ActionFab
+        href={`/transaction/new`}
+        icon={AddIcon}
+      />
     </SafeAreaView>
   );
 };

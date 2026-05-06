@@ -5,11 +5,9 @@ import { router } from 'expo-router';
 
 // Gluestack UI
 import { HStack } from '@/components/ui/hstack';
-import { AddIcon } from '@/components/ui/icon';
 
 // Custom import
 import styles from '@/app/styles';
-import ActionFab from '@/components/ActionFab';
 import BarChart from '@/components/BarChart';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
@@ -151,85 +149,77 @@ const TransactionBreakdownScreen = () => {
       </View>
 
       {shouldRenderBarChart && (
-        <ScrollView>
-          <View
-            style={{
-              margin: 10,
-            }}
-          >
-            {/* Transactions Breakdown */}
-            {TRANSACTION_TYPES.map((type, index) => (
-              <View key={index}>
-                <HStack
-                  className='justify-between'
-                  style={{
-                    backgroundColor: TRANSACTION_TYPE_COLORS[type],
-                    paddingHorizontal: 20,
-                    paddingVertical: 15,
-                    borderRadius: 20,
-                    alignItems: 'center',
-                  }}
+        <ScrollView
+          style={{
+            margin: 10,
+          }}
+        >
+          {/* Transactions Breakdown */}
+          {TRANSACTION_TYPES.map((type, index) => (
+            <View key={index}>
+              <HStack
+                className='justify-between'
+                style={{
+                  backgroundColor: TRANSACTION_TYPE_COLORS[type],
+                  paddingHorizontal: 20,
+                  paddingVertical: 15,
+                  borderRadius: 20,
+                  alignItems: 'center',
+                }}
+              >
+                <Text
+                  style={[
+                    styles.boldText,
+                    {
+                      textDecorationLine: 'underline',
+                    },
+                  ]}
+                >
+                  Top 5 {type.charAt(0).toUpperCase() + type.slice(1)}{' '}
+                  Categories
+                </Text>
+                <TouchableNativeFeedback
+                  onPress={() =>
+                    router.navigate(
+                      `/transaction/listing?type=${type}&recurring=false`,
+                    )
+                  }
                 >
                   <Text
                     style={[
-                      styles.boldText,
+                      styles.text,
                       {
-                        textDecorationLine: 'underline',
+                        backgroundColor:
+                          type === TransactionType.EXPENSE
+                            ? '#2bae2bff'
+                            : '#bebe09ff',
+                        padding: 8,
+                        borderRadius: 10,
                       },
                     ]}
                   >
-                    Top 5 {type.charAt(0).toUpperCase() + type.slice(1)}{' '}
-                    Categories
+                    View All
                   </Text>
-                  <TouchableNativeFeedback
-                    onPress={() =>
-                      router.navigate(
-                        `/transaction/listing?type=${type}&recurring=false`,
-                      )
-                    }
-                  >
-                    <Text
-                      style={[
-                        styles.text,
-                        {
-                          backgroundColor:
-                            type === TransactionType.EXPENSE
-                              ? '#2bae2bff'
-                              : '#bebe09ff',
-                          padding: 8,
-                          borderRadius: 10,
-                        },
-                      ]}
-                    >
-                      View All
-                    </Text>
-                  </TouchableNativeFeedback>
-                </HStack>
-                {/* Total by Categories */}
-                {transactions && (
-                  <TransactionBreakdown
-                    data={getTransactionBreakdownByType(type)}
-                    onItemPress={(item) =>
-                      router.navigate(
-                        `/transaction/listing?type=${type}&category=${item.category}&recurring=false`,
-                      )
-                    }
-                  />
-                )}
-              </View>
-            ))}
-          </View>
+                </TouchableNativeFeedback>
+              </HStack>
+              {/* Total by Categories */}
+              {transactions && (
+                <TransactionBreakdown
+                  data={getTransactionBreakdownByType(type)}
+                  onItemPress={(item) =>
+                    router.navigate(
+                      `/transaction/listing?type=${type}&category=${item.category}&recurring=false`,
+                    )
+                  }
+                />
+              )}
+            </View>
+          ))}
 
           {/* Reserve Space for Floating Action Button */}
           <View style={{ minHeight: 60 }} />
         </ScrollView>
       )}
-
-      {/* Floating action button to add new transaction */}
-      <ActionFab
-        href={`/transaction/new`}
-        icon={AddIcon}
-      />
     </SafeAreaView>
   );
 };
