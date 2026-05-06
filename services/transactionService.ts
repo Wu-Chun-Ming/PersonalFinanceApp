@@ -13,11 +13,15 @@ import {
   storeTransaction,
   updateTransaction,
 } from '@/database/transactionDatabase';
-import { TransactionMultiDateProps, TransactionProps } from '@/types';
+import {
+  DatabaseOptions,
+  TransactionMultiDateProps,
+  TransactionProps,
+} from '@/types';
 
 // Fetch transactions
-export const fetchTransactions = async () => {
-  const response = await getTransactions();
+export const fetchTransactions = async (options?: DatabaseOptions) => {
+  const response = await getTransactions(options);
   return response.data;
 };
 

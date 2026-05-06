@@ -55,10 +55,10 @@ describe('Transaction operations', () => {
         mockDatabaseTransactions,
       );
 
-      const response = await getTransactions(mockedDb);
+      const response = await getTransactions({ dbInstance: mockedDb });
 
       expect(mockedDb.getAllAsync).toHaveBeenCalledWith(
-        'SELECT * FROM transactions',
+        'SELECT * FROM transactions ORDER BY date DESC',
       );
       expect(response.data).toEqual(mockTransactions);
     });
@@ -166,10 +166,10 @@ describe('Transaction operations', () => {
     test('should fail to fetch transactions', async () => {
       (mockedDb.getAllAsync as jest.Mock).mockResolvedValue([]);
 
-      const response = await getTransactions(mockedDb);
+      const response = await getTransactions({ dbInstance: mockedDb });
 
       expect(mockedDb.getAllAsync).toHaveBeenCalledWith(
-        'SELECT * FROM transactions',
+        'SELECT * FROM transactions ORDER BY date DESC',
       );
       expect(response.data).toEqual([]);
     });
@@ -253,7 +253,7 @@ describe('Transaction error handling', () => {
   });
 
   test('should throw error when fetching transactions', async () => {
-    await expect(getTransactions(mockedDb)).rejects.toThrow(
+    await expect(getTransactions({ dbInstance: mockedDb })).rejects.toThrow(
       'Error fetching data from transactions table: Database error',
     );
   });

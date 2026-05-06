@@ -12,6 +12,7 @@ import {
   importTransactions,
 } from '@/services/transactionService';
 import {
+  DatabaseOptions,
   TransactionCategoryType,
   TransactionMultiDateProps,
   TransactionProps,
@@ -25,10 +26,10 @@ import { useCustomQuery } from './useAppQuery';
 import { useFilteredTransactions } from './useFilteredTransactions';
 
 // Custom hook to fetch transactions
-export const useTransactions = () => {
+export const useTransactions = (options?: DatabaseOptions) => {
   return useCustomQuery<TransactionProps[]>({
     queryKey: ['transactions'],
-    queryFn: fetchTransactions,
+    queryFn: () => fetchTransactions(options),
     fallbackValue: [],
   });
 };
@@ -174,41 +175,41 @@ export const useTransactionData = (
 export const useTransactionSummary = (transactions: TransactionProps[]) => {
   // Calculate transaction totals per category and month, grand total
   const { totalsPerCategory, totalsPerMonth, grandTotal } = useMemo(() => {
-    const totalsPerCategory: Record<TransactionCategoryType, number> =
-      {} as Record<TransactionCategoryType, number>;
-    // Initialize fixed-size arrays
-    const income: number[] = Array(12).fill(0);
-    const expense: number[] = Array(12).fill(0);
-    let grandTotal = 0;
+      const totalsPerCategory: Record<TransactionCategoryType, number> =
+        {} as Record<TransactionCategoryType, number>;
+      // Initialize fixed-size arrays
+      const income: number[] = Array(12).fill(0);
+      const expense: number[] = Array(12).fill(0);
+      let grandTotal = 0;
 
-    for (let i = 0; i < transactions.length; i++) {
-      const t = transactions[i];
-      const month = new Date(t.date).getMonth(); // 0–11 index
+      for (let i = 0; i < transactions.length; i++) {
+        const t = transactions[i];
+        const month = new Date(t.date).getMonth(); // 0–11 index
       const { category } = t;
       const { amount } = t;
 
-      if (t.type === TransactionType.INCOME) {
-        income[month] += amount;
-      } else {
-        expense[month] += amount;
-      }
+        if (t.type === TransactionType.INCOME) {
+          income[month] += amount;
+        } else {
+          expense[month] += amount;
+        }
 
       totalsPerCategory[category] = (totalsPerCategory[category] ?? 0) + amount;
-      grandTotal += amount;
-    }
+        grandTotal += amount;
+      }
 
-    const totalsPerMonth = Array.from({ length: 12 }, (_, i) => ({
-      month: i + 1,
-      incomePerMonth: income[i],
-      expensePerMonth: expense[i],
-    }));
+      const totalsPerMonth = Array.from({ length: 12 }, (_, i) => ({
+        month: i + 1,
+        incomePerMonth: income[i],
+        expensePerMonth: expense[i],
+      }));
 
-    return {
-      totalsPerCategory,
-      totalsPerMonth,
-      grandTotal,
-    };
-  }, [transactions]);
+      return {
+        totalsPerCategory,
+        totalsPerMonth,
+        grandTotal,
+      };
+    }, [transactions]);
 
   // Calculate percentage for each category
   const percentagesPerCategory = useMemo(() => {

@@ -1,15 +1,24 @@
 import * as SQLite from 'expo-sqlite';
 
-import { runWithDb } from '@/database/init';
 // Custom import
-import { TransactionMultiDateProps, TransactionProps } from '@/types';
+import { runWithDb } from '@/database/init';
+import {
+  DatabaseOptions,
+  TransactionMultiDateProps,
+  TransactionProps,
+} from '@/types';
 
 // Fetch all transaction
-export const getTransactions = async (dbInstance?: SQLite.SQLiteDatabase) => {
+export const getTransactions = async ({
+  sortOrder = 'DESC',
+  dbInstance,
+}: DatabaseOptions = {}) => {
   return runWithDb(async (db) => {
     try {
       // Fetch all the data from table
-      const result = await db.getAllAsync(`SELECT * FROM transactions`);
+      const result = await db.getAllAsync(
+        `SELECT * FROM transactions ORDER BY date ${sortOrder || 'DESC'}`,
+      );
 
       // Successful fetched
       if (result.length > 0) {
