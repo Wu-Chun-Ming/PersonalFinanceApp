@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { router } from 'expo-router';
+import dayjs from 'dayjs';
 
 import { CATEGORY_COLORS } from '@/constants/colors';
 import {
@@ -174,27 +175,43 @@ export const useTransactionData = (
 // Custom hook to summarize transaction data
 export const useTransactionSummary = (transactions: TransactionProps[]) => {
   // Calculate transaction totals per category and month, grand total
-  const { totalsPerCategory, totalsPerMonth, grandTotal } = useMemo(() => {
+  const { totalsPerCategory, totalsPerMonth, grandTotal, transactionsPerDay } =
+    useMemo(() => {
       const totalsPerCategory: Record<TransactionCategoryType, number> =
         {} as Record<TransactionCategoryType, number>;
       // Initialize fixed-size arrays
       const income: number[] = Array(12).fill(0);
       const expense: number[] = Array(12).fill(0);
+      const transactionsPerDay: Record<
+        string,
+        { income: number; expense: number }
+      > = {};
+
       let grandTotal = 0;
 
       for (let i = 0; i < transactions.length; i++) {
         const t = transactions[i];
+        if (!t.date) continue;
         const month = new Date(t.date).getMonth(); // 0–11 index
-      const { category } = t;
-      const { amount } = t;
+        const { category, amount } = t;
+        const dateKey = dayjs(t.date).format('YYYY-MM-DD');
+        if (!transactionsPerDay[dateKey]) {
+          transactionsPerDay[dateKey] = {
+            income: 0,
+            expense: 0,
+          };
+        }
 
         if (t.type === TransactionType.INCOME) {
           income[month] += amount;
+          transactionsPerDay[dateKey].income += amount;
         } else {
           expense[month] += amount;
+          transactionsPerDay[dateKey].expense += amount;
         }
 
-      totalsPerCategory[category] = (totalsPerCategory[category] ?? 0) + amount;
+        totalsPerCategory[category] =
+          (totalsPerCategory[category] ?? 0) + amount;
         grandTotal += amount;
       }
 
@@ -208,6 +225,7 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
         totalsPerCategory,
         totalsPerMonth,
         grandTotal,
+        transactionsPerDay,
       };
     }, [transactions]);
 
@@ -234,6 +252,7 @@ export const useTransactionSummary = (transactions: TransactionProps[]) => {
     transactionTotalsPerMonth: totalsPerMonth,
     grandTotal,
     percentagesPerCategory,
+    transactionsPerDay,
   };
 };
 

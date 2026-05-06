@@ -1,34 +1,20 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
-import { PieChart } from 'react-native-gifted-charts';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-
-// Gluestack UI
-import { Heading } from '@/components/ui/heading';
-import { HStack } from '@/components/ui/hstack';
-import { AddIcon } from '@/components/ui/icon';
+import dayjs from 'dayjs';
 
 // Custom import
 import styles from '@/app/styles';
-import ActionFab from '@/components/ActionFab';
-import AppDropdown from '@/components/AppDropdown';
 import QueryState from '@/components/QueryState';
 import TransactionBreakdown from '@/components/TransactionBreakdown';
-import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
-import { MONTH_OPTIONS } from '@/constants/time';
 import { TRANSACTION_CATEGORIES } from '@/constants/transaction';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import {
-  usePieChartTransactions,
-  useTransactionData,
   useTransactions,
   useTransactionSummary,
-  useTransactionYears,
 } from '@/hooks/useTransactions';
-import { TransactionType, TransactionTypeValue } from '@/types';
-
-const ALL_OPTION_VALUE = 0;
 
 const App = () => {
   const {
@@ -39,40 +25,30 @@ const App = () => {
     isRefetchError,
     isRefetching,
     refetch,
-  } = useTransactions();
-  const { data: transactionYears = [] } = useTransactionYears();
-  const [selectedYear, setSelectedYear] = useState(ALL_OPTION_VALUE);
-  const [selectedMonth, setSelectedMonth] = useState(ALL_OPTION_VALUE); // 1-12 for months, 0 for all months
+  } = useTransactions({ sortOrder: 'ASC' });
+  const now = dayjs();
+  const today = now.format('YYYY-MM-DD');
+  const [selectedYear, setSelectedYear] = useState(now.year());
+  const [selectedMonth, setSelectedMonth] = useState(now.month() + 1); // 1-12 for months
+  const monthStart = dayjs(`${selectedYear}-${selectedMonth}-01`);
+  const gridStart = monthStart.startOf('month').startOf('week');
+  const gridDays = Array.from({ length: 42 }).map((_, i) =>
+    gridStart.add(i, 'day'),
+  );
+  const startDate = gridDays[0].format('YYYY-MM-DD');
+  const endDate = gridDays[41].format('YYYY-MM-DD');
+
   const selectedPeriodTransactions = useFilteredTransactions(transactions, {
-    year: selectedYear !== ALL_OPTION_VALUE ? selectedYear : undefined,
-    month: selectedMonth !== ALL_OPTION_VALUE ? selectedMonth : undefined,
+    startDate,
+    endDate,
   });
-  const { expenseTransactions, incomeTransactions } = useTransactionData(
-    selectedPeriodTransactions,
-  );
-  const [transactionType, setTransactionType] = useState<TransactionTypeValue>(
-    TransactionType.EXPENSE,
-  );
-  const filteredTransactions =
-    transactionType === TransactionType.EXPENSE
-      ? expenseTransactions
-      : incomeTransactions;
-  const { transactionsPerCategory } = usePieChartTransactions(
-    filteredTransactions,
-    transactionType,
-  );
-  const shouldRenderPieChart =
-    transactionsPerCategory &&
-    transactionsPerCategory.length &&
-    Object.values(transactionsPerCategory).some((item) => item.value > 0);
-  const { transactionTotalsPerCategory, percentagesPerCategory } =
-    useTransactionSummary(filteredTransactions);
+  const { transactionTotalsPerCategory, transactionsPerDay } =
+    useTransactionSummary(selectedPeriodTransactions);
 
   const transactionBreakdown = TRANSACTION_CATEGORIES.map((category) => {
     return {
       category,
       total: transactionTotalsPerCategory[category] || 0,
-      percentage: percentagesPerCategory[category] || 0,
     };
   });
 
@@ -94,159 +70,97 @@ const App = () => {
       style={{ flex: 1 }}
       edges={['bottom']}
     >
-      <HStack
-        className='justify-between items-center'
+      <Calendar
+        showSixWeeks={true}
+        dayComponent={({ date, state }) => {
+          if (!date) return null;
+
+          const isToday = date.dateString === today;
+
+          const income = transactionsPerDay[date.dateString]?.income;
+          const expense = transactionsPerDay[date.dateString]?.expense;
+
+          return (
+            <Pressable
+              onPress={() => {
+                router.navigate(`/transaction/listing?date=${date.dateString}`);
+              }}
+            >
+              <View
+                style={[
+                  styles.centered,
+                  {
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: isToday ? '#007AFF' : 'transparent',
+                  },
+                ]}
+              >
+                {/* Day number */}
+                <Text
+                  style={{
+                    color: isToday
+                      ? 'white'
+                      : state === 'disabled'
+                        ? 'gray'
+                        : 'black',
+                    fontWeight: '600',
+                  }}
+                >
+                  {date.day}
+                </Text>
+
+                {/* Income */}
+                {income > 0 && (
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: 'green',
+                    }}
+                  >
+                    +${income}
+                  </Text>
+                )}
+
+                {/* Expense */}
+                {expense > 0 && (
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: 'red',
+                    }}
+                  >
+                    -${expense}
+                  </Text>
+                )}
+              </View>
+            </Pressable>
+          );
+        }}
+        onMonthChange={(month) => {
+          setSelectedYear(month.year);
+          setSelectedMonth(month.month);
+        }}
+      />
+
+      <ScrollView
         style={{
           margin: 10,
         }}
       >
-        <AppDropdown
-          data={[
-            { label: 'Expense', value: TransactionType.EXPENSE },
-            { label: 'Income', value: TransactionType.INCOME },
-          ]}
-          value={transactionType}
-          onChange={(value) => setTransactionType(value)}
-          style={{
-            padding: 5,
-            paddingLeft: 10,
-            borderWidth: 1,
-            borderRadius: 10,
-            width: '32%',
-          }}
-          itemTextStyle={styles.centeredText}
-        />
-        <AppDropdown
-          data={[
-            { label: 'All Years', value: ALL_OPTION_VALUE },
-            ...transactionYears.map((year) => ({
-              label: String(year),
-              value: year,
-            })),
-          ]}
-          value={selectedYear}
-          placeholder='Year'
-          onChange={(value) => setSelectedYear(value)}
-          style={{
-            padding: 5,
-            paddingLeft: 10,
-            borderWidth: 1,
-            borderRadius: 10,
-            width: '32%',
-          }}
-          itemTextStyle={styles.centeredText}
-        />
-        <AppDropdown
-          data={[
-            { label: 'All Months', value: ALL_OPTION_VALUE },
-            ...MONTH_OPTIONS,
-          ]}
-          value={selectedMonth}
-          placeholder='Month'
-          onChange={(value) => setSelectedMonth(value)}
-          style={{
-            padding: 5,
-            paddingLeft: 10,
-            borderWidth: 1,
-            borderRadius: 10,
-            width: '32%',
-          }}
-          itemTextStyle={styles.centeredText}
-        />
-      </HStack>
-
-      {/* Pie Chart */}
-      <View
-        style={[
-          styles.centered,
-          {
-            height: '40%',
-            paddingVertical: 10,
-          },
-        ]}
-      >
-        {shouldRenderPieChart ? (
-          <PieChart data={transactionsPerCategory} />
-        ) : (
-          <View style={styles.centeredFlex}>
-            <Text style={styles.boldText}>No data available.</Text>
-          </View>
+        {/* Total by Category */}
+        {selectedPeriodTransactions && (
+          <TransactionBreakdown
+            data={transactionBreakdown}
+            onItemPress={(item) =>
+              router.navigate(
+                `/transaction/listing?category=${item.category}&recurring=false&year=${selectedYear}&month=${selectedMonth}`,
+              )
+            }
+          />
         )}
-      </View>
-
-      <ScrollView>
-        <View
-          style={{
-            margin: 10,
-          }}
-        >
-          <View
-            style={{
-              paddingHorizontal: 20,
-              paddingVertical: 15,
-              backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
-              borderRadius: 20,
-            }}
-          >
-            <HStack className='justify-between items-center'>
-              <Heading
-                style={{
-                  textDecorationLine: 'underline',
-                }}
-              >
-                {transactionType[0].toUpperCase() + transactionType.slice(1)}
-              </Heading>
-              <TouchableNativeFeedback
-                onPress={() =>
-                  router.navigate(
-                    `/transaction/listing?type=${transactionType}`,
-                  )
-                }
-              >
-                <Text
-                  style={[
-                    styles.text,
-                    {
-                      backgroundColor:
-                        transactionType === TransactionType.EXPENSE
-                          ? '#2bae2bff'
-                          : '#bebe09ff',
-                      padding: 8,
-                      borderRadius: 10,
-                    },
-                  ]}
-                >
-                  View All
-                </Text>
-              </TouchableNativeFeedback>
-            </HStack>
-          </View>
-          {/* Total by Category */}
-          {transactionsPerCategory && (
-            <TransactionBreakdown
-              data={transactionBreakdown}
-              onItemPress={(item) =>
-                router.navigate(
-                  `/transaction/listing?type=${transactionType}&category=${item.category}&recurring=false${selectedYear !== ALL_OPTION_VALUE ? `&year=${selectedYear}` : ''}${selectedMonth !== ALL_OPTION_VALUE ? `&month=${selectedMonth}` : ''}`,
-                )
-              }
-              displayOptions={{
-                colorBoxVisible: true,
-                percentageVisible: true,
-              }}
-            />
-          )}
-        </View>
-
-        {/* Reserve Space for Floating Action Button */}
-        <View style={{ minHeight: 60 }} />
       </ScrollView>
-
-      {/* Floating action button to add new transaction */}
-      <ActionFab
-        href={`/transaction/new`}
-        icon={AddIcon}
-      />
     </SafeAreaView>
   );
 };
