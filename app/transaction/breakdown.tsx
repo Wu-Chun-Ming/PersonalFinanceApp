@@ -35,7 +35,7 @@ const TransactionBreakdownScreen = () => {
     isRefetching,
     refetch,
   } = useTransactions();
-  const { data: availableTxYears } = useTransactionYears();
+  const { data: availableTxYears = [] } = useTransactionYears();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const { selectedYearTransactions } = useTransactionData(
     transactions,

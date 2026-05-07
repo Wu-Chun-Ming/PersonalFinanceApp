@@ -29,10 +29,11 @@ const YearSelector = ({
   yearRange = [],
 }: YearSelectorProps) => {
   const now = new Date();
-  const [selectedLocalYear, setSelectedLocalYear] = useState(
-    yearRange.length > 0 ? yearRange[yearRange.length - 1] : now.getFullYear(),
-  );
   const hasYearRange = yearRange.length > 0;
+
+  const [selectedLocalYear, setSelectedLocalYear] = useState(
+    hasYearRange ? yearRange[yearRange.length - 1] : now.getFullYear(),
+  );
   const yearIndex = hasYearRange
     ? Math.max(0, yearRange.indexOf(selectedLocalYear))
     : 0;
@@ -54,7 +55,7 @@ const YearSelector = ({
   const onValueChange = (year: string) => changeYear(Number(year));
 
   let displayYears: number[] = [];
-  if (yearRange) {
+  if (hasYearRange) {
     const minYear = Math.min(...yearRange);
     const maxYear = Math.max(...yearRange);
     displayYears = Array.from(
@@ -65,6 +66,7 @@ const YearSelector = ({
     displayYears = Array.from({ length: 7 }, (_, i) => {
       return now.getFullYear() - 3 + i;
     });
+    yearRange = [now.getFullYear()]; // Default to current year if no range provided
   }
   const isValidYear = (year: number) => yearRange.includes(year);
 

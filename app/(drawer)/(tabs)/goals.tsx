@@ -43,7 +43,7 @@ const GoalsScreen = () => {
     isRefetching: isTransactionsRefetching,
     refetch: refetchTransactions,
   } = useTransactions();
-  const { data: availableTxYears } = useTransactionYears();
+  const { data: availableTxYears = [] } = useTransactionYears();
   const [currentSavingsRate, setCurrentSavingsRate] = useState<number>(0); // Current savings rate = (income - expenses) / income * 100
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());

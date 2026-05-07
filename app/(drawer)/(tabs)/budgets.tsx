@@ -50,7 +50,7 @@ const BudgetScreen = () => {
   } = useTransactions();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const { data: availableTxYears } = useTransactionYears();
+  const { data: availableTxYears = [] } = useTransactionYears();
   // Transaction data
   const { selectedYearExpenseTransactions, selectedMonthExpenseTransactions } =
     useTransactionData(transactions, selectedYear, selectedMonth);
