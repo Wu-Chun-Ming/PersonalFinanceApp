@@ -17,6 +17,7 @@ import { useScanContext } from '@/hooks/useScanContext';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useTransactionFilterFormik } from '@/hooks/useTransactionsFormik';
 import { RecurringFrequency, TransactionTypeValue } from '@/types';
+import { getMonthRange } from '@/utils/time';
 
 const TransactionListScreen = () => {
   const navigation = useNavigation();
@@ -26,6 +27,15 @@ const TransactionListScreen = () => {
   const [isFiltersCollapsed, setIsFiltersCollapsed] = useState<boolean>(true);
   const { scannedData } = useScanContext();
   const hasScannedData = scannedData.length > 0;
+  const monthRange =
+    year && month ? getMonthRange(Number(year), Number(month)) : null;
+  const dateRange: string[] = date
+    ? Array.isArray(date)
+      ? date
+      : [date]
+    : monthRange
+      ? [monthRange.start.toDateString(), monthRange.end.toDateString()]
+      : [];
 
   // Transactions Data
   const {
@@ -39,7 +49,7 @@ const TransactionListScreen = () => {
 
   // Formik setup
   const { transactionFilterFormik: formik } = useTransactionFilterFormik({
-    date: date ? (Array.isArray(date) ? date : [date]) : [],
+    date: dateRange,
     type: type?.toString(),
     category: category?.toString(),
     amount: amount?.toString(),
