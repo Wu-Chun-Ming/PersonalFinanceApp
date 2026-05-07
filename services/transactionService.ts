@@ -1,7 +1,3 @@
-import * as DocumentPicker from 'expo-document-picker';
-import { Directory, File } from 'expo-file-system';
-import { Parser } from '@json2csv/plainjs';
-import { csv } from 'csvtojson';
 import { RRule } from 'rrule';
 
 import {
@@ -15,9 +11,11 @@ import {
 } from '@/database/transactionDatabase';
 import {
   DatabaseOptions,
+  FileType,
   TransactionMultiDateProps,
   TransactionProps,
 } from '@/types';
+import { exportData, importData } from '@/utils/io';
 
 // Fetch transactions
 export const fetchTransactions = async (options?: DatabaseOptions) => {
@@ -55,127 +53,28 @@ export const deleteTransaction = async (id: number) => {
 };
 
 // Export all transactions
-export const exportAllTransactions = async (fileType: 'json' | 'csv') => {
-  const { data: allTransactions } = await getTransactions();
-  // Check if there is transaction data to export
-  if (allTransactions.length === 0) {
-    return {
-      success: false,
-      messages: 'No transaction data to export.',
-    };
-  }
-
-  let transactionData;
-  // Prepare data based on file type
-  if (fileType === 'json') {
-    // JSON data
-    transactionData = JSON.stringify(allTransactions, null, 2);
-  } else if (fileType === 'csv') {
-    // CSV data
-    const parser = new Parser();
-    transactionData = parser.parse(allTransactions);
-  } else {
-    throw new Error('Unsupported file type for export.');
-  }
-
-  try {
-    // Ask user to pick a folder
-    const directory = await Directory.pickDirectoryAsync();
-    if (!directory) {
-      return {
-        success: false,
-        messages: 'No directory selected.',
-      };
-    }
-
-    const filename = 'exported_transactions';
-    const mimeType = fileType === 'json' ? 'application/json' : 'text/csv';
-    const file = directory.createFile(filename, mimeType);
-
-    // Write the content
-    file.write(transactionData);
-
-    // Make sure the file exists
-    if (!file.exists) {
-      throw new Error('File was not created successfully.');
-    }
-
-    // Return success message
-    return {
-      success: true,
-      messages: `Transaction data exported successfully as ${filename}.${fileType}`,
-    };
-  } catch (error) {
-    throw new Error(
-      `Error exporting transactions: ${(error as Error).message}`,
-    );
-  }
+export const exportAllTransactions = async (fileType: FileType) => {
+  return exportData<TransactionProps>(
+    fileType,
+    async () => {
+      const { data } = await getTransactions();
+      return data;
+    },
+    'exported_transactions',
+    'transaction',
+  );
 };
 
 // Import transactions from file
-export const importTransactions = async (fileType: 'json' | 'csv') => {
-  // Let user pick a file
-  const result = await DocumentPicker.getDocumentAsync({
-    type:
-      fileType === 'json' ? 'application/json' : 'text/comma-separated-values',
-    copyToCacheDirectory: true,
-  });
-
-  // If user picked a file
-  if (!result.canceled) {
-    // Read the file content
-    const file = new File(result.assets[0].uri);
-    const fileContent = await file.text();
-
-    let transactionData;
-    // Parse the file content based on file type
-    try {
-      if (fileType === 'json') {
-        transactionData = JSON.parse(fileContent);
-      } else if (fileType === 'csv') {
-        transactionData = await csv().fromString(fileContent);
-      }
-    } catch (error) {
-      throw new Error(
-        `Error parsing ${fileType.toUpperCase()} file: ${(error as Error).message}`,
-      );
-    }
-
-    // Store each transaction entry
-    let importedCount = 0;
-    let failedCount = 0;
-    for (const transaction of transactionData) {
-      try {
-        const response = await storeTransaction(transaction);
-        if (response.data.success) {
-          importedCount += 1;
-        } else {
-          failedCount += 1;
-        }
-      } catch {
-        failedCount += 1;
-      }
-    }
-
-    if (importedCount === 0) {
-      return {
-        success: false,
-        messages: `Failed to import transactions from ${fileType.toUpperCase()} file.`,
-      };
-    }
-
-    return {
-      success: true,
-      messages:
-        `Imported ${importedCount} transactions from ${fileType.toUpperCase()} file` +
-        (failedCount > 0 ? ` (${failedCount} failed)` : `.`),
-    };
-  } else {
-    return {
-      success: false,
-      messages: 'File selection was canceled.',
-    };
-  }
+export const importTransactions = async (fileType: FileType) => {
+  return importData<TransactionProps>(
+    fileType,
+    async (transaction) => {
+      const response = await storeTransaction(transaction as TransactionProps);
+      return response.data.success;
+    },
+    'transaction',
+  );
 };
 
 // Add transaction(s) based on recurring transactions in the database

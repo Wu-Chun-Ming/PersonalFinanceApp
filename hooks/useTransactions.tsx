@@ -14,6 +14,7 @@ import {
 } from '@/services/transactionService';
 import {
   DatabaseOptions,
+  FileType,
   TransactionCategoryType,
   TransactionMultiDateProps,
   TransactionProps,
@@ -97,7 +98,7 @@ export const useDeleteTransaction = () => {
 // Custom hook to import transactions
 export const useImportTransactions = () => {
   return useCustomMutation({
-    mutationFn: (fileType: 'json' | 'csv') => importTransactions(fileType),
+    mutationFn: (fileType: FileType) => importTransactions(fileType),
     invalidateKeys: () => [['transactions']], // Invalidate transactions query on success
   });
 };

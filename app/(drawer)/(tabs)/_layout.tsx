@@ -24,16 +24,17 @@ import FormGroup from '@/components/FormGroup';
 import useShowToast from '@/hooks/useShowToast';
 import { useImportTransactions } from '@/hooks/useTransactions';
 import { exportAllTransactions } from '@/services/transactionService';
+import { FileType } from '@/types';
 
 export default function TabLayout() {
   const navigation = useNavigation();
   const showToast = useShowToast();
   const importMutation = useImportTransactions();
-  const [fileType, setFileType] = useState<'json' | 'csv'>('json');
+  const [fileType, setFileType] = useState<FileType>('json');
   const [modalVisible, setModalVisible] = useState(false);
   const [actionType, setActionType] = useState<'export' | 'import'>('export');
 
-  const handleExportTransactions = async (fileType: 'json' | 'csv') => {
+  const handleExportTransactions = async (fileType: FileType) => {
     try {
       const response = await exportAllTransactions(fileType);
       const { success, messages } = response;
@@ -44,7 +45,7 @@ export default function TabLayout() {
     }
   };
 
-  const handleImportTransactions = (fileType: 'json' | 'csv') => {
+  const handleImportTransactions = (fileType: FileType) => {
     importMutation.mutate(fileType);
   };
 

@@ -4,3 +4,4 @@ export * from './goal';
 export * from './ocr';
 export * from './transaction';
 export * from './database';
+export * from './file';
