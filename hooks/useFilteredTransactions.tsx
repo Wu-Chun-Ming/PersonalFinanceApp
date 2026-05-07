@@ -56,14 +56,18 @@ export const filterTransactions = (
   if (!transactions || transactions.length === 0) return [];
   if (!filters || Object.keys(filters).length === 0) return transactions;
 
-  const dateObj = date ? new Date(date).getTime() : undefined;
+  const dateObj = date ? new Date(date) : undefined;
   const startDateObj = startDate ? new Date(startDate) : undefined;
   const endDateObj = endDate ? new Date(endDate) : undefined;
 
   return transactions.filter((transaction) => {
     const tDate = transaction.date ? new Date(transaction.date) : null;
     return (
-      (!date || (tDate !== null && tDate.getTime() === dateObj)) &&
+      (!date ||
+        (tDate !== null &&
+          tDate.getFullYear() === dateObj?.getFullYear() &&
+          tDate.getMonth() === dateObj?.getMonth() &&
+          tDate.getDate() === dateObj?.getDate())) &&
       (!startDate || (tDate !== null && tDate >= startDateObj!)) &&
       (!endDate || (tDate !== null && tDate < endDateObj!)) &&
       (year === undefined ||
