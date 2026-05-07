@@ -158,7 +158,8 @@ const TransactionOverviewScreen = () => {
         style={[
           styles.centered,
           {
-            paddingVertical: 5,
+            height: '50%',
+            paddingVertical: 10,
           },
         ]}
       >
@@ -171,52 +172,54 @@ const TransactionOverviewScreen = () => {
         )}
       </View>
 
-      <ScrollView
-        style={{
-          margin: 10,
-        }}
-      >
-        <View
+      {shouldRenderPieChart && (
+        <ScrollView
           style={{
-            paddingHorizontal: 20,
-            paddingVertical: 15,
-            backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
-            borderRadius: 20,
+            margin: 10,
           }}
         >
-          <HStack className='justify-between items-center'>
-            <Heading
-              style={{
-                textDecorationLine: 'underline',
-              }}
-            >
-              {transactionType[0].toUpperCase() + transactionType.slice(1)}
-            </Heading>
-            <TouchableNativeFeedback
-              onPress={() =>
-                router.navigate(`/transaction/listing?type=${transactionType}`)
-              }
-            >
-              <Text
-                style={[
-                  styles.text,
-                  {
-                    backgroundColor:
-                      transactionType === TransactionType.EXPENSE
-                        ? '#2bae2bff'
-                        : '#bebe09ff',
-                    padding: 8,
-                    borderRadius: 10,
-                  },
-                ]}
+          <View
+            style={{
+              paddingHorizontal: 20,
+              paddingVertical: 15,
+              backgroundColor: TRANSACTION_TYPE_COLORS[transactionType],
+              borderRadius: 20,
+            }}
+          >
+            <HStack className='justify-between items-center'>
+              <Heading
+                style={{
+                  textDecorationLine: 'underline',
+                }}
               >
-                View All
-              </Text>
-            </TouchableNativeFeedback>
-          </HStack>
-        </View>
-        {/* Total by Category */}
-        {transactionsPerCategory && (
+                {transactionType[0].toUpperCase() + transactionType.slice(1)}
+              </Heading>
+              <TouchableNativeFeedback
+                onPress={() =>
+                  router.navigate(
+                    `/transaction/listing?type=${transactionType}`,
+                  )
+                }
+              >
+                <Text
+                  style={[
+                    styles.text,
+                    {
+                      backgroundColor:
+                        transactionType === TransactionType.EXPENSE
+                          ? '#2bae2bff'
+                          : '#bebe09ff',
+                      padding: 8,
+                      borderRadius: 10,
+                    },
+                  ]}
+                >
+                  View All
+                </Text>
+              </TouchableNativeFeedback>
+            </HStack>
+          </View>
+          {/* Total by Category */}
           <TransactionBreakdown
             data={transactionBreakdown}
             onItemPress={(item) =>
@@ -229,11 +232,11 @@ const TransactionOverviewScreen = () => {
               percentageVisible: true,
             }}
           />
-        )}
 
-        {/* Reserve Space for Floating Action Button */}
-        <View style={{ minHeight: 60 }} />
-      </ScrollView>
+          {/* Reserve Space for Floating Action Button */}
+          <View style={{ minHeight: 60 }} />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

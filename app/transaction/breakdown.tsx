@@ -98,7 +98,7 @@ const TransactionBreakdownScreen = () => {
         style={[
           styles.centered,
           {
-            height: '40%',
+            height: '50%',
             paddingVertical: 10,
           },
         ]}
