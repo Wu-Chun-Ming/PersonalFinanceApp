@@ -23,7 +23,7 @@ import AppDropdown from '@/components/AppDropdown';
 import FormGroup from '@/components/FormGroup';
 import useShowToast from '@/hooks/useShowToast';
 import { useImportTransactions } from '@/hooks/useTransactions';
-import { exportAllTransactions } from '@/services/transactionService';
+import { exportAllData } from '@/services/backupService';
 import { FileType } from '@/types';
 
 export default function TabLayout() {
@@ -36,7 +36,7 @@ export default function TabLayout() {
 
   const handleExportTransactions = async (fileType: FileType) => {
     try {
-      const response = await exportAllTransactions(fileType);
+      const response = await exportAllData(fileType);
       const { success, messages } = response;
       const actionType = success ? 'success' : 'info';
       showToast({ action: actionType, messages: messages });
@@ -69,7 +69,7 @@ export default function TabLayout() {
         >
           <MenuItem
             key='Export'
-            textValue='Export All Transactions'
+            textValue='Export Data'
             onPress={() => {
               setActionType('export');
               setModalVisible(true);
@@ -84,12 +84,12 @@ export default function TabLayout() {
               size='md'
               className='ml-2'
             >
-              Export All Transactions
+              Export Data
             </MenuItemLabel>
           </MenuItem>
           <MenuItem
             key='import'
-            textValue='Import Transactions'
+            textValue='Import Data'
             onPress={() => {
               setActionType('import');
               setModalVisible(true);
@@ -104,12 +104,12 @@ export default function TabLayout() {
               size='md'
               className='ml-2'
             >
-              Import Transactions
+              Import Data
             </MenuItemLabel>
           </MenuItem>
         </Menu>
 
-        {/* Export/Import Transactions Modal */}
+        {/* Export/Import Data Modal */}
         <Modal
           isOpen={modalVisible}
           onClose={() => {
@@ -121,9 +121,7 @@ export default function TabLayout() {
           <ModalContent>
             <ModalHeader>
               <Heading>
-                {actionType === 'import'
-                  ? 'Import Transactions'
-                  : 'Export Transactions'}
+                {actionType === 'import' ? 'Import Data' : 'Export Data'}
               </Heading>
             </ModalHeader>
             <ModalBody>

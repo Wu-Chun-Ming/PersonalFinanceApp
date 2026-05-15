@@ -15,7 +15,7 @@ import {
   TransactionMultiDateProps,
   TransactionProps,
 } from '@/types';
-import { exportData, importData } from '@/utils/io';
+import { exportData, importData, pickFile } from '@/utils/io';
 
 // Fetch transactions
 export const fetchTransactions = async (options?: DatabaseOptions) => {
@@ -67,6 +67,8 @@ export const exportAllTransactions = async (fileType: FileType) => {
 
 // Import transactions from file
 export const importTransactions = async (fileType: FileType) => {
+  const fileUri = await pickFile(fileType);
+
   return importData<TransactionProps>(
     fileType,
     async (transaction) => {
@@ -74,6 +76,7 @@ export const importTransactions = async (fileType: FileType) => {
       return response.data.success;
     },
     'transaction',
+    fileUri,
   );
 };
 

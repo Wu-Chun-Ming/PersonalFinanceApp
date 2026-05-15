@@ -76,66 +76,39 @@ export const exportData = async <T>(
 };
 
 /**
+ * Prompts the user to pick a file for import.
+ * @param fileType - File format to import from
+ * @returns The file URI or null if selection was canceled
+ */
+export const pickFile = async (fileType: FileType): Promise<string | null> => {
+  const result = await DocumentPicker.getDocumentAsync({
+    type: getMimeType(fileType),
+    copyToCacheDirectory: true,
+  });
+
+  if (result.canceled) {
+    return null;
+  }
+
+  return result.assets[0].uri;
+};
+
+/**
  * Imports and processes structured data from a selected file.
  * @template T - The item type expected from the imported file
  * @param fileType - File format to import from
  * @param dataImporter - Async function that processes each imported item
  * @param dataType - Human-readable data label used in result messages
+ * @param fileUri - File URI selected by the user
  * @returns A result object indicating whether import succeeded
  */
 export const importData = async <T>(
   fileType: FileType,
   dataImporter: (item: T) => Promise<boolean>,
   dataType: string,
+  fileUri: string | null,
 ): Promise<ImportResult> => {
-  // Let user pick a file
-  const result = await DocumentPicker.getDocumentAsync({
-    type: getMimeType(fileType),
-    copyToCacheDirectory: true,
-  });
-
-  // If user picked a file
-  if (!result.canceled) {
-    const fileData: T[] = await importDataFromFile(
-      result.assets[0].uri,
-      fileType,
-    );
-
-    // Process each data item
-    let importedCount = 0;
-    let failedCount = 0;
-
-    for (const item of fileData) {
-      try {
-        const success = await dataImporter(item);
-        if (success) {
-          importedCount += 1;
-        } else {
-          failedCount += 1;
-        }
-      } catch {
-        failedCount += 1;
-      }
-    }
-
-    if (importedCount === 0) {
-      return {
-        success: false,
-        messages: `Failed to import ${dataType}s from ${fileType.toUpperCase()} file.`,
-        importedCount,
-        failedCount,
-      };
-    }
-
-    return {
-      success: true,
-      messages:
-        `Imported ${importedCount} ${dataType}s from ${fileType.toUpperCase()} file` +
-        (failedCount > 0 ? ` (${failedCount} failed)` : `.`),
-      importedCount,
-      failedCount,
-    };
-  } else {
+  if (!fileUri) {
     return {
       success: false,
       messages: 'File selection was canceled.',
@@ -143,4 +116,41 @@ export const importData = async <T>(
       failedCount: 0,
     };
   }
+
+  const fileData: T[] = await importDataFromFile(fileUri, fileType);
+
+  // Process each data item
+  let importedCount = 0;
+  let failedCount = 0;
+
+  for (const item of fileData) {
+    try {
+      const success = await dataImporter(item);
+      if (success) {
+        importedCount += 1;
+      } else {
+        failedCount += 1;
+      }
+    } catch {
+      failedCount += 1;
+    }
+  }
+
+  if (importedCount === 0) {
+    return {
+      success: false,
+      messages: `Failed to import ${dataType}s from ${fileType.toUpperCase()} file.`,
+      importedCount,
+      failedCount,
+    };
+  }
+
+  return {
+    success: true,
+    messages:
+      `Imported ${importedCount} ${dataType}s from ${fileType.toUpperCase()} file` +
+      (failedCount > 0 ? ` (${failedCount} failed)` : `.`),
+    importedCount,
+    failedCount,
+  };
 };

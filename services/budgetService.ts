@@ -1,6 +1,6 @@
 import { getBudgets, updateBudget } from '@/database/budgetDatabase';
 import { BudgetProps, FileType, TransactionCategoryType } from '@/types';
-import { exportData, importData } from '@/utils/io';
+import { exportData, importData, pickFile } from '@/utils/io';
 
 // Fetch budgets
 export const fetchBudgets = async () => {
@@ -44,6 +44,8 @@ export const exportAllBudgets = async (fileType: FileType) => {
 
 // Import budgets from file
 export const importBudgets = async (fileType: FileType) => {
+  const fileUri = await pickFile(fileType);
+
   return importData<BudgetProps>(
     fileType,
     async (budget) => {
@@ -56,5 +58,6 @@ export const importBudgets = async (fileType: FileType) => {
       return response.data.success;
     },
     'budget',
+    fileUri,
   );
 };
