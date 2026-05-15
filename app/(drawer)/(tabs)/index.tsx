@@ -46,8 +46,19 @@ const App = () => {
     startDate,
     endDate,
   });
-  const { transactionTotalsPerCategory, transactionsPerDay } =
-    useTransactionSummary(selectedPeriodTransactions);
+  const currentMonthTransactions = useFilteredTransactions(
+    selectedPeriodTransactions,
+    {
+      startDate: monthStart.format('YYYY-MM-DD'),
+      endDate: monthStart.endOf('month').format('YYYY-MM-DD'),
+    },
+  );
+  const { transactionsPerDay } = useTransactionSummary(
+    selectedPeriodTransactions,
+  );
+  const { transactionTotalsPerCategory } = useTransactionSummary(
+    currentMonthTransactions,
+  );
 
   const transactionBreakdown = TRANSACTION_CATEGORIES.map((category) => {
     return {
