@@ -2,7 +2,6 @@ import { FormikValues } from 'formik';
 
 import { Button, ButtonText } from './ui/button';
 import { Heading } from './ui/heading';
-import { Input, InputField } from './ui/input';
 import {
   Modal,
   ModalBackdrop,
@@ -15,6 +14,7 @@ import { SelectItem } from './ui/select';
 
 import { MONTH_OPTIONS } from '@/constants/time';
 import { getMonthName } from '@/utils/time';
+import AmountInput from './AmountInput';
 import FormGroup from './FormGroup';
 import SelectGroup from './SelectGroup';
 
@@ -123,14 +123,11 @@ const BudgetModal = ({
             isRequired
             errorText={formik.errors.amount}
           >
-            <Input>
-              <InputField
-                type='text'
-                inputMode='numeric'
-                value={formik.values.amount}
-                onChangeText={formik.handleChange('amount')}
-              />
-            </Input>
+            <AmountInput
+              value={formik.values.amount}
+              onChangeText={formik.handleChange('amount')}
+              showCalculator={true}
+            />
           </FormGroup>
         </ModalBody>
 

@@ -21,6 +21,7 @@ import {
   TransactionTypeValue,
 } from '@/types';
 import { getCategoriesByTransactionType } from '@/utils/category';
+import AmountInput from './AmountInput';
 import DatePicker from './DatePicker';
 import FormGroup from './FormGroup';
 import SelectGroup from './SelectGroup';
@@ -345,15 +346,11 @@ const TransactionForm = ({
         isRequired={true}
         errorText={formik.errors.amount}
       >
-        <Input className='text-center'>
-          <InputField
-            type='text'
-            value={formik.values.amount}
-            onChangeText={formik.handleChange('amount')}
-            placeholder='Enter Amount'
-            inputMode='numeric'
-          />
-        </Input>
+        <AmountInput
+          value={formik.values.amount}
+          onChangeText={formik.handleChange('amount')}
+          showCalculator={true}
+        />
       </FormGroup>
 
       {/* Description */}

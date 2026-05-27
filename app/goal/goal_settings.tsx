@@ -18,6 +18,7 @@ import { VStack } from '@/components/ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
+import AmountInput from '@/components/AmountInput';
 import DatePicker from '@/components/DatePicker';
 import FormGroup from '@/components/FormGroup';
 import QueryState from '@/components/QueryState';
@@ -197,15 +198,11 @@ const GoalSettingsScreen = () => {
             )}
             errorText={formik.errors.savings?.amount}
           >
-            <Input className='text-center'>
-              <InputField
-                type='text'
-                value={formik.values.savings?.amount}
-                onChangeText={formik.handleChange('savings.amount')}
-                placeholder='Enter Amount'
-                inputMode='numeric'
-              />
-            </Input>
+            <AmountInput
+              value={formik.values.savings?.amount}
+              onChangeText={formik.handleChange('savings.amount')}
+              showCalculator={true}
+            />
           </FormGroup>
         </VStack>
 
@@ -276,15 +273,11 @@ const GoalSettingsScreen = () => {
             )}
             errorText={formik.errors.income?.perDay}
           >
-            <Input className='text-center'>
-              <InputField
-                type='text'
-                value={formik.values.income?.perDay}
-                onChangeText={formik.handleChange('income.perDay')}
-                placeholder='Enter Amount'
-                inputMode='numeric'
-              />
-            </Input>
+            <AmountInput
+              value={formik.values.income?.perDay}
+              onChangeText={formik.handleChange('income.perDay')}
+              showCalculator={true}
+            />
           </FormGroup>
 
           {/* Income Per Month */}
@@ -295,15 +288,11 @@ const GoalSettingsScreen = () => {
             )}
             errorText={formik.errors.income?.perMonth}
           >
-            <Input className='text-center'>
-              <InputField
-                type='text'
-                value={formik.values.income?.perMonth}
-                onChangeText={formik.handleChange('income.perMonth')}
-                placeholder='Enter Amount'
-                inputMode='numeric'
-              />
-            </Input>
+            <AmountInput
+              value={formik.values.income?.perMonth}
+              onChangeText={formik.handleChange('income.perMonth')}
+              showCalculator={true}
+            />
           </FormGroup>
 
           {/* Income Per Year */}
@@ -314,15 +303,11 @@ const GoalSettingsScreen = () => {
             )}
             errorText={formik.errors.income?.perYear}
           >
-            <Input className='text-center'>
-              <InputField
-                type='text'
-                value={formik.values.income?.perYear}
-                onChangeText={formik.handleChange('income.perYear')}
-                placeholder='Enter Amount'
-                inputMode='numeric'
-              />
-            </Input>
+            <AmountInput
+              value={formik.values.income?.perYear}
+              onChangeText={formik.handleChange('income.perYear')}
+              showCalculator={true}
+            />
           </FormGroup>
         </VStack>
 
