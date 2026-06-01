@@ -2,6 +2,7 @@ import { RRule } from 'rrule';
 
 import {
   destroyTransaction,
+  getCommonDescriptions,
   getTransactions,
   getTransactionYears,
   showTransaction,
@@ -14,6 +15,7 @@ import {
   FileType,
   TransactionMultiDateProps,
   TransactionProps,
+  TransactionTypeValue,
 } from '@/types';
 import { exportData, importData, pickFile } from '@/utils/io';
 
@@ -141,5 +143,14 @@ export const handleRecurringTransactions = async (lastOpenDate: Date) => {
 // Fetch available transaction years
 export const fetchTransactionYears = async () => {
   const response = await getTransactionYears();
+  return response.data;
+};
+
+// Fetch common descriptions (deduped, ranked)
+export const fetchCommonDescriptions = async (
+  transactionType?: TransactionTypeValue,
+  limit = 20,
+) => {
+  const response = await getCommonDescriptions(transactionType, limit);
   return response.data;
 };

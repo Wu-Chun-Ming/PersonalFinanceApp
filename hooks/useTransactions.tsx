@@ -8,6 +8,7 @@ import {
   createTransactions,
   deleteTransaction,
   editTransaction,
+  fetchCommonDescriptions,
   fetchTransaction,
   fetchTransactions,
   fetchTransactionYears,
@@ -54,6 +55,18 @@ export const useTransactionYears = () => {
   return useCustomQuery<number[]>({
     queryKey: ['transactionYears'],
     queryFn: fetchTransactionYears,
+    fallbackValue: [],
+  });
+};
+
+// Custom hook to fetch common descriptions
+export const useCommonDescriptions = (
+  transactionType?: TransactionTypeValue,
+  limit = 20,
+) => {
+  return useCustomQuery<string[]>({
+    queryKey: ['commonDescriptions', transactionType ?? ''],
+    queryFn: () => fetchCommonDescriptions(transactionType, limit),
     fallbackValue: [],
   });
 };

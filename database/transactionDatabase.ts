@@ -6,6 +6,7 @@ import {
   DatabaseOptions,
   TransactionMultiDateProps,
   TransactionProps,
+  TransactionTypeValue,
 } from '@/types';
 
 // Fetch all transaction
@@ -291,6 +292,49 @@ export const getTransactionYears = async (
     } catch (error) {
       throw new Error(
         `Error fetching available years from transactions table: ${(error as Error).message}`,
+      );
+    }
+  }, dbInstance);
+};
+
+// Fetch common descriptions with frequency and recency
+export const getCommonDescriptions = async (
+  transactionType?: TransactionTypeValue,
+  limit = 20,
+  dbInstance?: SQLite.SQLiteDatabase,
+) => {
+  return runWithDb(async (db) => {
+    try {
+      const params = transactionType ? [transactionType, limit] : [limit];
+      const result = await db.getAllAsync<{
+        description: string;
+        freq: number;
+        last_date: string | null;
+      }>(
+        `
+            SELECT description, COUNT(*) as freq, MAX(date) as last_date
+            FROM transactions
+            WHERE description IS NOT NULL AND description != ''
+            ${transactionType ? 'AND type = ?' : ''}
+            GROUP BY description
+            ORDER BY freq DESC, last_date DESC
+            LIMIT ?
+        `,
+        ...params,
+      );
+
+      if (result.length > 0) {
+        return {
+          data: result.map((row) => row.description),
+        };
+      }
+
+      return {
+        data: [],
+      };
+    } catch (error) {
+      throw new Error(
+        `Error fetching common descriptions: ${(error as Error).message}`,
       );
     }
   }, dbInstance);

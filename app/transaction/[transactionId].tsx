@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableNativeFeedback, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableNativeFeedback,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -31,6 +39,10 @@ const TransactionManager = () => {
   const [transactionType, setTransactionType] = useState<TransactionTypeValue>(
     TransactionType.EXPENSE,
   );
+  const scrollRef = useRef<ScrollView | null>(null);
+  const descriptionYRef = useRef(0);
+  const suggestionsHeightRef = useRef(0);
+  const [isDescriptionFocused, setIsDescriptionFocused] = useState(false);
   const {
     data: transaction,
     isLoading,
@@ -104,6 +116,30 @@ const TransactionManager = () => {
     }
   }, [transaction, hasScannedData, scannedData]);
 
+  const scrollToDescription = useCallback(() => {
+    scrollRef.current?.scrollTo({
+      y: Math.max(
+        0,
+        descriptionYRef.current + suggestionsHeightRef.current - 24,
+      ),
+      animated: true,
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleKeyboardShow = () => {
+      if (!isDescriptionFocused) return;
+      scrollToDescription();
+    };
+
+    const keyboardShow = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      handleKeyboardShow,
+    );
+
+    return () => keyboardShow.remove();
+  }, [isDescriptionFocused]);
+
   const queryState = (
     <QueryState
       isLoading={isLoading}
@@ -125,186 +161,208 @@ const TransactionManager = () => {
       }}
       edges={['bottom']}
     >
-      <ScrollView
-        style={{
-          flex: 1,
-          backgroundColor: '#fff',
-        }}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <VStack className='flex-1 p-4'>
-          {!transaction && (
-            <HStack
-              style={[
-                styles.centeredFlex,
-                {
-                  flexDirection: 'row',
-                  minHeight: '10%',
-                },
-              ]}
-            >
-              <TouchableNativeFeedback
-                onPress={() => setTransactionType(TransactionType.EXPENSE)}
+        <ScrollView
+          ref={scrollRef}
+          keyboardShouldPersistTaps='handled'
+          style={{
+            flex: 1,
+            backgroundColor: '#fff',
+          }}
+        >
+          <VStack className='flex-1 p-4'>
+            {!transaction && (
+              <HStack
+                style={[
+                  styles.centeredFlex,
+                  {
+                    flexDirection: 'row',
+                    minHeight: '10%',
+                  },
+                ]}
               >
-                <View
-                  style={[
-                    styles.centered,
-                    {
-                      minWidth: 120,
-                      padding: 20,
-                      marginHorizontal: 20,
-                      backgroundColor:
-                        TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
-                      borderRadius: 20,
-                      borderWidth:
-                        transactionType === TransactionType.EXPENSE ? 3 : 0,
-                    },
-                  ]}
+                <TouchableNativeFeedback
+                  onPress={() => setTransactionType(TransactionType.EXPENSE)}
                 >
-                  <Text style={styles.boldText}>Expense</Text>
-                </View>
-              </TouchableNativeFeedback>
-
-              <Divider
-                orientation='vertical'
-                className='mx-5 h-full bg-black'
-              />
-
-              <TouchableNativeFeedback
-                onPress={() => setTransactionType(TransactionType.INCOME)}
-              >
-                <View
-                  style={[
-                    styles.centered,
-                    {
-                      minWidth: 120,
-                      padding: 20,
-                      marginHorizontal: 20,
-                      backgroundColor:
-                        TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
-                      borderRadius: 20,
-                      borderWidth:
-                        transactionType === TransactionType.INCOME ? 3 : 0,
-                    },
-                  ]}
-                >
-                  <Text style={styles.boldText}>Income</Text>
-                </View>
-              </TouchableNativeFeedback>
-            </HStack>
-          )}
-
-          {/* Transaction Form */}
-          <TransactionForm
-            formik={formik}
-            transactionType={transactionType}
-            isExistingTransaction={!!transaction}
-            onTransactionTypeChange={setTransactionType}
-          />
-
-          {/* Icon Group */}
-          {!transaction && (
-            <HStack className='my-4 justify-between'>
-              <TouchableNativeFeedback
-                onPress={() => {
-                  formik.setValues({
-                    ...formik.values,
-                    date:
-                      formik.values.date.length > 0
-                        ? []
-                        : [new Date().toString()],
-                    recurring: !formik.values.recurring,
-                  });
-                }}
-              >
-                <View
-                  style={[
-                    styles.centered,
-                    {
-                      height: 75,
-                      width: 75,
-                    },
-                  ]}
-                >
-                  {formik.values.recurring ? (
-                    <MaterialCommunityIcons
-                      name='repeat'
-                      size={65}
-                      color='black'
-                    />
-                  ) : (
-                    <MaterialCommunityIcons
-                      name='repeat-off'
-                      size={65}
-                      color='black'
-                    />
-                  )}
-                </View>
-              </TouchableNativeFeedback>
-              {transactionType === TransactionType.EXPENSE &&
-                !formik.values.recurring && (
-                  <TouchableNativeFeedback
-                    onPress={() => router.navigate('/transaction/scan' as Href)}
+                  <View
+                    style={[
+                      styles.centered,
+                      {
+                        minWidth: 120,
+                        padding: 20,
+                        marginHorizontal: 20,
+                        backgroundColor:
+                          TRANSACTION_TYPE_COLORS[TransactionType.EXPENSE],
+                        borderRadius: 20,
+                        borderWidth:
+                          transactionType === TransactionType.EXPENSE ? 3 : 0,
+                      },
+                    ]}
                   >
-                    <View
-                      style={[
-                        styles.centered,
-                        {
-                          height: 75,
-                          width: 75,
-                        },
-                      ]}
-                    >
+                    <Text style={styles.boldText}>Expense</Text>
+                  </View>
+                </TouchableNativeFeedback>
+
+                <Divider
+                  orientation='vertical'
+                  className='mx-5 h-full bg-black'
+                />
+
+                <TouchableNativeFeedback
+                  onPress={() => setTransactionType(TransactionType.INCOME)}
+                >
+                  <View
+                    style={[
+                      styles.centered,
+                      {
+                        minWidth: 120,
+                        padding: 20,
+                        marginHorizontal: 20,
+                        backgroundColor:
+                          TRANSACTION_TYPE_COLORS[TransactionType.INCOME],
+                        borderRadius: 20,
+                        borderWidth:
+                          transactionType === TransactionType.INCOME ? 3 : 0,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.boldText}>Income</Text>
+                  </View>
+                </TouchableNativeFeedback>
+              </HStack>
+            )}
+
+            {/* Transaction Form */}
+            <TransactionForm
+              formik={formik}
+              transactionType={transactionType}
+              isExistingTransaction={!!transaction}
+              onTransactionTypeChange={setTransactionType}
+              onDescriptionLayout={(y) => {
+                descriptionYRef.current = y;
+              }}
+              onDescriptionFocus={() => {
+                setIsDescriptionFocused(true);
+              }}
+              onDescriptionBlur={() => setIsDescriptionFocused(false)}
+              onSuggestionsLayout={(height) => {
+                suggestionsHeightRef.current = height;
+                if (isDescriptionFocused) {
+                  scrollToDescription();
+                }
+              }}
+            />
+
+            {/* Icon Group */}
+            {!transaction && (
+              <HStack className='my-4 justify-between'>
+                <TouchableNativeFeedback
+                  onPress={() => {
+                    formik.setValues({
+                      ...formik.values,
+                      date:
+                        formik.values.date.length > 0
+                          ? []
+                          : [new Date().toString()],
+                      recurring: !formik.values.recurring,
+                    });
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.centered,
+                      {
+                        height: 75,
+                        width: 75,
+                      },
+                    ]}
+                  >
+                    {formik.values.recurring ? (
                       <MaterialCommunityIcons
-                        name='camera-outline'
-                        size={80}
+                        name='repeat'
+                        size={65}
                         color='black'
                       />
-                    </View>
-                  </TouchableNativeFeedback>
-                )}
-            </HStack>
-          )}
+                    ) : (
+                      <MaterialCommunityIcons
+                        name='repeat-off'
+                        size={65}
+                        color='black'
+                      />
+                    )}
+                  </View>
+                </TouchableNativeFeedback>
+                {transactionType === TransactionType.EXPENSE &&
+                  !formik.values.recurring && (
+                    <TouchableNativeFeedback
+                      onPress={() =>
+                        router.navigate('/transaction/scan' as Href)
+                      }
+                    >
+                      <View
+                        style={[
+                          styles.centered,
+                          {
+                            height: 75,
+                            width: 75,
+                          },
+                        ]}
+                      >
+                        <MaterialCommunityIcons
+                          name='camera-outline'
+                          size={80}
+                          color='black'
+                        />
+                      </View>
+                    </TouchableNativeFeedback>
+                  )}
+              </HStack>
+            )}
 
-          {/* Button Group */}
-          {transaction ? (
-            <HStack className='mt-4 justify-between'>
-              <Button
-                size='lg'
-                onPress={() => deleteMutation.mutate(Number(transaction.id))}
-                action='negative'
-              >
-                <ButtonText>Delete</ButtonText>
-              </Button>
+            {/* Button Group */}
+            {transaction ? (
+              <HStack className='mt-4 justify-between'>
+                <Button
+                  size='lg'
+                  onPress={() => deleteMutation.mutate(Number(transaction.id))}
+                  action='negative'
+                >
+                  <ButtonText>Delete</ButtonText>
+                </Button>
 
-              <Button
-                size='lg'
-                onPress={() => {
-                  setFormAction('update');
-                  formik.handleSubmit();
-                }}
-                action='positive'
-              >
-                <ButtonText>Save</ButtonText>
-              </Button>
-            </HStack>
-          ) : (
-            <View className='mt-4'>
-              <Button
-                className='self-center'
-                size='lg'
-                onPress={() => {
-                  setFormAction('create');
-                  formik.setFieldValue('type', transactionType);
-                  formik.handleSubmit();
-                }}
-                action='positive'
-              >
-                <ButtonText>Create</ButtonText>
-              </Button>
-            </View>
-          )}
-        </VStack>
-      </ScrollView>
+                <Button
+                  size='lg'
+                  onPress={() => {
+                    setFormAction('update');
+                    formik.handleSubmit();
+                  }}
+                  action='positive'
+                >
+                  <ButtonText>Save</ButtonText>
+                </Button>
+              </HStack>
+            ) : (
+              <View className='mt-4'>
+                <Button
+                  className='self-center'
+                  size='lg'
+                  onPress={() => {
+                    setFormAction('create');
+                    formik.setFieldValue('type', transactionType);
+                    formik.handleSubmit();
+                  }}
+                  action='positive'
+                >
+                  <ButtonText>Create</ButtonText>
+                </Button>
+              </View>
+            )}
+          </VStack>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

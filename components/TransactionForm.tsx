@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import dayjs from 'dayjs';
 import { FormikProps } from 'formik';
 
@@ -14,6 +14,7 @@ import {
   RECURRING_FREQUENCIES,
   TRANSACTION_TYPES,
 } from '@/constants/transaction';
+import { useCommonDescriptions } from '@/hooks/useTransactions';
 import { TransactionFormikProps } from '@/hooks/useTransactionsFormik';
 import {
   RecurringDay,
@@ -21,6 +22,7 @@ import {
   TransactionTypeValue,
 } from '@/types';
 import { getCategoriesByTransactionType } from '@/utils/category';
+import { rankDescriptionSuggestions } from '@/utils/descriptionAutocomplete';
 import AmountInput from './AmountInput';
 import DatePicker from './DatePicker';
 import FormGroup from './FormGroup';
@@ -31,6 +33,10 @@ interface TransactionFormProps {
   transactionType: TransactionTypeValue;
   isExistingTransaction: boolean;
   onTransactionTypeChange?: (type: TransactionTypeValue) => void;
+  onDescriptionLayout?: (y: number) => void;
+  onDescriptionFocus?: () => void;
+  onDescriptionBlur?: () => void;
+  onSuggestionsLayout?: (height: number) => void;
 }
 
 const TransactionForm = ({
@@ -38,8 +44,22 @@ const TransactionForm = ({
   transactionType,
   isExistingTransaction,
   onTransactionTypeChange,
+  onDescriptionLayout,
+  onDescriptionFocus,
+  onDescriptionBlur,
+  onSuggestionsLayout,
 }: TransactionFormProps) => {
   const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
+  const [isDescriptionFocused, setIsDescriptionFocused] = useState(false);
+
+  const { data: commonDescriptions = [] } = useCommonDescriptions(
+    transactionType,
+    50,
+  );
+  const descriptionSuggestions = useMemo(() => {
+    const desc = (formik.values.description || '').trim();
+    return rankDescriptionSuggestions(commonDescriptions, desc, 5);
+  }, [formik.values.description, commonDescriptions]);
 
   const changeTransactionType = (transactionType: TransactionTypeValue) => {
     onTransactionTypeChange?.(transactionType); // notify parent
@@ -354,24 +374,80 @@ const TransactionForm = ({
       </FormGroup>
 
       {/* Description */}
-      <FormGroup
-        label='Description'
-        isInvalid={Boolean(
-          formik.errors.description && formik.touched.description,
-        )}
-        isRequired={true}
-        errorText={formik.errors.description}
+      <View
+        onLayout={(event) => {
+          onDescriptionLayout?.(event.nativeEvent.layout.y);
+        }}
       >
-        <Textarea>
-          <TextareaInput
-            value={formik.values.description}
-            placeholder='Enter Description'
-            onChangeText={formik.handleChange('description')}
-            style={{ textAlignVertical: 'top' }}
-            inputMode='text'
-          />
-        </Textarea>
-      </FormGroup>
+        <FormGroup
+          label='Description'
+          isInvalid={Boolean(
+            formik.errors.description && formik.touched.description,
+          )}
+          isRequired={true}
+          errorText={formik.errors.description}
+        >
+          <Textarea>
+            <TextareaInput
+              value={formik.values.description}
+              placeholder='Enter Description'
+              onChangeText={formik.handleChange('description')}
+              onFocus={() => {
+                setIsDescriptionFocused(true);
+                onDescriptionFocus?.();
+              }}
+              onBlur={() => {
+                setIsDescriptionFocused(false);
+                onDescriptionBlur?.();
+              }}
+              style={{ textAlignVertical: 'top' }}
+              inputMode='text'
+            />
+          </Textarea>
+
+          {/* Description Suggestions */}
+          {isDescriptionFocused && descriptionSuggestions.length > 0 && (
+            <View
+              onLayout={(event) => {
+                onSuggestionsLayout?.(event.nativeEvent.layout.height);
+              }}
+              style={{
+                marginTop: 8,
+                padding: 6,
+                borderWidth: 1,
+                borderRadius: 10,
+                borderColor: '#e5e7eb',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {descriptionSuggestions.map((suggestion) => (
+                  <TouchableOpacity
+                    key={suggestion}
+                    onPress={() =>
+                      formik.setFieldValue('description', suggestion)
+                    }
+                    style={{
+                      margin: 6,
+                      padding: 8,
+                      backgroundColor: '#f3f4f6',
+                      borderRadius: 16,
+                    }}
+                  >
+                    <Text>{suggestion}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+        </FormGroup>
+      </View>
 
       {/* Date Picker */}
       <DatePicker
