@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { Tabs, useNavigation } from 'expo-router';
+import { router, Tabs, useNavigation } from 'expo-router';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 
@@ -105,6 +105,25 @@ export default function TabLayout() {
               className='ml-2'
             >
               Import Data
+            </MenuItemLabel>
+          </MenuItem>
+          <MenuItem
+            key='settings'
+            textValue='Settings'
+            onPress={() => {
+              router.navigate(`/(stack)/settings`);
+            }}
+          >
+            <Feather
+              name='settings'
+              size={20}
+              color='black'
+            />
+            <MenuItemLabel
+              size='md'
+              className='ml-2'
+            >
+              Settings
             </MenuItemLabel>
           </MenuItem>
         </Menu>
@@ -265,12 +284,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name='settings'
+        name='more'
         options={{
-          title: 'Settings',
+          title: 'More',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'settings' : 'settings-outline'}
+              name={focused ? 'grid' : 'grid-outline'}
               color={color}
               size={24}
             />
