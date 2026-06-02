@@ -19,6 +19,7 @@ import {
   useTransactions,
   useTransactionSummary,
 } from '@/hooks/useTransactions';
+import { formatAmount } from '@/utils/amount';
 
 const App = () => {
   const {
@@ -134,7 +135,7 @@ const App = () => {
                       color: 'green',
                     }}
                   >
-                    +${income}
+                      +${formatAmount(income)}
                   </Text>
                 )}
 
@@ -146,7 +147,7 @@ const App = () => {
                       color: 'red',
                     }}
                   >
-                    -${expense}
+                    -${formatAmount(expense)}
                   </Text>
                 )}
               </View>
