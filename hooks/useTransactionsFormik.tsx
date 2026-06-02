@@ -74,6 +74,7 @@ export const useTransactionFormik = (
       type: transactionType,
       category: values.category as TransactionCategoryType,
       amount: Number(values.amount),
+      description: values.description.trim(),
       recurring_frequency: values.recurring
         ? {
             frequency: values.recurring_frequency
