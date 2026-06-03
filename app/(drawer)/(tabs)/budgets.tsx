@@ -212,7 +212,12 @@ const BudgetScreen = () => {
                       amount: (budget.amount || 0).toString(),
                     });
                   } else {
-                    formik.setFieldValue('category', category);
+                    formik.setValues({
+                      year: selectedYear.toString(),
+                      month: selectedMonth.toString(),
+                      category: category,
+                      amount: '0',
+                    });
                   }
                 }}
               >
