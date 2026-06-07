@@ -8,7 +8,9 @@ import {
 } from '@/types';
 
 // Define color for transaction categories
-export const CATEGORY_COLORS: { [key in TransactionCategoryType]: string } = {
+export const TRANSACTION_CATEGORY_COLORS: {
+  [key in TransactionCategoryType]: string;
+} = {
   // Expense categories
   [ExpenseCategory.FOOD]: '#FF6F61', // Coral Red
   [ExpenseCategory.ENTERTAINMENT]: '#6B5B95', // Deep Purple

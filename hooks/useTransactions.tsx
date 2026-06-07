@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { router } from 'expo-router';
 import dayjs from 'dayjs';
 
-import { CATEGORY_COLORS } from '@/constants/colors';
+import { TRANSACTION_CATEGORY_COLORS } from '@/constants/colors';
 import {
   createTransactions,
   deleteTransaction,
@@ -272,7 +272,7 @@ export const usePieChartTransactions = (
     return categories.map((category) => ({
       label: category,
       value: transactionTotalsPerCategory[category] ?? 0,
-      color: CATEGORY_COLORS[category],
+      color: TRANSACTION_CATEGORY_COLORS[category],
     }));
   }, [transactionTotalsPerCategory, categories]);
 

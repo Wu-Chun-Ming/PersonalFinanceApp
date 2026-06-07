@@ -1,8 +1,8 @@
-import { CATEGORY_COLORS } from '@/constants/colors';
+import { TRANSACTION_CATEGORY_COLORS } from '@/constants/colors';
 import AppBreakdown, { BreakdownDisplayOptions } from './AppBreakdown';
 
 interface TransactionBreakdownItem {
-  category: keyof typeof CATEGORY_COLORS;
+  category: keyof typeof TRANSACTION_CATEGORY_COLORS;
   total: number;
   percentage?: number;
 }
@@ -24,7 +24,7 @@ const TransactionBreakdown = ({
       getLabel={(item) => item.category}
       getValue={(item) => item.total}
       getPercentage={(item) => item.percentage}
-      getColor={(item) => CATEGORY_COLORS[item.category]}
+      getColor={(item) => TRANSACTION_CATEGORY_COLORS[item.category]}
       onItemPress={onItemPress}
       displayOptions={displayOptions}
     />

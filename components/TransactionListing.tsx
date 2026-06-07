@@ -8,7 +8,10 @@ import { VStack } from './ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import { CATEGORY_COLORS, TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import {
+  TRANSACTION_CATEGORY_COLORS,
+  TRANSACTION_TYPE_COLORS,
+} from '@/constants/colors';
 import { TransactionFormikProps } from '@/hooks/useTransactionsFormik';
 import {
   TransactionCategoryType,
@@ -47,7 +50,9 @@ const TransactionListing = ({
                 }
                 style={{
                   backgroundColor:
-                    CATEGORY_COLORS[item.category as TransactionCategoryType],
+                    TRANSACTION_CATEGORY_COLORS[
+                      item.category as TransactionCategoryType
+                    ],
                 }}
               >
                 <HStack

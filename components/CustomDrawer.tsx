@@ -9,14 +9,14 @@ import { VStack } from './ui/vstack';
 
 // Custom import
 import styles from '@/app/styles';
-import { CATEGORY_COLORS } from '@/constants/colors';
+import { TRANSACTION_CATEGORY_COLORS } from '@/constants/colors';
 import { useFilteredTransactions } from '@/hooks/useFilteredTransactions';
 import { useTransactions } from '@/hooks/useTransactions';
 
 const CustomDrawer = () => {
-  const { data: transactions } = useTransactions();
+  const { data: transactions = [] } = useTransactions();
 
-  const reminders = useFilteredTransactions(transactions ?? [], {
+  const reminders = useFilteredTransactions(transactions, {
     startDate: new Date(),
   });
 
@@ -47,7 +47,7 @@ const CustomDrawer = () => {
                 padding: 10,
                 marginVertical: 10,
                 borderRadius: 10,
-                backgroundColor: CATEGORY_COLORS[item.category],
+                backgroundColor: TRANSACTION_CATEGORY_COLORS[item.category],
               }}
             >
               <HStack>
