@@ -1,90 +1,33 @@
-import { Text, TouchableNativeFeedback, View } from 'react-native';
-
-import { Box } from './ui/box';
-import { HStack } from './ui/hstack';
-import { VStack } from './ui/vstack';
-
-import styles from '@/app/styles';
 import { CATEGORY_COLORS } from '@/constants/colors';
+import AppBreakdown, { BreakdownDisplayOptions } from './AppBreakdown';
+
+interface TransactionBreakdownItem {
+  category: keyof typeof CATEGORY_COLORS;
+  total: number;
+  percentage?: number;
+}
 
 interface TransactionBreakdownProps {
-  data: {
-    category: keyof typeof CATEGORY_COLORS;
-    total: number;
-    percentage?: number;
-  }[];
-  onItemPress?: (item: {
-    category: keyof typeof CATEGORY_COLORS;
-    total: number;
-    percentage?: number;
-  }) => void;
-  displayOptions?: {
-    colorBoxVisible?: boolean;
-    percentageVisible?: boolean;
-  };
+  data: TransactionBreakdownItem[];
+  onItemPress?: (item: TransactionBreakdownItem) => void;
+  displayOptions?: BreakdownDisplayOptions;
 }
 
 const TransactionBreakdown = ({
   data,
   onItemPress,
-  displayOptions: { colorBoxVisible = false, percentageVisible = false } = {},
+  displayOptions,
 }: TransactionBreakdownProps) => {
   return (
-    <VStack>
-      {data.map((item, index) => {
-        if (item.total !== 0) {
-          return (
-            <HStack
-              key={index}
-              className='justify-between items-center mx-5 my-2'
-            >
-              {/* Color Box */}
-              {colorBoxVisible && (
-                <Box
-                  className='w-5 h-5 rounded'
-                  style={{
-                    backgroundColor: CATEGORY_COLORS[item.category],
-                  }}
-                />
-              )}
-              <TouchableNativeFeedback onPress={() => onItemPress?.(item)}>
-                {/* Category Label */}
-                <View
-                  style={[
-                    styles.centered,
-                    {
-                      width: '40%',
-                      padding: 5,
-                      borderRadius: 10,
-                      backgroundColor: CATEGORY_COLORS[item.category],
-                    },
-                  ]}
-                >
-                  <Text style={styles.text}>{item.category}</Text>
-                </View>
-              </TouchableNativeFeedback>
-
-              {/* Currency Label */}
-              <Text style={styles.text}>RM</Text>
-
-              {/* Total Amount and Percentage */}
-              <View
-                style={{
-                  width: '30%',
-                  justifyContent: 'center',
-                  alignItems: 'flex-end',
-                }}
-              >
-                <Text style={styles.text}>{item.total.toFixed(2)}</Text>
-                {percentageVisible && (
-                  <Text>({item.percentage?.toFixed(2)}%)</Text>
-                )}
-              </View>
-            </HStack>
-          );
-        }
-      })}
-    </VStack>
+    <AppBreakdown<TransactionBreakdownItem>
+      data={data}
+      getLabel={(item) => item.category}
+      getValue={(item) => item.total}
+      getPercentage={(item) => item.percentage}
+      getColor={(item) => CATEGORY_COLORS[item.category]}
+      onItemPress={onItemPress}
+      displayOptions={displayOptions}
+    />
   );
 };
 
