@@ -1,4 +1,5 @@
 import {
+  AccountType,
   ExpenseCategory,
   IncomeCategory,
   TransactionCategory,
@@ -44,4 +45,12 @@ export const BUDGET_COLOR = '#304cbdff'; // Dark blue
 export const GOALS_COLOR = {
   savings: '#5169c9ff', // Blue
   income: '#e1e106ff', // Yellow
+};
+
+// Define color for account types
+export const ACCOUNT_TYPE_COLORS = {
+  [AccountType.BANK]: '#1f77b4', // Blue
+  [AccountType.E_WALLET]: '#ff7f0e', // Orange
+  [AccountType.CASH]: '#2ca02c', // Green
+  [AccountType.INVESTMENT]: '#d62728', // Red
 };

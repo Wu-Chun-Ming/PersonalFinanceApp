@@ -4,7 +4,11 @@ import {
   getDatabaseInitialized,
   setDatabaseInitialized,
 } from '@/services/appState';
-import { budgetTableSchema, transactionTableSchema } from './schema';
+import {
+  accountTableSchema,
+  budgetTableSchema,
+  transactionTableSchema,
+} from './schema';
 
 let dbInstance: SQLite.SQLiteDatabase | null = null; // To store the singleton instance
 
@@ -51,6 +55,7 @@ const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
     await db.execAsync(`
             ${transactionTableSchema}
             ${budgetTableSchema}
+            ${accountTableSchema}
         `);
   } catch (error) {
     throw new Error(

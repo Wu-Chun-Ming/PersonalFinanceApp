@@ -1,7 +1,7 @@
 import { TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Gluestack UI
 import { Heading } from '@/components/ui/heading';
@@ -17,6 +17,30 @@ const MoreScreen = () => {
       }}
       edges={['bottom']}
     >
+      {/* Accounts */}
+      <TouchableOpacity
+        onPress={() => router.push('/(stack)/accounts')}
+        style={{
+          marginVertical: 5,
+          paddingHorizontal: 5,
+          paddingVertical: 15,
+          borderRadius: 20,
+          backgroundColor: '#2F6BFF',
+        }}
+      >
+        <HStack>
+          <MaterialCommunityIcons
+            name='bank'
+            size={24}
+            color='black'
+            style={{
+              marginHorizontal: 10,
+            }}
+          />
+          <Heading>Accounts</Heading>
+        </HStack>
+      </TouchableOpacity>
+
       {/* Settings */}
       <TouchableOpacity
         onPress={() => router.push('/(stack)/settings')}

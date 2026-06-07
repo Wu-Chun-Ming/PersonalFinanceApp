@@ -71,6 +71,7 @@ export default function RootLayout() {
                 }}
               >
                 <Stack.Screen name='(drawer)' />
+                <Stack.Screen name='(stack)' />
                 <Stack.Screen name='transaction' />
                 <Stack.Screen name='goal' />
               </Stack>

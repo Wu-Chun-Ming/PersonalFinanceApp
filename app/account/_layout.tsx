@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
-export default function StackLayout() {
+export default function AccountLayout() {
   return (
     <>
       <Stack
@@ -15,16 +15,8 @@ export default function StackLayout() {
         }}
       >
         <Stack.Screen
-          name='accounts'
-          options={{
-            title: 'Accounts',
-          }}
-        />
-        <Stack.Screen
-          name='settings'
-          options={{
-            title: 'Settings',
-          }}
+          name='[accountId]'
+          options={{ title: '' }}
         />
       </Stack>
       <StatusBar

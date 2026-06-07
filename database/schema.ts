@@ -3,6 +3,7 @@ import {
   TRANSACTION_CATEGORIES,
   TRANSACTION_TYPES,
 } from '@/constants/transaction';
+import { AccountType } from '@/types/account';
 
 /* 
 Table: transactions
@@ -66,5 +67,60 @@ export const budgetTableSchema = `
         category TEXT NOT NULL CHECK(category IN (${allowedBudgetCategories})),
         amount REAL NOT NULL DEFAULT 0.0,
         PRIMARY KEY (year, month, category)
+    );
+`;
+
+/* 
+Table: accounts
+============================================================
+Column Name             Type
+============================================================
+id                      INTEGER
+name                    VARCHAR
+type                    ENUM(...)
+balance                 DOUBLE
+updated_at              DATETIME
+currency                VARCHAR
+============================================================
+*/
+
+const allowedAccountTypes = Object.values(AccountType)
+  .map((type) => `'${type}'`)
+  .join(', ');
+
+export const accountTableSchema = `
+    CREATE TABLE IF NOT EXISTS accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL CHECK(type IN (${allowedAccountTypes})),
+        balance REAL NOT NULL DEFAULT 0.0,
+        currency TEXT NOT NULL,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+`;
+
+/* 
+Table: investments
+============================================================
+Column Name             Type
+============================================================
+id                      INTEGER
+account_id              INTEGER
+name                    VARCHAR
+value                   DOUBLE
+currency                VARCHAR
+updated_at              DATETIME
+============================================================
+*/
+
+export const investmentTableSchema = `
+    CREATE TABLE IF NOT EXISTS investments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        account_id INTEGER NOT NULL,
+        value REAL NOT NULL DEFAULT 0.0,
+        name TEXT NOT NULL,
+        currency TEXT NOT NULL,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
     );
 `;
