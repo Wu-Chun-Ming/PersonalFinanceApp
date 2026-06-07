@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import dayjs from 'dayjs';
 
 import { CATEGORY_COLORS } from '@/constants/colors';
-import { importAllData } from '@/services/backupService';
 import {
   createTransactions,
   deleteTransaction,
@@ -15,7 +14,6 @@ import {
 } from '@/services/transactionService';
 import {
   DatabaseOptions,
-  FileType,
   TransactionCategoryType,
   TransactionMultiDateProps,
   TransactionProps,
@@ -105,14 +103,6 @@ export const useDeleteTransaction = () => {
     mutationFn: (id: number) => deleteTransaction(id),
     invalidateKeys: () => [['transactions']], // Invalidate transactions query on success
     onInvalidationComplete: () => router.back(), // Navigate to previous page after deleting transaction
-  });
-};
-
-// Custom hook to import transactions
-export const useImportTransactions = () => {
-  return useCustomMutation({
-    mutationFn: (fileType: FileType) => importAllData(fileType),
-    invalidateKeys: () => [['transactions']], // Invalidate transactions query on success
   });
 };
 

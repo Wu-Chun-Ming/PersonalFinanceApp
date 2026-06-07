@@ -21,15 +21,15 @@ import {
 // Custom import
 import AppDropdown from '@/components/AppDropdown';
 import FormGroup from '@/components/FormGroup';
+import { useImport } from '@/hooks/useBackup';
 import useShowToast from '@/hooks/useShowToast';
-import { useImportTransactions } from '@/hooks/useTransactions';
 import { exportAllData } from '@/services/backupService';
 import { FileType } from '@/types';
 
 export default function TabLayout() {
   const navigation = useNavigation();
   const showToast = useShowToast();
-  const importMutation = useImportTransactions();
+  const importMutation = useImport();
   const [fileType, setFileType] = useState<FileType>('json');
   const [modalVisible, setModalVisible] = useState(false);
   const [actionType, setActionType] = useState<'export' | 'import'>('export');
