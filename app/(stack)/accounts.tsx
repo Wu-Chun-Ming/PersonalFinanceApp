@@ -1,7 +1,10 @@
 import { Fragment, useMemo } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
 // Gluestack UI
@@ -36,6 +39,7 @@ const AccountsScreen = () => {
     isRefetching,
     refetch,
   } = useAccounts();
+  const insets = useSafeAreaInsets();
   const shouldRenderPieChart = accounts && accounts.length > 0;
   const { accountsByType } = useAccountData(accounts);
   const { totalBalancePerAccountType, percentagesPerType, overallBalance } =
@@ -168,6 +172,9 @@ const AccountsScreen = () => {
       <ActionFab
         href={`/account/new`}
         icon={AddIcon}
+        style={{
+          marginBottom: insets.bottom,
+        }}
       />
     </SafeAreaView>
   );
