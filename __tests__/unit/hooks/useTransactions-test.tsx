@@ -42,6 +42,10 @@ jest.mock('@/services/transactionService', () => ({
   deleteTransaction: jest.fn(),
 }));
 
+jest.mock('@/services/accountService', () => ({
+  updateAccountBalance: jest.fn(),
+}));
+
 const queryClient = new QueryClient();
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

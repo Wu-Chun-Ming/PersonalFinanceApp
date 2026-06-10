@@ -94,7 +94,7 @@ export const storeTransaction = async (
     try {
       // Insert the transaction
       const result = await db.runAsync(
-        'INSERT INTO transactions (date, type, category, amount, description, recurring, recurring_frequency) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO transactions (date, type, category, amount, description, recurring, recurring_frequency, accountId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         transaction.date ? transaction.date.toString() : null,
         transaction.type,
         transaction.category,
@@ -102,6 +102,7 @@ export const storeTransaction = async (
         transaction?.description,
         transaction.recurring ? 1 : 0,
         JSON.stringify(transaction.recurring_frequency),
+        transaction.accountId,
       );
 
       // Successful insertion

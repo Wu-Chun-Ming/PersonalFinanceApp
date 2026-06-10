@@ -17,6 +17,7 @@ import {
 import { useCommonDescriptions } from '@/hooks/useTransactions';
 import { TransactionFormikProps } from '@/hooks/useTransactionsFormik';
 import {
+  AccountProps,
   RecurringDay,
   RecurringFrequency,
   TransactionTypeValue,
@@ -30,6 +31,7 @@ import SelectGroup from './SelectGroup';
 
 interface TransactionFormProps {
   formik: FormikProps<TransactionFormikProps>;
+  accounts: AccountProps[];
   transactionType: TransactionTypeValue;
   isExistingTransaction: boolean;
   onTransactionTypeChange?: (type: TransactionTypeValue) => void;
@@ -41,6 +43,7 @@ interface TransactionFormProps {
 
 const TransactionForm = ({
   formik,
+  accounts,
   transactionType,
   isExistingTransaction,
   onTransactionTypeChange,
@@ -67,6 +70,29 @@ const TransactionForm = ({
 
   return (
     <>
+      {/* Account */}
+      <FormGroup
+        label='Account'
+        isInvalid={Boolean(formik.errors.accountId && formik.touched.accountId)}
+        isRequired={true}
+        errorText={formik.errors.accountId}
+      >
+        <SelectGroup
+          initialLabel={formik.values.accountId || ''}
+          selectedValue={formik.values.accountId}
+          onValueChange={formik.handleChange('accountId')}
+          placeholder='Select account'
+        >
+          {accounts.map((account) => (
+            <SelectItem
+              key={account.id}
+              label={`${account.type} - ${account.name} (${account.balance} ${account.currency})`}
+              value={account.id!.toString()}
+            />
+          ))}
+        </SelectGroup>
+      </FormGroup>
+
       {/* Date */}
       {!formik.values.recurring ? (
         <FormGroup

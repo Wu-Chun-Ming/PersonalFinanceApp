@@ -39,7 +39,9 @@ export const transactionTableSchema = `
         description TEXT,
         type TEXT NOT NULL CHECK(type IN (${allowedTransactionTypes})),
         recurring INTEGER NOT NULL CHECK(recurring IN (0, 1)),
-        recurring_frequency TEXT
+        recurring_frequency TEXT,
+        accountId INTEGER NOT NULL,
+        FOREIGN KEY (accountId) REFERENCES accounts(id)
     );
 `;
 
@@ -96,31 +98,5 @@ export const accountTableSchema = `
         balance REAL NOT NULL DEFAULT 0.0,
         currency TEXT NOT NULL,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-`;
-
-/* 
-Table: investments
-============================================================
-Column Name             Type
-============================================================
-id                      INTEGER
-account_id              INTEGER
-name                    VARCHAR
-value                   DOUBLE
-currency                VARCHAR
-updated_at              DATETIME
-============================================================
-*/
-
-export const investmentTableSchema = `
-    CREATE TABLE IF NOT EXISTS investments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        account_id INTEGER NOT NULL,
-        value REAL NOT NULL DEFAULT 0.0,
-        name TEXT NOT NULL,
-        currency TEXT NOT NULL,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
     );
 `;

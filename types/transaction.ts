@@ -75,6 +75,7 @@ type BaseTransactionProps = {
   amount: number;
   description: string;
   currency?: string;
+  accountId: number;
 } & RecurringProps;
 
 export type ExpenseTransactionProps = BaseTransactionProps & {

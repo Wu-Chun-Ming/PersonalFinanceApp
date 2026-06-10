@@ -98,4 +98,5 @@ export const getTransactionSchema = (transactionType: TransactionTypeValue) =>
           },
         ),
     }),
+    accountId: Yup.number().required('Account is required'),
   });

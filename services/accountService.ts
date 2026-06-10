@@ -68,3 +68,16 @@ export const importAccounts = async (fileType: FileType) => {
     fileUri,
   );
 };
+
+// Update account balance
+export const updateAccountBalance = async (
+  accountId: number,
+  amount: number,
+) => {
+  const account = await fetchAccount(accountId);
+  if (!account) {
+    throw new Error('Account not found');
+  }
+  const newBalance = account.balance + amount;
+  await editAccount(accountId, { ...account, balance: newBalance });
+};

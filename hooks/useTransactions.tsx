@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import dayjs from 'dayjs';
 
 import { TRANSACTION_CATEGORY_COLORS } from '@/constants/colors';
+import { updateAccountBalance } from '@/services/accountService';
 import {
   createTransactions,
   deleteTransaction,
@@ -74,7 +75,15 @@ export const useCreateTransaction = () => {
   return useCustomMutation({
     mutationFn: (
       newTransactionData: TransactionProps | TransactionMultiDateProps,
-    ) => createTransactions(newTransactionData),
+    ) => {
+      updateAccountBalance(
+        newTransactionData.accountId,
+        newTransactionData.type === TransactionType.EXPENSE
+          ? -newTransactionData.amount
+          : newTransactionData.amount,
+      );
+      return createTransactions(newTransactionData);
+    },
     invalidateKeys: () => [['transactions']], // Invalidate transactions query on success
     onInvalidationComplete: () => router.back(), // Navigate to previous page after creating transaction
   });

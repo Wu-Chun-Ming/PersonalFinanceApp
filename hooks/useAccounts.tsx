@@ -79,17 +79,23 @@ export const useAccountData = (accounts: AccountProps[]) => {
         ACCOUNT_TYPES.map((type) => [type, [] as AccountProps[]]),
       ) as Record<AccountTypeValue, AccountProps[]>,
     };
+    let lastUpdatedDate = null;
 
     for (const account of accounts) {
-      const { type } = account;
+      const { type, updated_at } = account;
       if (!buckets.accountsByType[type]) {
         buckets.accountsByType[type] = [];
       }
       buckets.accountsByType[type].push(account);
+
+      if (new Date(updated_at) > new Date(lastUpdatedDate || 0)) {
+        lastUpdatedDate = updated_at;
+      }
     }
 
     return {
       accountsByType: buckets.accountsByType,
+      lastUpdatedDate,
     };
   }, [accounts]);
 };

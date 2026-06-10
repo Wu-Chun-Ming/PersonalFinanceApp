@@ -23,11 +23,12 @@ import styles from '@/app/styles';
 import QueryState from '@/components/QueryState';
 import TransactionForm from '@/components/TransactionForm';
 import { TRANSACTION_TYPE_COLORS } from '@/constants/colors';
+import { useAccounts } from '@/hooks/useAccounts';
 import { useScanContext } from '@/hooks/useScanContext';
 import useShowToast from '@/hooks/useShowToast';
 import { useDeleteTransaction, useTransaction } from '@/hooks/useTransactions';
 import { useTransactionFormik } from '@/hooks/useTransactionsFormik';
-import { TransactionType, TransactionTypeValue } from '@/types';
+import { AccountType, TransactionType, TransactionTypeValue } from '@/types';
 
 const TransactionManager = () => {
   const { scannedData } = useScanContext();
@@ -53,6 +54,10 @@ const TransactionManager = () => {
     refetch,
   } = useTransaction(Number(transactionId));
   const deleteMutation = useDeleteTransaction();
+  const { data: accounts = [] } = useAccounts();
+  const nonInvestmentAccounts = accounts.filter(
+    (account) => account.type !== AccountType.INVESTMENT,
+  );
 
   // Formik setup
   const { transactionFormik: formik } = useTransactionFormik(
@@ -94,6 +99,7 @@ const TransactionManager = () => {
                 date: '',
               },
             },
+        accountId: transaction.accountId.toString(),
       });
     }
     // Set the title for the screen
@@ -238,6 +244,7 @@ const TransactionManager = () => {
             {/* Transaction Form */}
             <TransactionForm
               formik={formik}
+              accounts={nonInvestmentAccounts}
               transactionType={transactionType}
               isExistingTransaction={!!transaction}
               onTransactionTypeChange={setTransactionType}

@@ -6,6 +6,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import dayjs from 'dayjs';
 
 // Gluestack UI
 import { Heading } from '@/components/ui/heading';
@@ -41,7 +42,7 @@ const AccountsScreen = () => {
   } = useAccounts();
   const insets = useSafeAreaInsets();
   const shouldRenderPieChart = accounts && accounts.length > 0;
-  const { accountsByType } = useAccountData(accounts);
+  const { accountsByType, lastUpdatedDate } = useAccountData(accounts);
   const { totalBalancePerAccountType, percentagesPerType, overallBalance } =
     useAccountSummary(accounts);
   const { accountPerType } = usePieChartAccounts(accounts);
@@ -82,13 +83,19 @@ const AccountsScreen = () => {
       edges={['bottom']}
     >
       <View>
-        <Heading>
+        <Text style={styles.boldText}>
           Total Balance: RM{' '}
           {overallBalance.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
-        </Heading>
+          {'\n'}
+          (Last Updated:{' '}
+          {lastUpdatedDate
+            ? dayjs(lastUpdatedDate).format('DD MMM YYYY, h:mm A')
+            : 'N/A'}
+          )
+        </Text>
       </View>
       {/* Pie Chart */}
       <View

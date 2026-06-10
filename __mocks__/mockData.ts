@@ -14,6 +14,7 @@ export const mockDatabaseTransactions = [
     description: 'Grocery shopping',
     recurring: 0,
     recurring_frequency: null,
+    accountId: 1,
   },
   {
     id: 2,
@@ -31,6 +32,7 @@ export const mockDatabaseTransactions = [
         date: null,
       },
     }),
+    accountId: 1,
   },
   {
     id: 3,
@@ -48,6 +50,7 @@ export const mockDatabaseTransactions = [
         date: 1,
       },
     }),
+    accountId: 1,
   },
   {
     id: 4,
@@ -58,6 +61,7 @@ export const mockDatabaseTransactions = [
     description: 'Bus ticket',
     recurring: 0,
     recurring_frequency: null,
+    accountId: 1,
   },
   {
     id: 5,
@@ -68,6 +72,7 @@ export const mockDatabaseTransactions = [
     description: 'Freelance project',
     recurring: 0,
     recurring_frequency: null,
+    accountId: 1,
   },
 ];
 
@@ -81,6 +86,7 @@ export const mockTransactions = [
     description: 'Grocery shopping',
     recurring: false,
     recurring_frequency: null,
+    accountId: 1,
   },
   {
     id: 2,
@@ -98,6 +104,7 @@ export const mockTransactions = [
         date: null,
       },
     },
+    accountId: 1,
   },
   {
     id: 3,
@@ -115,6 +122,7 @@ export const mockTransactions = [
         date: 1,
       },
     },
+    accountId: 1,
   },
   {
     id: 4,
@@ -125,6 +133,7 @@ export const mockTransactions = [
     description: 'Bus ticket',
     recurring: false,
     recurring_frequency: null,
+    accountId: 1,
   },
   {
     id: 5,
@@ -135,6 +144,7 @@ export const mockTransactions = [
     description: 'Freelance project',
     recurring: false,
     recurring_frequency: null,
+    accountId: 1,
   },
 ];
 

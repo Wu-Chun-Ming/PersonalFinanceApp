@@ -32,6 +32,7 @@ export interface TransactionFormikProps {
       day: string;
     };
   };
+  accountId: string;
 }
 
 export const useTransactionFormik = (
@@ -61,6 +62,7 @@ export const useTransactionFormik = (
           day: '',
         },
       },
+      accountId: '',
     },
     validationSchema: useMemo(
       () => getTransactionSchema(transactionType),
@@ -87,6 +89,7 @@ export const useTransactionFormik = (
             },
           }
         : null,
+      accountId: Number(values.accountId),
     }),
     onSubmitCallback: (
       transformedTransactionData: TransactionMultiDateProps,
