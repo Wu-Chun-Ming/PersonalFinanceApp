@@ -1,14 +1,19 @@
+import dayjs from 'dayjs';
+
+import { storeAccount } from '@/database/accountDatabase';
 import { updateBudget } from '@/database/budgetDatabase';
 import { storeTransaction } from '@/database/transactionDatabase';
-import { BudgetProps, FileType, TransactionProps } from '@/types';
+import { AccountProps, BudgetProps, FileType, TransactionProps } from '@/types';
 import { importDataFromFile } from '@/utils/file';
 import { exportData, pickFile } from '@/utils/io';
+import { fetchAccounts } from './accountService';
 import { fetchBudgets } from './budgetService';
 import { fetchTransactions } from './transactionService';
 
 interface BackupPayload {
   transactions: TransactionProps[];
   budgets: BudgetProps[];
+  accounts: AccountProps[];
 }
 
 // Export all database data to file
@@ -17,18 +22,23 @@ export const exportAllData = async (fileType: FileType) => {
     return await exportData<BackupPayload>(
       fileType,
       async () => {
-        const [transactions, budgets] = await Promise.all([
+        const [transactions, budgets, accounts] = await Promise.all([
           fetchTransactions(),
           fetchBudgets(),
+          fetchAccounts(),
         ]);
 
-        if (transactions.length === 0 && budgets.length === 0) {
+        if (
+          transactions.length === 0 &&
+          budgets.length === 0 &&
+          accounts.length === 0
+        ) {
           return [];
         }
 
-        return [{ transactions, budgets }];
+        return [{ transactions, budgets, accounts }];
       },
-      'exported_backup',
+      `exported_backup_${dayjs(new Date()).format('YYYY-MM-DD_HH-mm-ss')}`,
       'backup',
     );
   } catch (error) {
@@ -49,34 +59,54 @@ export const importAllData = async (fileType: FileType) => {
       fileUri,
       fileType,
     );
-    const { transactions, budgets } = rawData[0];
+    const { transactions, budgets, accounts } = rawData[0];
 
     // Process backup data items
     let importedTransactionsCount = 0;
     let importedBudgetsCount = 0;
+    let importedAccountsCount = 0;
     let failedCount = 0;
 
     const importQueue: (
       | { type: 'transaction'; data: TransactionProps }
       | { type: 'budget'; data: BudgetProps }
+      | { type: 'account'; data: AccountProps }
     )[] = [
       ...transactions.map((data) => ({ type: 'transaction' as const, data })),
       ...budgets.map((data) => ({ type: 'budget' as const, data })),
+      ...accounts.map((data) => ({ type: 'account' as const, data })),
     ];
 
     for (const item of importQueue) {
       try {
-        const success =
-          item.type === 'transaction'
-            ? await storeTransaction(item.data)
-            : await updateBudget(item.data.amount, {
-                year: item.data.year,
-                month: item.data.month,
-                category: item.data.category,
-              });
+        let result: {
+          data: {
+            success: boolean;
+            messages: string;
+          };
+        };
+
+        switch (item.type) {
+          case 'transaction':
+            result = await storeTransaction(item.data);
+            break;
+          case 'budget':
+            result = await updateBudget(item.data.amount, {
+              year: item.data.year,
+              month: item.data.month,
+              category: item.data.category,
+            });
+            break;
+          case 'account':
+            result = await storeAccount(item.data);
+            break;
+        }
+
+        const { success } = result.data;
         if (success) {
           if (item.type === 'transaction') importedTransactionsCount++;
           else if (item.type === 'budget') importedBudgetsCount++;
+          else if (item.type === 'account') importedAccountsCount++;
         } else {
           failedCount += 1;
         }
@@ -85,11 +115,12 @@ export const importAllData = async (fileType: FileType) => {
       }
     }
 
-    const importedTotal = importedTransactionsCount + importedBudgetsCount;
+    const importedTotal =
+      importedTransactionsCount + importedBudgetsCount + importedAccountsCount;
 
     let messages: string;
     if (importedTotal > 0) {
-      messages = `Imported ${importedTransactionsCount} transactions and ${importedBudgetsCount} budgets from ${fileType.toUpperCase()} backup`;
+      messages = `Imported ${importedTransactionsCount} transactions, ${importedBudgetsCount} budgets, and ${importedAccountsCount} accounts from ${fileType.toUpperCase()} backup`;
       if (failedCount === 0) {
         messages += ' successfully.';
       } else if (failedCount > 0) {
@@ -98,7 +129,7 @@ export const importAllData = async (fileType: FileType) => {
     } else if (importedTotal === 0 && failedCount > 0) {
       messages = `Failed to import data from ${fileType.toUpperCase()} backup. ${failedCount} items failed.`;
     } else {
-      messages = `No transactions or budgets were imported from ${fileType.toUpperCase()} backup. Check the file and try again.`;
+      messages = `No transactions, budgets, or accounts were imported from ${fileType.toUpperCase()} backup. Check the file and try again.`;
     }
 
     return {
