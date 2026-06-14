@@ -245,6 +245,7 @@ const TransactionManager = () => {
             <TransactionForm
               formik={formik}
               accounts={nonInvestmentAccounts}
+              primaryAccount={accounts[0]}
               transactionType={transactionType}
               isExistingTransaction={!!transaction}
               onTransactionTypeChange={setTransactionType}

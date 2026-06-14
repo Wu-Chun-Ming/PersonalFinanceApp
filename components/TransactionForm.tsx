@@ -32,6 +32,7 @@ import SelectGroup from './SelectGroup';
 interface TransactionFormProps {
   formik: FormikProps<TransactionFormikProps>;
   accounts: AccountProps[];
+  primaryAccount: AccountProps | null;
   transactionType: TransactionTypeValue;
   isExistingTransaction: boolean;
   onTransactionTypeChange?: (type: TransactionTypeValue) => void;
@@ -44,6 +45,7 @@ interface TransactionFormProps {
 const TransactionForm = ({
   formik,
   accounts,
+  primaryAccount,
   transactionType,
   isExistingTransaction,
   onTransactionTypeChange,
@@ -78,10 +80,14 @@ const TransactionForm = ({
         errorText={formik.errors.accountId}
       >
         <SelectGroup
-          initialLabel={formik.values.accountId || ''}
+          initialLabel={
+            primaryAccount
+              ? `${primaryAccount.type} - ${primaryAccount.name} (${primaryAccount.balance} ${primaryAccount.currency})`
+              : ''
+          }
           selectedValue={formik.values.accountId}
           onValueChange={formik.handleChange('accountId')}
-          placeholder='Select account'
+          placeholder='Select Account'
         >
           {accounts.map((account) => (
             <SelectItem

@@ -53,10 +53,11 @@ const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
 
     // Create the tables
     await db.execAsync(`
-            ${transactionTableSchema}
-            ${budgetTableSchema}
-            ${accountTableSchema}
-        `);
+      ${transactionTableSchema}
+      ${budgetTableSchema}
+      ${accountTableSchema}
+      INSERT INTO accounts (name, type, balance, currency) VALUES ('Cash', 'Cash', 0.0, 'USD');
+    `);
   } catch (error) {
     throw new Error(
       `Error creating the database or table: ${(error as Error).message}`,
