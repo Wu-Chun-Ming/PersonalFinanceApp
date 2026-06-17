@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { FormikProps } from 'formik';
 
 import { SelectItem } from './ui/select';
@@ -13,7 +14,8 @@ import SelectGroup from './SelectGroup';
 interface InvestmentFormProps {
   formik: FormikProps<InvestmentFormikProps>;
   accounts: AccountProps[];
-}
+
+const CREATE_ACCOUNT_VALUE = '__create_account__';
 
 const InvestmentForm = ({ formik, accounts }: InvestmentFormProps) => {
   return (
@@ -27,7 +29,14 @@ const InvestmentForm = ({ formik, accounts }: InvestmentFormProps) => {
       >
         <SelectGroup
           selectedValue={formik.values.accountId}
-          onValueChange={formik.handleChange('accountId')}
+          onValueChange={(value: string) => {
+            if (value === CREATE_ACCOUNT_VALUE) {
+              router.replace('/account/new'); // react-router
+              return;
+            }
+
+            formik.setFieldValue('accountId', value);
+          }}
           placeholder='Select Account'
         >
           {accounts.map((account) => (
@@ -37,6 +46,10 @@ const InvestmentForm = ({ formik, accounts }: InvestmentFormProps) => {
               value={account.id!.toString()}
             />
           ))}
+          <SelectItem
+            label='+ Create New Investment Account'
+            value={CREATE_ACCOUNT_VALUE}
+          />
         </SelectGroup>
       </FormGroup>
 
