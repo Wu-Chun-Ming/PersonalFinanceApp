@@ -7,3 +7,4 @@ export * from './database';
 export * from './file';
 export * from './currency';
 export * from './account';
+export * from './investment';

@@ -2,6 +2,7 @@ import {
   AccountType,
   ExpenseCategory,
   IncomeCategory,
+  InvestmentType,
   TransactionCategory,
   TransactionCategoryType,
   TransactionType,
@@ -53,4 +54,20 @@ export const ACCOUNT_TYPE_COLORS = {
   [AccountType.E_WALLET]: '#ff7f0e', // Orange
   [AccountType.CASH]: '#2ca02c', // Green
   [AccountType.INVESTMENT]: '#d62728', // Red
+};
+
+// Define color for investment types
+export const INVESTMENT_TYPE_COLORS = {
+  [InvestmentType.STOCK]: '#1f77b4', // Blue
+  [InvestmentType.BOND]: '#ff7f0e', // Orange
+  [InvestmentType.MUTUAL_FUND]: '#2ca02c', // Green
+  [InvestmentType.ETF]: '#d62728', // Red
+  [InvestmentType.REIT]: '#9467bd', // Purple
+  [InvestmentType.COMMODITY]: '#8c564b', // Brown
+  [InvestmentType.CRYPTO]: '#e377c2', // Pink
+  [InvestmentType.CASH]: '#7f7f7f', // Gray
+  [InvestmentType.EPF]: '#bcbd22', // Olive
+  [InvestmentType.ASNB]: '#17becf', // Cyan
+  [InvestmentType.PRS]: '#aec7e8', // Light Blue
+  [InvestmentType.FD]: '#ffbb78', // Light Orange
 };

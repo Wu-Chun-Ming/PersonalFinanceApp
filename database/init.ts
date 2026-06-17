@@ -7,6 +7,7 @@ import {
 import {
   accountTableSchema,
   budgetTableSchema,
+  investmentTableSchema,
   transactionTableSchema,
 } from './schema';
 
@@ -57,6 +58,7 @@ const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
       ${budgetTableSchema}
       ${accountTableSchema}
       INSERT INTO accounts (name, type, balance, currency) VALUES ('Cash', 'Cash', 0.0, 'USD');
+      ${investmentTableSchema}
     `);
   } catch (error) {
     throw new Error(

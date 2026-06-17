@@ -3,7 +3,7 @@ import {
   TRANSACTION_CATEGORIES,
   TRANSACTION_TYPES,
 } from '@/constants/transaction';
-import { AccountType } from '@/types/account';
+import { AccountType, InvestmentType } from '@/types';
 
 /* 
 Table: transactions
@@ -98,5 +98,37 @@ export const accountTableSchema = `
         balance REAL NOT NULL DEFAULT 0.0,
         currency TEXT NOT NULL,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+`;
+
+/* 
+Table: investments
+============================================================
+Column Name             Type
+============================================================
+id                      INTEGER
+accountId               INTEGER
+name                    VARCHAR
+type                    ENUM(...)
+value                   DOUBLE
+currency                VARCHAR
+updated_at              DATETIME
+============================================================
+*/
+
+const allowedInvestmentTypes = Object.values(InvestmentType)
+  .map((type) => `'${type}'`)
+  .join(', ');
+
+export const investmentTableSchema = `
+    CREATE TABLE IF NOT EXISTS investments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        accountId INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL CHECK(type IN (${allowedInvestmentTypes})),
+        value REAL NOT NULL DEFAULT 0.0,
+        currency TEXT NOT NULL,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (accountId) REFERENCES accounts(id) ON DELETE CASCADE
     );
 `;
