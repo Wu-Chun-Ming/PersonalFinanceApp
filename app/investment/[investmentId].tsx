@@ -11,7 +11,7 @@ import { VStack } from '@/components/ui/vstack';
 // Custom import
 import InvestmentForm from '@/components/InvestmentForm';
 import QueryState from '@/components/QueryState';
-import { useAccounts } from '@/hooks/useAccounts';
+import { useAccountData, useAccounts } from '@/hooks/useAccounts';
 import { useDeleteInvestment, useInvestment } from '@/hooks/useInvestments';
 import { useInvestmentFormik } from '@/hooks/useInvestmentsFormik';
 import useShowToast from '@/hooks/useShowToast';
@@ -32,6 +32,11 @@ const InvestmentManager = () => {
   } = useInvestment(Number(investmentId));
   const deleteMutation = useDeleteInvestment();
   const { data: accounts = [] } = useAccounts();
+  const { accountsByType } = useAccountData(accounts);
+  const investmentAccounts = accountsByType.Investment;
+  const accountInfo = investmentAccounts.find(
+    (acc) => acc.id === investment?.accountId,
+  );
 
   // Formik setup
   const { investmentFormik: formik } = useInvestmentFormik(
@@ -94,7 +99,8 @@ const InvestmentManager = () => {
           {/* Investment Form */}
           <InvestmentForm
             formik={formik}
-            accounts={accounts}
+            accounts={investmentAccounts}
+            accountInfo={accountInfo}
           />
 
           {/* Button Group */}

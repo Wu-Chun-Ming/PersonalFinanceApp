@@ -14,10 +14,16 @@ import SelectGroup from './SelectGroup';
 interface InvestmentFormProps {
   formik: FormikProps<InvestmentFormikProps>;
   accounts: AccountProps[];
+  accountInfo?: AccountProps;
+}
 
 const CREATE_ACCOUNT_VALUE = '__create_account__';
 
-const InvestmentForm = ({ formik, accounts }: InvestmentFormProps) => {
+const InvestmentForm = ({
+  formik,
+  accounts,
+  accountInfo,
+}: InvestmentFormProps) => {
   return (
     <>
       {/* Account */}
@@ -28,6 +34,11 @@ const InvestmentForm = ({ formik, accounts }: InvestmentFormProps) => {
         errorText={formik.errors.accountId}
       >
         <SelectGroup
+          initialLabel={
+            accountInfo
+              ? `${accountInfo.type} - ${accountInfo.name} (${accountInfo.balance} ${accountInfo.currency})`
+              : ''
+          }
           selectedValue={formik.values.accountId}
           onValueChange={(value: string) => {
             if (value === CREATE_ACCOUNT_VALUE) {
