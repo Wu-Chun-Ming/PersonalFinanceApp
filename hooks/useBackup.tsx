@@ -6,6 +6,8 @@ import { useCustomMutation } from './useAppMutation';
 export const useImport = () => {
   return useCustomMutation({
     mutationFn: (fileType: FileType) => importAllData(fileType),
-    invalidateKeys: () => [['transactions', 'budget', 'accounts']], // Invalidate transactions and budget queries on success
+    invalidateKeys: () => [
+      ['transactions', 'budget', 'accounts', 'investments'],
+    ], // Invalidate transactions and budget queries on success
   });
 };
