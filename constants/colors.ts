@@ -66,6 +66,7 @@ export const INVESTMENT_TYPE_COLORS = {
   [InvestmentType.COMMODITY]: '#8c564b', // Brown
   [InvestmentType.CRYPTO]: '#e377c2', // Pink
   [InvestmentType.CASH]: '#7f7f7f', // Gray
+  [InvestmentType.CASH_MANAGEMENT]: '#32a89e', // Teal
   [InvestmentType.EPF]: '#bcbd22', // Olive
   [InvestmentType.ASNB]: '#17becf', // Cyan
   [InvestmentType.PRS]: '#aec7e8', // Light Blue

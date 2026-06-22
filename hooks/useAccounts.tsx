@@ -10,7 +10,16 @@ import {
   fetchAccount,
   fetchAccounts,
 } from '@/services/accountService';
-import { AccountProps, AccountTypeValue, DatabaseOptions } from '@/types';
+import {
+  createInvestment,
+  updateInvestmentValueByAccountId,
+} from '@/services/investmentService';
+import {
+  AccountProps,
+  AccountTypeValue,
+  DatabaseOptions,
+  InvestmentType,
+} from '@/types';
 import { useCustomMutation } from './useAppMutation';
 import { useCustomQuery } from './useAppQuery';
 
@@ -39,7 +48,21 @@ export const useAccount = (accountId: number) => {
 // Custom hook to create a account
 export const useCreateAccount = () => {
   return useCustomMutation({
-    mutationFn: (newAccountData: AccountProps) => createAccount(newAccountData),
+    mutationFn: async (newAccountData: AccountProps) => {
+      const newAccount = await createAccount(newAccountData);
+      if (newAccountData.earnReturns && newAccount.id) {
+        await createInvestment({
+          accountId: newAccount.id,
+          name: `${newAccountData.name} Investment`,
+          type: InvestmentType.CASH_MANAGEMENT,
+          value: newAccountData.balance,
+          currency: newAccountData.currency,
+          updated_at: new Date().toISOString(),
+        });
+      }
+
+      return newAccount;
+    },
     invalidateKeys: () => [['accounts']], // Invalidate accounts query on success
     onInvalidationComplete: () => router.back(), // Navigate to previous page after creating account
   });
@@ -48,13 +71,18 @@ export const useCreateAccount = () => {
 // Custom hook to update a account
 export const useUpdateAccount = () => {
   return useCustomMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       updatedAccountData,
     }: {
       id: number;
       updatedAccountData: AccountProps;
-    }) => editAccount(id, updatedAccountData),
+    }) => {
+      if (updatedAccountData.earnReturns) {
+        await updateInvestmentValueByAccountId(id, updatedAccountData.balance);
+      }
+      return editAccount(id, updatedAccountData);
+    },
     invalidateKeys: (variables) => [
       ['account', variables?.id],
       ['accounts'], // Invalidate account and accounts queries on success

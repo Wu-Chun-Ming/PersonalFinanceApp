@@ -44,6 +44,7 @@ const AccountManager = () => {
         type: account.type,
         balance: account.balance.toString(),
         currency: account.currency,
+        earnReturns: account.earnReturns,
       });
     }
 

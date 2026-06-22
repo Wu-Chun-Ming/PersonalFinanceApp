@@ -1,6 +1,9 @@
+import { Text } from 'react-native';
 import { FormikProps } from 'formik';
 
+import { HStack } from './ui/hstack';
 import { SelectItem } from './ui/select';
+import { Switch } from './ui/switch';
 import { Textarea, TextareaInput } from './ui/textarea';
 
 import { CURRENCIES } from '@/constants/currency';
@@ -89,6 +92,17 @@ const AccountForm = ({ formik }: AccountFormProps) => {
           ))}
         </SelectGroup>
       </FormGroup>
+
+      {/* Earn Returns */}
+      <HStack className='my-2 items-center'>
+        <Switch
+          value={formik.values.earnReturns}
+          onToggle={() =>
+            formik.setFieldValue('earnReturns', !formik.values.earnReturns)
+          }
+        />
+        <Text>Earn Returns</Text>
+      </HStack>
     </>
   );
 };

@@ -57,7 +57,7 @@ const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
       ${transactionTableSchema}
       ${budgetTableSchema}
       ${accountTableSchema}
-      INSERT INTO accounts (name, type, balance, currency) VALUES ('Cash', 'Cash', 0.0, 'USD');
+      INSERT INTO accounts (name, type, balance, currency, earnReturns) VALUES ('Cash', 'Cash', 0.0, 'USD', 0);
       ${investmentTableSchema}
     `);
   } catch (error) {

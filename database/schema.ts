@@ -81,8 +81,9 @@ id                      INTEGER
 name                    VARCHAR
 type                    ENUM(...)
 balance                 DOUBLE
-updated_at              DATETIME
 currency                VARCHAR
+earnReturns             BOOLEAN
+updated_at              DATETIME
 ============================================================
 */
 
@@ -97,6 +98,7 @@ export const accountTableSchema = `
         type TEXT NOT NULL CHECK(type IN (${allowedAccountTypes})),
         balance REAL NOT NULL DEFAULT 0.0,
         currency TEXT NOT NULL,
+        earnReturns INTEGER NOT NULL CHECK(earnReturns IN (0, 1)),
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 `;

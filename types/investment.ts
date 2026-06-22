@@ -1,5 +1,6 @@
 export const CommonInvestmentType = {
-  CASH: 'Cash',
+  CASH: 'Cash', // No market returns
+  CASH_MANAGEMENT: 'Cash Management', // Spendable + earns daily yield
   STOCK: 'Stock',
   BOND: 'Bond',
   ETF: 'ETF',

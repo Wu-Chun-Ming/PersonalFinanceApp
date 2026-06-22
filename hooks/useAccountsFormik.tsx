@@ -10,6 +10,7 @@ export interface AccountFormikProps {
   type: string;
   balance: string;
   currency: string;
+  earnReturns: boolean;
 }
 
 export const useAccountFormik = (
@@ -26,6 +27,7 @@ export const useAccountFormik = (
       type: '',
       balance: '0',
       currency: '',
+      earnReturns: false,
     },
     validationSchema: accountSchema,
     transformValues: (values: AccountFormikProps): AccountProps => ({

@@ -13,5 +13,6 @@ export interface AccountProps {
   type: AccountTypeValue;
   balance: number;
   currency: string;
+  earnReturns: boolean;
   updated_at: string;
 }

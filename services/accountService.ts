@@ -7,6 +7,7 @@ import {
 } from '@/database/accountDatabase';
 import { AccountProps, DatabaseOptions, FileType } from '@/types';
 import { exportData, importData, pickFile } from '@/utils/io';
+import { updateInvestmentValueByAccountId } from './investmentService';
 
 // Fetch accounts
 export const fetchAccounts = async (options?: DatabaseOptions) => {
@@ -80,4 +81,7 @@ export const updateAccountBalance = async (
   }
   const newBalance = account.balance + amount;
   await editAccount(accountId, { ...account, balance: newBalance });
+  if (account.earnReturns) {
+    await updateInvestmentValueByAccountId(accountId, newBalance);
+  }
 };

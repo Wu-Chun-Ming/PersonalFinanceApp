@@ -14,4 +14,5 @@ export const accountSchema = Yup.object().shape({
   currency: Yup.string()
     .oneOf(CURRENCIES, 'Invalid currency')
     .required('Currency is required'),
+  earnReturns: Yup.boolean().required('Earn Returns is required'),
 });

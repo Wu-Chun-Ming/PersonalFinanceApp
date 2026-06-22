@@ -16,7 +16,10 @@ export const getAccounts = async ({ dbInstance }: DatabaseOptions = {}) => {
       // Successful fetched
       if (result.length > 0) {
         return {
-          data: result,
+          data: result.map((account) => ({
+            ...account,
+            earnReturns: Boolean(account.earnReturns),
+          })),
         };
       }
 
@@ -48,7 +51,10 @@ export const showAccount = async (
       // Successful fetched
       if (result) {
         return {
-          data: result,
+          data: {
+            ...result,
+            earnReturns: Boolean(result.earnReturns),
+          },
         };
       }
 
@@ -70,11 +76,12 @@ export const storeAccount = async (
     try {
       // Insert the account
       const result = await db.runAsync(
-        'INSERT INTO accounts (name, type, balance, currency, updated_at) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO accounts (name, type, balance, currency, earnReturns, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
         account.name,
         account.type,
         account.balance,
         account.currency,
+        account.earnReturns,
         new Date().toISOString(),
       );
 
@@ -84,6 +91,7 @@ export const storeAccount = async (
           data: {
             success: true,
             messages: 'Account created successfully',
+            id: result.lastInsertRowId ?? null,
           },
         };
       }
@@ -92,6 +100,7 @@ export const storeAccount = async (
         data: {
           success: false,
           messages: 'Failed to create account',
+          id: null,
         },
       };
     } catch (error) {
@@ -110,10 +119,12 @@ export const updateAccount = async (
     try {
       // Update the account
       const result = await db.runAsync(
-        'UPDATE accounts SET name = ?, type = ?, balance = ?, updated_at = ? WHERE id = ?',
+        'UPDATE accounts SET name = ?, type = ?, balance = ?, currency = ?, earnReturns = ?, updated_at = ? WHERE id = ?',
         account.name,
         account.type,
         account.balance,
+        account.currency,
+        account.earnReturns,
         new Date().toISOString(),
         id,
       );
