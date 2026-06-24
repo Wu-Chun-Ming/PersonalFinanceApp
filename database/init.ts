@@ -12,15 +12,24 @@ import {
 } from './schema';
 
 let dbInstance: SQLite.SQLiteDatabase | null = null; // To store the singleton instance
+let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 // Open local database
 const getDatabaseInstance = async () => {
   try {
-    if (!dbInstance) {
-      // Open the database if no instance exists
-      dbInstance = await SQLite.openDatabaseAsync('localDatabase.db');
+    if (dbInstance) {
+      return dbInstance; // Return the existing instance
     }
-    return dbInstance; // Return the existing or newly created instance
+
+    if (!dbPromise) {
+      // Open the database if no instance exists
+      dbPromise = SQLite.openDatabaseAsync('localDatabase.db').then((db) => {
+        dbInstance = db;
+        return db;
+      });
+    }
+
+    return dbPromise;
   } catch (error) {
     throw new Error(`Error opening database: ${(error as Error).message}`);
   }
