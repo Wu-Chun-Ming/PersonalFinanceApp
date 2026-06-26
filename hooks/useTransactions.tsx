@@ -76,12 +76,18 @@ export const useCreateTransaction = () => {
     mutationFn: (
       newTransactionData: TransactionProps | TransactionMultiDateProps,
     ) => {
-      updateAccountBalance(
-        newTransactionData.accountId,
-        newTransactionData.type === TransactionType.EXPENSE
-          ? -newTransactionData.amount
-          : newTransactionData.amount,
-      );
+      if (newTransactionData.date) {
+        const transactionCount = Array.isArray(newTransactionData.date)
+          ? newTransactionData.date.length
+          : 1;
+        updateAccountBalance(
+          newTransactionData.accountId,
+          newTransactionData.type === TransactionType.EXPENSE
+            ? -newTransactionData.amount * transactionCount
+            : newTransactionData.amount * transactionCount,
+        );
+      }
+
       return createTransactions(newTransactionData);
     },
     invalidateKeys: () => [['transactions']], // Invalidate transactions query on success
