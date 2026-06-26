@@ -1,3 +1,5 @@
+import { ACCOUNT_TYPES } from '@/constants/account';
+import { INVESTMENT_TYPES } from '@/constants/investment';
 import {
   EXPENSE_CATEGORIES,
   TRANSACTION_CATEGORIES,
@@ -122,9 +124,7 @@ export const accountTableColumns = [
   'updated_at',
 ];
 
-const allowedAccountTypes = Object.values(AccountType)
-  .map((type) => `'${type}'`)
-  .join(', ');
+const allowedAccountTypes = ACCOUNT_TYPES.map((type) => `'${type}'`).join(', ');
 
 export const accountTableSchema = `
     CREATE TABLE IF NOT EXISTS accounts (
@@ -163,9 +163,9 @@ export const investmentTableColumns = [
   'updated_at',
 ];
 
-const allowedInvestmentTypes = Object.values(InvestmentType)
-  .map((type) => `'${type}'`)
-  .join(', ');
+const allowedInvestmentTypes = INVESTMENT_TYPES.map((type) => `'${type}'`).join(
+  ', ',
+);
 
 export const investmentTableSchema = `
     CREATE TABLE IF NOT EXISTS investments (

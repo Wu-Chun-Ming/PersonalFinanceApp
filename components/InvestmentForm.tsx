@@ -5,8 +5,9 @@ import { SelectItem } from './ui/select';
 import { Textarea, TextareaInput } from './ui/textarea';
 
 import { CURRENCIES } from '@/constants/currency';
+import { INVESTMENT_TYPES } from '@/constants/investment';
 import { InvestmentFormikProps } from '@/hooks/useInvestmentsFormik';
-import { AccountProps, InvestmentType } from '@/types';
+import { AccountProps } from '@/types';
 import AmountInput from './AmountInput';
 import FormGroup from './FormGroup';
 import SelectGroup from './SelectGroup';
@@ -93,7 +94,7 @@ const InvestmentForm = ({
           selectedValue={formik.values.type}
           onValueChange={formik.handleChange('type')}
         >
-          {Object.values(InvestmentType).map((value) => (
+          {INVESTMENT_TYPES.map((value) => (
             <SelectItem
               key={value}
               label={value}
