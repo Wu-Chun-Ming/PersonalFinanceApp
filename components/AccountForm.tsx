@@ -6,6 +6,7 @@ import { SelectItem } from './ui/select';
 import { Switch } from './ui/switch';
 import { Textarea, TextareaInput } from './ui/textarea';
 
+import { ACCOUNT_TYPES } from '@/constants/account';
 import { CURRENCIES } from '@/constants/currency';
 import { AccountFormikProps } from '@/hooks/useAccountsFormik';
 import { AccountType } from '@/types';
@@ -47,9 +48,17 @@ const AccountForm = ({ formik }: AccountFormProps) => {
       >
         <SelectGroup
           selectedValue={formik.values.type}
-          onValueChange={formik.handleChange('type')}
+          onValueChange={(value: string) => {
+            formik.setFieldValue('type', value);
+            if (
+              value === AccountType.BANK ||
+              value === AccountType.INVESTMENT
+            ) {
+              formik.setFieldValue('earnReturns', false);
+            }
+          }}
         >
-          {Object.values(AccountType).map((value) => (
+          {ACCOUNT_TYPES.map((value) => (
             <SelectItem
               key={value}
               label={value}
@@ -99,6 +108,10 @@ const AccountForm = ({ formik }: AccountFormProps) => {
           value={formik.values.earnReturns}
           onToggle={() =>
             formik.setFieldValue('earnReturns', !formik.values.earnReturns)
+          }
+          isDisabled={
+            formik.values.type === AccountType.BANK ||
+            formik.values.type === AccountType.INVESTMENT
           }
         />
         <Text>Earn Returns</Text>
