@@ -1,13 +1,17 @@
 import * as SQLite from 'expo-sqlite';
 
+import { DEFAULT_CURRENCY_KEY } from '@/constants/currency';
 import {
   getDatabaseInitialized,
   setDatabaseInitialized,
 } from '@/services/appState';
+import { AccountType } from '@/types';
 import {
+  accountTableColumns,
   accountTableSchema,
   budgetTableSchema,
   investmentTableSchema,
+  joinTableColumns,
   transactionTableSchema,
 } from './schema';
 
@@ -66,9 +70,13 @@ const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
       ${transactionTableSchema}
       ${budgetTableSchema}
       ${accountTableSchema}
-      INSERT INTO accounts (name, type, balance, currency, earnReturns) VALUES ('Cash', 'Cash', 0.0, 'USD', 0);
       ${investmentTableSchema}
     `);
+
+    // Insert default account
+    await db.runAsync(
+      `INSERT INTO accounts (${joinTableColumns(accountTableColumns)}) VALUES ('Cash', ${AccountType.CASH}, 0.0, ${DEFAULT_CURRENCY_KEY}, 0);`,
+    );
   } catch (error) {
     throw new Error(
       `Error creating the database or table: ${(error as Error).message}`,
