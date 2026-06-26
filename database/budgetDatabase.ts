@@ -2,6 +2,11 @@ import * as SQLite from 'expo-sqlite';
 
 import { runWithDb } from '@/database/init';
 import { BudgetProps } from '@/types';
+import {
+  budgetTableColumns,
+  generateTablePlaceholders,
+  joinTableColumns,
+} from './schema';
 
 // Fetch budgets
 export const getBudgets = async (dbInstance?: SQLite.SQLiteDatabase) => {
@@ -39,9 +44,10 @@ export const updateBudget = async (
     try {
       // Update the budget
       const result = await db.runAsync(
-        `
-            INSERT INTO budgets (year, month, category, amount) VALUES (?, ?, ?, ?) ON CONFLICT(year, month, category) DO UPDATE SET amount = excluded.amount;
-            `,
+        `INSERT INTO budgets (${joinTableColumns(budgetTableColumns)}) 
+          VALUES (${generateTablePlaceholders(budgetTableColumns.length)}) 
+          ON CONFLICT(year, month, category) DO UPDATE SET amount = excluded.amount;
+        `,
         year,
         month,
         category,

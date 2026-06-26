@@ -3,6 +3,29 @@ import * as SQLite from 'expo-sqlite';
 // Custom import
 import { runWithDb } from '@/database/init';
 import { AccountProps, DatabaseOptions } from '@/types';
+import {
+  accountTableColumns,
+  generateTablePlaceholders,
+  joinTableColumns,
+} from './schema';
+
+const getAccountValues = (account: AccountProps) => {
+  return [
+    account.name,
+    account.type,
+    account.balance,
+    account.currency,
+    account.earnReturns,
+    new Date().toISOString(),
+  ];
+};
+
+const transformAccount = (account: any): AccountProps => {
+  return {
+    ...account,
+    earnReturns: Boolean(account.earnReturns),
+  };
+};
 
 // Fetch all accounts
 export const getAccounts = async ({ dbInstance }: DatabaseOptions = {}) => {
@@ -16,10 +39,7 @@ export const getAccounts = async ({ dbInstance }: DatabaseOptions = {}) => {
       // Successful fetched
       if (result.length > 0) {
         return {
-          data: result.map((account) => ({
-            ...account,
-            earnReturns: Boolean(account.earnReturns),
-          })),
+          data: result.map(transformAccount),
         };
       }
 
@@ -51,10 +71,7 @@ export const showAccount = async (
       // Successful fetched
       if (result) {
         return {
-          data: {
-            ...result,
-            earnReturns: Boolean(result.earnReturns),
-          },
+          data: transformAccount(result),
         };
       }
 
@@ -76,13 +93,10 @@ export const storeAccount = async (
     try {
       // Insert the account
       const result = await db.runAsync(
-        'INSERT INTO accounts (name, type, balance, currency, earnReturns, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
-        account.name,
-        account.type,
-        account.balance,
-        account.currency,
-        account.earnReturns,
-        new Date().toISOString(),
+        `INSERT INTO accounts (${joinTableColumns(accountTableColumns.slice(1))}) 
+          VALUES (${generateTablePlaceholders(accountTableColumns.length - 1)})
+        `,
+        ...getAccountValues(account),
       );
 
       // Successful insertion
@@ -119,13 +133,8 @@ export const updateAccount = async (
     try {
       // Update the account
       const result = await db.runAsync(
-        'UPDATE accounts SET name = ?, type = ?, balance = ?, currency = ?, earnReturns = ?, updated_at = ? WHERE id = ?',
-        account.name,
-        account.type,
-        account.balance,
-        account.currency,
-        account.earnReturns,
-        new Date().toISOString(),
+        `UPDATE accounts SET ${joinTableColumns(accountTableColumns.slice(1), ' = ?, ')} = ? WHERE id = ?`,
+        ...getAccountValues(account),
         id,
       );
 

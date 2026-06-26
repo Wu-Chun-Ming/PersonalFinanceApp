@@ -8,6 +8,35 @@ import {
   TransactionProps,
   TransactionTypeValue,
 } from '@/types';
+import {
+  generateTablePlaceholders,
+  joinTableColumns,
+  transactionTableColumns,
+} from './schema';
+
+const getTransactionValues = (transaction: TransactionProps) => {
+  return [
+    transaction.date ? transaction.date.toString() : null,
+    transaction.type,
+    transaction.category,
+    transaction.amount,
+    transaction?.description,
+    transaction.recurring,
+    JSON.stringify(transaction.recurring_frequency),
+    transaction.accountId,
+  ];
+};
+
+const transformTransaction = (transaction: any): TransactionProps => {
+  return {
+    ...transaction,
+    date: transaction.date ? new Date(transaction.date) : null,
+    recurring: Boolean(transaction.recurring),
+    recurring_frequency: transaction.recurring_frequency
+      ? JSON.parse(transaction.recurring_frequency)
+      : null,
+  };
+};
 
 // Fetch all transaction
 export const getTransactions = async ({
@@ -24,14 +53,7 @@ export const getTransactions = async ({
       // Successful fetched
       if (result.length > 0) {
         return {
-          data: result.map((transaction) => ({
-            ...transaction,
-            date: transaction.date ? new Date(transaction.date) : null,
-            recurring: Boolean(transaction.recurring),
-            recurring_frequency: transaction.recurring_frequency
-              ? JSON.parse(transaction.recurring_frequency)
-              : null,
-          })) as TransactionProps[],
+          data: result.map(transformTransaction),
         };
       }
 
@@ -63,14 +85,7 @@ export const showTransaction = async (
       // Successful fetched
       if (result) {
         return {
-          data: {
-            ...result,
-            date: result.date ? new Date(result.date) : null,
-            recurring: Boolean(result.recurring),
-            recurring_frequency: result.recurring_frequency
-              ? JSON.parse(result.recurring_frequency)
-              : null,
-          } as TransactionProps,
+          data: transformTransaction(result),
         };
       }
 
@@ -94,15 +109,10 @@ export const storeTransaction = async (
     try {
       // Insert the transaction
       const result = await db.runAsync(
-        'INSERT INTO transactions (date, type, category, amount, description, recurring, recurring_frequency, accountId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        transaction.date ? transaction.date.toString() : null,
-        transaction.type,
-        transaction.category,
-        transaction.amount,
-        transaction?.description,
-        transaction.recurring ? 1 : 0,
-        JSON.stringify(transaction.recurring_frequency),
-        transaction.accountId,
+        `INSERT INTO transactions (${joinTableColumns(transactionTableColumns.slice(1))}) 
+          VALUES (${generateTablePlaceholders(transactionTableColumns.length - 1)})
+        `,
+        ...getTransactionValues(transaction),
       );
 
       // Successful insertion
@@ -191,14 +201,8 @@ export const updateTransaction = async (
     try {
       // Update the transaction
       const result = await db.runAsync(
-        'UPDATE transactions SET date = ?, type = ?, category = ?, amount = ?, description = ?, recurring = ?, recurring_frequency = ? WHERE id = ?',
-        transaction.date ? transaction.date.toString() : null,
-        transaction.type,
-        transaction.category,
-        transaction.amount,
-        transaction?.description,
-        transaction.recurring ? 1 : 0,
-        JSON.stringify(transaction.recurring_frequency),
+        `UPDATE transactions SET ${joinTableColumns(transactionTableColumns.slice(1), ' = ?, ')} = ? WHERE id = ?`,
+        ...getTransactionValues(transaction),
         id,
       );
 

@@ -5,6 +5,17 @@ import {
 } from '@/constants/transaction';
 import { AccountType, InvestmentType } from '@/types';
 
+export const joinTableColumns = (
+  columns: string[],
+  separator: string = ', ',
+) => {
+  return columns.join(separator);
+};
+
+export const generateTablePlaceholders = (count: number) => {
+  return '?, '.repeat(count - 1) + '?';
+};
+
 /* 
 Table: transactions
 ============================================================
@@ -22,6 +33,18 @@ currency                VARCHAR
 ============================================================
 */
 
+export const transactionTableColumns = [
+  'id',
+  'date',
+  'type',
+  'category',
+  'amount',
+  'description',
+  'recurring',
+  'recurring_frequency',
+  'accountId',
+];
+
 // Define allowed values for transaction types and categories
 const allowedTransactionTypes = TRANSACTION_TYPES.map(
   (type) => `'${type}'`,
@@ -34,10 +57,10 @@ export const transactionTableSchema = `
     CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
         date TEXT,
+        type TEXT NOT NULL CHECK(type IN (${allowedTransactionTypes})),
         category TEXT NOT NULL CHECK(category IN (${allowedTransactionCategories})),
         amount REAL NOT NULL,
         description TEXT,
-        type TEXT NOT NULL CHECK(type IN (${allowedTransactionTypes})),
         recurring INTEGER NOT NULL CHECK(recurring IN (0, 1)),
         recurring_frequency TEXT,
         accountId INTEGER NOT NULL,
@@ -56,6 +79,8 @@ category                ENUM(...)
 amount                  DOUBLE
 ============================================================
 */
+
+export const budgetTableColumns = ['year', 'month', 'category', 'amount'];
 
 // Define allowed values for budget categories
 const allowedBudgetCategories = EXPENSE_CATEGORIES.map(
@@ -87,6 +112,16 @@ updated_at              DATETIME
 ============================================================
 */
 
+export const accountTableColumns = [
+  'id',
+  'name',
+  'type',
+  'balance',
+  'currency',
+  'earnReturns',
+  'updated_at',
+];
+
 const allowedAccountTypes = Object.values(AccountType)
   .map((type) => `'${type}'`)
   .join(', ');
@@ -117,6 +152,16 @@ currency                VARCHAR
 updated_at              DATETIME
 ============================================================
 */
+
+export const investmentTableColumns = [
+  'id',
+  'accountId',
+  'name',
+  'type',
+  'value',
+  'currency',
+  'updated_at',
+];
 
 const allowedInvestmentTypes = Object.values(InvestmentType)
   .map((type) => `'${type}'`)

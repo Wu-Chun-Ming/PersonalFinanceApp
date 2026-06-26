@@ -3,6 +3,22 @@ import * as SQLite from 'expo-sqlite';
 // Custom import
 import { runWithDb } from '@/database/init';
 import { DatabaseOptions, InvestmentProps } from '@/types';
+import {
+  generateTablePlaceholders,
+  investmentTableColumns,
+  joinTableColumns,
+} from './schema';
+
+const getInvestmentValues = (investment: InvestmentProps) => {
+  return [
+    investment.accountId,
+    investment.name,
+    investment.type,
+    investment.value,
+    investment.currency,
+    new Date().toISOString(),
+  ];
+};
 
 // Fetch all investments
 export const getInvestments = async ({ dbInstance }: DatabaseOptions = {}) => {
@@ -70,13 +86,10 @@ export const storeInvestment = async (
     try {
       // Insert the investment
       const result = await db.runAsync(
-        'INSERT INTO investments (accountId, name, type, value, currency, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
-        investment.accountId,
-        investment.name,
-        investment.type,
-        investment.value,
-        investment.currency,
-        new Date().toISOString(),
+        `INSERT INTO investments (${joinTableColumns(investmentTableColumns.slice(1))}) 
+          VALUES (${generateTablePlaceholders(investmentTableColumns.length - 1)})
+        `,
+        ...getInvestmentValues(investment),
       );
 
       // Successful insertion
@@ -111,13 +124,8 @@ export const updateInvestment = async (
     try {
       // Update the investment
       const result = await db.runAsync(
-        'UPDATE investments SET accountId = ?, name = ?, type = ?, value = ?, currency = ?, updated_at = ? WHERE id = ?',
-        investment.accountId,
-        investment.name,
-        investment.type,
-        investment.value,
-        investment.currency,
-        new Date().toISOString(),
+        `UPDATE investments SET ${joinTableColumns(investmentTableColumns.slice(1), ' = ?, ')} = ? WHERE id = ?`,
+        ...getInvestmentValues(investment),
         id,
       );
 
