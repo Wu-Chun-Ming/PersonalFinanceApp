@@ -34,7 +34,11 @@ const InvestmentManager = () => {
   const { data: accounts = [] } = useAccounts();
   const { accountsByType } = useAccountData(accounts);
   const investmentAccounts = accountsByType.Investment;
-  const accountInfo = investmentAccounts.find(
+  const earnedReturnsAccounts = [
+    ...accountsByType.Cash,
+    ...accountsByType['e-Wallet'],
+  ];
+  const accountInfo = [...investmentAccounts, ...earnedReturnsAccounts].find(
     (acc) => acc.id === investment?.accountId,
   );
 
