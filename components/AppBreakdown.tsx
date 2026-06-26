@@ -68,7 +68,9 @@ const AppBreakdown = <T extends unknown>({
                   },
                 ]}
               >
-                <Text style={styles.text}>{getLabel(item)}</Text>
+                <Text style={[styles.text, { textAlign: 'center' }]}>
+                  {getLabel(item)}
+                </Text>
               </View>
             </TouchableNativeFeedback>
 
