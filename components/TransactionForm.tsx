@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { router } from 'expo-router';
 import dayjs from 'dayjs';
 import { FormikProps } from 'formik';
 
@@ -41,6 +42,8 @@ interface TransactionFormProps {
   onDescriptionBlur?: () => void;
   onSuggestionsLayout?: (height: number) => void;
 }
+
+const CREATE_ACCOUNT_VALUE = '__create_account__';
 
 const TransactionForm = ({
   formik,
@@ -86,7 +89,14 @@ const TransactionForm = ({
               : ''
           }
           selectedValue={formik.values.accountId}
-          onValueChange={formik.handleChange('accountId')}
+          onValueChange={(value: string) => {
+            if (value === CREATE_ACCOUNT_VALUE) {
+              router.replace('/account/new');
+              return;
+            }
+
+            formik.setFieldValue('accountId', value);
+          }}
           placeholder='Select Account'
         >
           {accounts.map((account) => (
@@ -96,6 +106,10 @@ const TransactionForm = ({
               value={account.id!.toString()}
             />
           ))}
+          <SelectItem
+            label='+ Create New Account'
+            value={CREATE_ACCOUNT_VALUE}
+          />
         </SelectGroup>
       </FormGroup>
 

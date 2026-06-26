@@ -42,7 +42,7 @@ const InvestmentForm = ({
           selectedValue={formik.values.accountId}
           onValueChange={(value: string) => {
             if (value === CREATE_ACCOUNT_VALUE) {
-              router.replace('/account/new'); // react-router
+              router.replace('/account/new');
               return;
             }
 
