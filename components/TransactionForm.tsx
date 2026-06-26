@@ -231,8 +231,8 @@ const TransactionForm = ({
                   'Select ' +
                   (formik.values.recurring_frequency.frequency ===
                   RecurringFrequency.YEARLY
-                    ? 'month'
-                    : 'day')
+                    ? 'Month'
+                    : 'Day')
                 }
               >
                 {(
@@ -316,7 +316,7 @@ const TransactionForm = ({
                   formik.values.recurring_frequency.frequency ===
                     RecurringFrequency.WEEKLY
                 }
-                placeholder='Select date'
+                placeholder='Select Date'
                 scrollViewStyle={{ maxHeight: 200, overflow: 'scroll' }}
               >
                 {Array.from({ length: 31 }, (_, i) => [

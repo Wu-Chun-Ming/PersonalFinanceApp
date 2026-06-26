@@ -21,7 +21,7 @@ const SelectGroup = ({
   selectedValue,
   onValueChange,
   isDisabled,
-  placeholder = 'Select option',
+  placeholder = 'Select Option',
   scrollViewStyle,
   children,
 }: any) => {

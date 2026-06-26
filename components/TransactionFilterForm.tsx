@@ -235,7 +235,7 @@ const TransactionFilterForm = ({
             <TextInput
               style={[styles.text, styles.centeredFlex]}
               keyboardType='numeric'
-              placeholder='Enter amount'
+              placeholder='Enter Amount'
               value={formik.values.amount.toString()}
               onChangeText={(value) => formik.setFieldValue('amount', value)}
             />
