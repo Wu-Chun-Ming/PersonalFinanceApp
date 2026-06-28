@@ -18,7 +18,6 @@ const getInvestmentValues = (investment: InvestmentProps) => {
     investment.type,
     investment.value,
     investment.currency,
-    new Date().toISOString(),
   ];
 };
 
@@ -65,12 +64,11 @@ export const updateInvestment = async (
 ) => {
   return updateRow(
     'investments',
-    preserveId
-      ? investmentTableColumns.slice(0, -1)
-      : investmentTableColumns.slice(1, -1), // Exclude 'id' column for update if not preserving
+    preserveId ? investmentTableColumns : investmentTableColumns.slice(1), // Exclude 'id' column for update if not preserving
     [
       ...(preserveId ? [investment.id] : []),
       ...getInvestmentValues(investment),
+      new Date().toISOString(),
     ],
     'id',
     id,

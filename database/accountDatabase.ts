@@ -19,7 +19,6 @@ const getAccountValues = (account: AccountProps) => {
     account.balance,
     account.currency,
     account.earnReturns,
-    new Date().toISOString(),
   ];
 };
 
@@ -93,10 +92,12 @@ export const updateAccount = async (
 ) => {
   return updateRow(
     'accounts',
-    preserveId
-      ? accountTableColumns.slice(0, -1)
-      : accountTableColumns.slice(1, -1), // Exclude 'id' column for update if not preserving
-    [...(preserveId ? [account.id] : []), ...getAccountValues(account)],
+    preserveId ? accountTableColumns : accountTableColumns.slice(1), // Exclude 'id' column for update if not preserving
+    [
+      ...(preserveId ? [account.id] : []),
+      ...getAccountValues(account),
+      new Date().toISOString(),
+    ],
     'id',
     id,
     { dbInstance },

@@ -201,7 +201,7 @@ export const updateRow = async (
       // Update row in the table
       const result = await db.runAsync(
         `UPDATE ${table}` +
-          ` SET ${joinTableColumns(tableColumns.slice(1), ' = ?, ')} = ?` +
+          ` SET ${joinTableColumns(tableColumns, ' = ?, ')} = ?` +
           ` WHERE ${primaryKeyField} = ?`,
         ...rowValues,
         primaryKeyValue,
