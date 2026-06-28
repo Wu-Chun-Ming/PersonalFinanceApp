@@ -32,12 +32,8 @@ const InvestmentManager = () => {
   } = useInvestment(Number(investmentId));
   const deleteMutation = useDeleteInvestment();
   const { data: accounts = [] } = useAccounts();
-  const { accountsByType } = useAccountData(accounts);
+  const { accountsByType, earnedReturnsAccounts } = useAccountData(accounts);
   const investmentAccounts = accountsByType.Investment;
-  const earnedReturnsAccounts = [
-    ...accountsByType.Cash,
-    ...accountsByType['e-Wallet'],
-  ];
   const accountInfo = [...investmentAccounts, ...earnedReturnsAccounts].find(
     (acc) => acc.id === investment?.accountId,
   );
@@ -103,7 +99,7 @@ const InvestmentManager = () => {
           {/* Investment Form */}
           <InvestmentForm
             formik={formik}
-            accounts={investmentAccounts}
+            accounts={[...investmentAccounts, ...earnedReturnsAccounts]}
             accountInfo={accountInfo}
           />
 

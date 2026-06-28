@@ -106,6 +106,7 @@ export const useAccountData = (accounts: AccountProps[]) => {
       accountsByType: Object.fromEntries(
         ACCOUNT_TYPES.map((type) => [type, [] as AccountProps[]]),
       ) as Record<AccountTypeValue, AccountProps[]>,
+      earnedReturnsAccounts: [] as AccountProps[],
     };
     let lastUpdatedDate = null;
 
@@ -119,10 +120,14 @@ export const useAccountData = (accounts: AccountProps[]) => {
       if (new Date(updated_at) > new Date(lastUpdatedDate || 0)) {
         lastUpdatedDate = updated_at;
       }
+      if (account.earnReturns) {
+        buckets.earnedReturnsAccounts.push(account);
+      }
     }
 
     return {
       accountsByType: buckets.accountsByType,
+      earnedReturnsAccounts: buckets.earnedReturnsAccounts,
       lastUpdatedDate,
     };
   }, [accounts]);
