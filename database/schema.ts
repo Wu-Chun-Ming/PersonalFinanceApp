@@ -5,7 +5,22 @@ import {
   TRANSACTION_CATEGORIES,
   TRANSACTION_TYPES,
 } from '@/constants/transaction';
-import { AccountType, InvestmentType } from '@/types';
+import { TableInfoProps } from '@/types';
+
+export const tableInfo: TableInfoProps = {
+  transactions: {
+    entityName: 'transaction',
+  },
+  budgets: {
+    entityName: 'budget',
+  },
+  accounts: {
+    entityName: 'account',
+  },
+  investments: {
+    entityName: 'investment',
+  },
+};
 
 export const joinTableColumns = (
   columns: string[],

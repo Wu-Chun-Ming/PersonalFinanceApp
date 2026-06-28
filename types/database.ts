@@ -1,13 +1,20 @@
 import * as SQLite from 'expo-sqlite';
 
-export const SORT_ORDERS = {
+export const SortOrder = {
   ASC: 'ASC',
   DESC: 'DESC',
 } as const;
 
-export type SortOrder = (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+export type SortOrderType = (typeof SortOrder)[keyof typeof SortOrder];
+
+export interface SortOptions {
+  sortField: string;
+  sortOrder: SortOrderType;
+}
 
 export interface DatabaseOptions {
-  sortOrder?: SortOrder;
   dbInstance?: SQLite.SQLiteDatabase;
+  sortOptions?: SortOptions;
 }
+
+export type TableInfoProps = Record<string, { entityName: string }>;

@@ -74,6 +74,7 @@ describe('Budget operations', () => {
     expect(response.data).toEqual({
       success: true,
       messages: 'Budget updated successfully',
+      id: null,
     });
   });
 
@@ -94,6 +95,7 @@ describe('Budget operations', () => {
     expect(response.data).toEqual({
       success: false,
       messages: 'Failed to update budget',
+      id: null,
     });
   });
 });
@@ -137,6 +139,6 @@ describe('Budget error handling', () => {
         },
         mockedDb,
       ),
-    ).rejects.toThrow('Error updating budget: Database error');
+    ).rejects.toThrow('Error upserting budget: Database error');
   });
 });

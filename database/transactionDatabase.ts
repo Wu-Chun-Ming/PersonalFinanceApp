@@ -1,18 +1,21 @@
 import * as SQLite from 'expo-sqlite';
 
 // Custom import
-import { runWithDb } from '@/database/init';
+import {
+  deleteRow,
+  getAllData,
+  getRowByPrimaryKey,
+  insertRow,
+  runWithDb,
+  updateRow,
+} from '@/database';
 import {
   DatabaseOptions,
   TransactionMultiDateProps,
   TransactionProps,
   TransactionTypeValue,
 } from '@/types';
-import {
-  generateTablePlaceholders,
-  joinTableColumns,
-  transactionTableColumns,
-} from './schema';
+import { transactionTableColumns } from './schema';
 
 const getTransactionValues = (transaction: TransactionProps) => {
   return [
@@ -40,33 +43,14 @@ const transformTransaction = (transaction: any): TransactionProps => {
 
 // Fetch all transaction
 export const getTransactions = async ({
-  sortOrder = 'DESC',
+  sortOptions,
   dbInstance,
 }: DatabaseOptions = {}) => {
-  return runWithDb(async (db) => {
-    try {
-      // Fetch all the data from table
-      const result = await db.getAllAsync(
-        `SELECT * FROM transactions ORDER BY date ${sortOrder || 'DESC'}`,
-      );
-
-      // Successful fetched
-      if (result.length > 0) {
-        return {
-          data: result.map(transformTransaction),
-        };
-      }
-
-      // No data fetched
-      return {
-        data: [],
-      };
-    } catch (error) {
-      throw new Error(
-        `Error fetching data from transactions table: ${(error as Error).message}`,
-      );
-    }
-  }, dbInstance);
+  return getAllData<TransactionProps>(
+    'transactions',
+    { dbInstance, sortOptions },
+    transformTransaction,
+  );
 };
 
 // Fetch specific transaction
@@ -74,69 +58,30 @@ export const showTransaction = async (
   id: number,
   dbInstance?: SQLite.SQLiteDatabase,
 ) => {
-  return runWithDb(async (db) => {
-    try {
-      // Fetch the data
-      const result = await db.getFirstAsync(
-        `SELECT * FROM transactions WHERE id = ?`,
-        id,
-      );
-
-      // Successful fetched
-      if (result) {
-        return {
-          data: transformTransaction(result),
-        };
-      }
-
-      return {
-        data: null,
-      };
-    } catch (error) {
-      throw new Error(
-        `Error fetching transaction: ${(error as Error).message}`,
-      );
-    }
-  }, dbInstance);
+  return getRowByPrimaryKey<TransactionProps>(
+    'transactions',
+    'id',
+    id,
+    { dbInstance },
+    transformTransaction,
+  );
 };
 
 // Store new transaction
 export const storeTransaction = async (
   transaction: TransactionProps,
+  preserveId: boolean = false,
   dbInstance?: SQLite.SQLiteDatabase,
 ) => {
-  return runWithDb(async (db) => {
-    try {
-      // Insert the transaction
-      const result = await db.runAsync(
-        `INSERT INTO transactions (${joinTableColumns(transactionTableColumns.slice(1))}) 
-          VALUES (${generateTablePlaceholders(transactionTableColumns.length - 1)})
-        `,
-        ...getTransactionValues(transaction),
-      );
-
-      // Successful insertion
-      if (result && result.changes > 0) {
-        return {
-          data: {
-            success: true,
-            messages: 'Transaction created successfully',
-          },
-        };
-      }
-
-      return {
-        data: {
-          success: false,
-          messages: 'Failed to create transaction',
-        },
-      };
-    } catch (error) {
-      throw new Error(
-        `Error creating transaction: ${(error as Error).message}`,
-      );
-    }
-  }, dbInstance);
+  return insertRow(
+    'transactions',
+    preserveId ? transactionTableColumns : transactionTableColumns.slice(1), // Exclude 'id' column for insertion if not preserving
+    [
+      ...(preserveId ? [transaction.id] : []),
+      ...getTransactionValues(transaction),
+    ],
+    { dbInstance },
+  );
 };
 
 export const storeBatchTransactions = async (
@@ -158,6 +103,7 @@ export const storeBatchTransactions = async (
                 ...transaction,
                 date,
               },
+              false,
               db,
             ),
           ),
@@ -179,7 +125,11 @@ export const storeBatchTransactions = async (
         return;
       } else {
         // RECURRING
-        result = await storeTransaction(transaction as TransactionProps, db);
+        result = await storeTransaction(
+          transaction as TransactionProps,
+          false,
+          db,
+        );
       }
     });
 
@@ -195,39 +145,20 @@ export const storeBatchTransactions = async (
 export const updateTransaction = async (
   transaction: TransactionProps,
   id: number,
+  preserveId: boolean = false,
   dbInstance?: SQLite.SQLiteDatabase,
 ) => {
-  return runWithDb(async (db) => {
-    try {
-      // Update the transaction
-      const result = await db.runAsync(
-        `UPDATE transactions SET ${joinTableColumns(transactionTableColumns.slice(1), ' = ?, ')} = ? WHERE id = ?`,
-        ...getTransactionValues(transaction),
-        id,
-      );
-
-      // Successful update
-      if (result && result.changes > 0) {
-        return {
-          data: {
-            success: true,
-            messages: 'Transaction updated successfully',
-          },
-        };
-      }
-
-      return {
-        data: {
-          success: false,
-          messages: 'Failed to update transaction',
-        },
-      };
-    } catch (error) {
-      throw new Error(
-        `Error updating transaction: ${(error as Error).message}`,
-      );
-    }
-  }, dbInstance);
+  return updateRow(
+    'transactions',
+    preserveId ? transactionTableColumns : transactionTableColumns.slice(1), // Exclude 'id' column for update if not preserving
+    [
+      ...(preserveId ? [transaction.id] : []),
+      ...getTransactionValues(transaction),
+    ],
+    'id',
+    id,
+    { dbInstance },
+  );
 };
 
 // Delete transaction
@@ -235,36 +166,7 @@ export const destroyTransaction = async (
   id: number,
   dbInstance?: SQLite.SQLiteDatabase,
 ) => {
-  return runWithDb(async (db) => {
-    try {
-      // Delete the specific transaction
-      const result = await db.runAsync(
-        `DELETE FROM transactions WHERE id = ?`,
-        id,
-      );
-
-      // Successful deletion
-      if (result && result.changes > 0) {
-        return {
-          data: {
-            success: true,
-            messages: 'Transaction deleted successfully',
-          },
-        };
-      }
-
-      return {
-        data: {
-          success: false,
-          messages: 'Failed to delete transaction',
-        },
-      };
-    } catch (error) {
-      throw new Error(
-        `Error deleting transaction: ${(error as Error).message}`,
-      );
-    }
-  }, dbInstance);
+  return deleteRow('transactions', 'id', id, { dbInstance });
 };
 
 // Fetch available years from transactions

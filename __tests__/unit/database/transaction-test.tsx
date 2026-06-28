@@ -55,7 +55,10 @@ describe('Transaction operations', () => {
         mockDatabaseTransactions,
       );
 
-      const response = await getTransactions({ dbInstance: mockedDb });
+      const response = await getTransactions({
+        dbInstance: mockedDb,
+        sortOptions: { sortField: 'date', sortOrder: 'DESC' },
+      });
 
       expect(mockedDb.getAllAsync).toHaveBeenCalledWith(
         'SELECT * FROM transactions ORDER BY date DESC',
@@ -97,11 +100,16 @@ describe('Transaction operations', () => {
         lastInsertRowId: 1,
       });
 
-      const response = await storeTransaction(mockTransactions[0], mockedDb);
+      const response = await storeTransaction(
+        mockTransactions[0],
+        true,
+        mockedDb,
+      );
 
       expect(response.data).toEqual({
         success: true,
         messages: 'Transaction created successfully',
+        id: 1,
       });
     });
 
@@ -111,11 +119,16 @@ describe('Transaction operations', () => {
         lastInsertRowId: 1,
       });
 
-      const response = await storeTransaction(mockTransactions[1], mockedDb);
+      const response = await storeTransaction(
+        mockTransactions[1],
+        true,
+        mockedDb,
+      );
 
       expect(response.data).toEqual({
         success: true,
         messages: 'Transaction created successfully',
+        id: 1,
       });
     });
 
@@ -125,6 +138,7 @@ describe('Transaction operations', () => {
       const response = await updateTransaction(
         mockTransactions[0],
         1,
+        true,
         mockedDb,
       );
 
@@ -140,6 +154,7 @@ describe('Transaction operations', () => {
       const response = await updateTransaction(
         mockTransactions[1],
         1,
+        true,
         mockedDb,
       );
 
@@ -166,7 +181,10 @@ describe('Transaction operations', () => {
     test('should fail to fetch transactions', async () => {
       (mockedDb.getAllAsync as jest.Mock).mockResolvedValue([]);
 
-      const response = await getTransactions({ dbInstance: mockedDb });
+      const response = await getTransactions({
+        dbInstance: mockedDb,
+        sortOptions: { sortField: 'date', sortOrder: 'DESC' },
+      });
 
       expect(mockedDb.getAllAsync).toHaveBeenCalledWith(
         'SELECT * FROM transactions ORDER BY date DESC',
@@ -192,11 +210,16 @@ describe('Transaction operations', () => {
         lastInsertRowId: 0,
       });
 
-      const response = await storeTransaction(mockTransactions[0], mockedDb);
+      const response = await storeTransaction(
+        mockTransactions[0],
+        true,
+        mockedDb,
+      );
 
       expect(response.data).toEqual({
         success: false,
         messages: 'Failed to create transaction',
+        id: null,
       });
     });
 
@@ -206,6 +229,7 @@ describe('Transaction operations', () => {
       const response = await updateTransaction(
         mockTransactions[0],
         1,
+        true,
         mockedDb,
       );
 
@@ -260,19 +284,19 @@ describe('Transaction error handling', () => {
 
   test('should throw error when fetching transaction', async () => {
     await expect(showTransaction(1, mockedDb)).rejects.toThrow(
-      'Error fetching transaction: Database error',
+      'Error fetching data from transactions table: Database error',
     );
   });
 
   test('should throw error when storing transaction', async () => {
     await expect(
-      storeTransaction(mockTransactions[0], mockedDb),
+      storeTransaction(mockTransactions[0], true, mockedDb),
     ).rejects.toThrow('Error creating transaction: Database error');
   });
 
   test('should throw error when updating transaction', async () => {
     await expect(
-      updateTransaction(mockTransactions[0], 1, mockedDb),
+      updateTransaction(mockTransactions[0], 1, true, mockedDb),
     ).rejects.toThrow('Error updating transaction: Database error');
   });
 

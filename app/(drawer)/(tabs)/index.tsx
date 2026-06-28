@@ -30,7 +30,9 @@ const App = () => {
     isRefetchError,
     isRefetching,
     refetch,
-  } = useTransactions({ sortOrder: 'ASC' });
+  } = useTransactions({
+    sortOptions: { sortField: 'date', sortOrder: 'DESC' },
+  });
   const now = dayjs();
   const today = now.format('YYYY-MM-DD');
   const [selectedYear, setSelectedYear] = useState(now.year());

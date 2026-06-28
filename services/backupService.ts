@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import { storeAccount } from '@/database/accountDatabase';
+import { upsertAccount } from '@/database/accountDatabase';
 import { updateBudget } from '@/database/budgetDatabase';
 import { storeInvestment } from '@/database/investmentDatabase';
 import { storeTransaction } from '@/database/transactionDatabase';
@@ -103,7 +103,7 @@ export const importAllData = async (fileType: FileType) => {
 
         switch (item.type) {
           case 'transaction':
-            result = await storeTransaction(item.data);
+            result = await storeTransaction(item.data, true);
             break;
           case 'budget':
             result = await updateBudget(item.data.amount, {
@@ -113,10 +113,10 @@ export const importAllData = async (fileType: FileType) => {
             });
             break;
           case 'account':
-            result = await storeAccount(item.data);
+            result = await upsertAccount(item.data);
             break;
           case 'investment':
-            result = await storeInvestment(item.data);
+            result = await storeInvestment(item.data, true);
             break;
         }
 
