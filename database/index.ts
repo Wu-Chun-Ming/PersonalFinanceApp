@@ -53,7 +53,7 @@ export const runWithDb = async <T>(
 
 export const getAllData = async <T>(
   table: string,
-  { dbInstance, sortOptions }: DatabaseOptions = {},
+  { dbInstance, sortOptions, where }: DatabaseOptions = {},
   transformFn: (item: any) => T = (item: any) => item as T,
 ) => {
   return runWithDb(async (db) => {
@@ -61,6 +61,9 @@ export const getAllData = async <T>(
       // Fetch all the data from table
       const result: T[] = await db.getAllAsync(
         `SELECT * FROM ${table}` +
+          (where
+            ? ` WHERE ${where.field} ${where.operator} ${where.value}`
+            : '') +
           (sortOptions
             ? ` ORDER BY ${sortOptions.sortField} ${sortOptions.sortOrder}`
             : ''),

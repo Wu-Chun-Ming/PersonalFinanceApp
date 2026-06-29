@@ -7,7 +7,10 @@ import {
 } from '@/database/accountDatabase';
 import { AccountProps, DatabaseOptions, FileType } from '@/types';
 import { exportData, importData, pickFile } from '@/utils/io';
-import { updateInvestmentValueByAccountId } from './investmentService';
+import {
+  fetchInvestments,
+  updateInvestmentValueByAccountId,
+} from './investmentService';
 
 // Fetch accounts
 export const fetchAccounts = async (options?: DatabaseOptions) => {
@@ -74,14 +77,27 @@ export const importAccounts = async (fileType: FileType) => {
 export const updateAccountBalance = async (
   accountId: number,
   amount: number,
+  exact: boolean = false,
 ) => {
   const account = await fetchAccount(accountId);
   if (!account) {
     throw new Error('Account not found');
   }
-  const newBalance = account.balance + amount;
+  const newBalance = exact ? amount : account.balance + amount;
   await editAccount(accountId, { ...account, balance: newBalance });
   if (account.earnReturns) {
     await updateInvestmentValueByAccountId(accountId, newBalance);
   }
+};
+
+// Calculate total investment value for an investment account
+export const calculateTotalInvestmentValue = async (accountId: number) => {
+  const investments = await fetchInvestments({
+    where: { field: 'accountId', operator: '=', value: accountId },
+  });
+  const totalValue = investments.reduce(
+    (sum, investment) => sum + investment.value,
+    0,
+  );
+  return await updateAccountBalance(accountId, totalValue, true);
 };

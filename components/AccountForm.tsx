@@ -5,20 +5,23 @@ import { HStack } from './ui/hstack';
 import { SelectItem } from './ui/select';
 import { Switch } from './ui/switch';
 import { Textarea, TextareaInput } from './ui/textarea';
+import { VStack } from './ui/vstack';
 
+import styles from '@/app/styles';
 import { ACCOUNT_TYPES } from '@/constants/account';
 import { CURRENCIES } from '@/constants/currency';
 import { AccountFormikProps } from '@/hooks/useAccountsFormik';
-import { AccountType } from '@/types';
+import { AccountType, InvestmentProps } from '@/types';
 import AmountInput from './AmountInput';
 import FormGroup from './FormGroup';
 import SelectGroup from './SelectGroup';
 
 interface AccountFormProps {
   formik: FormikProps<AccountFormikProps>;
+  linkedInvestments?: InvestmentProps[];
 }
 
-const AccountForm = ({ formik }: AccountFormProps) => {
+const AccountForm = ({ formik, linkedInvestments }: AccountFormProps) => {
   return (
     <>
       {/* Name */}
@@ -72,14 +75,36 @@ const AccountForm = ({ formik }: AccountFormProps) => {
       <FormGroup
         label='Balance'
         isInvalid={Boolean(formik.errors.balance && formik.touched.balance)}
-        isRequired
+        isRequired={formik.values.type !== AccountType.INVESTMENT}
         errorText={formik.errors.balance}
       >
         <AmountInput
           value={formik.values.balance}
           onChangeText={formik.handleChange('balance')}
+          isDisabled={formik.values.type === AccountType.INVESTMENT}
         />
       </FormGroup>
+
+      {/* Linked Investments */}
+      {linkedInvestments && linkedInvestments?.length > 0 && (
+        <VStack className='my-2'>
+          <Text style={styles.boldText}>Linked Investments</Text>
+          {linkedInvestments.map((investment, index) => (
+            <HStack
+              key={investment.id}
+              className='justify-between items-center p-2'
+            >
+              <Text style={{ width: '50%' }}>
+                {index + 1}. {investment.name}
+              </Text>
+              <Text>{investment.currency}</Text>
+              <Text style={{ width: '30%', textAlign: 'right' }}>
+                {investment.value}
+              </Text>
+            </HStack>
+          ))}
+        </VStack>
+      )}
 
       {/* Currency */}
       <FormGroup

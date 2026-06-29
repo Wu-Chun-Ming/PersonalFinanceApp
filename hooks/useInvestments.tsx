@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 
 import { INVESTMENT_TYPE_COLORS } from '@/constants/colors';
 import { INVESTMENT_TYPES } from '@/constants/investment';
+import { calculateTotalInvestmentValue } from '@/services/accountService';
 import {
   createInvestment,
   deleteInvestment,
@@ -39,8 +40,15 @@ export const useInvestment = (investmentId: number) => {
 // Custom hook to create a investment
 export const useCreateInvestment = () => {
   return useCustomMutation({
-    mutationFn: (newInvestmentData: InvestmentProps) =>
-      createInvestment(newInvestmentData),
+    mutationFn: async (newInvestmentData: InvestmentProps) => {
+      const result = await createInvestment(newInvestmentData);
+
+      if (result.success && newInvestmentData.accountId) {
+        await calculateTotalInvestmentValue(newInvestmentData.accountId);
+      }
+
+      return result;
+    },
     invalidateKeys: () => [['investments']], // Invalidate investments query on success
     onInvalidationComplete: () => router.back(), // Navigate to previous page after creating investment
   });
@@ -49,13 +57,21 @@ export const useCreateInvestment = () => {
 // Custom hook to update a investment
 export const useUpdateInvestment = () => {
   return useCustomMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       updatedInvestmentData,
     }: {
       id: number;
       updatedInvestmentData: InvestmentProps;
-    }) => editInvestment(id, updatedInvestmentData),
+    }) => {
+      const result = await editInvestment(id, updatedInvestmentData);
+
+      if (result.success) {
+        await calculateTotalInvestmentValue(updatedInvestmentData.accountId);
+      }
+
+      return result;
+    },
     invalidateKeys: (variables) => [
       ['investment', variables?.id],
       ['investments'], // Invalidate investment and investments queries on success
@@ -66,7 +82,16 @@ export const useUpdateInvestment = () => {
 // Custom hook to delete a investment
 export const useDeleteInvestment = () => {
   return useCustomMutation({
-    mutationFn: (id: number) => deleteInvestment(id),
+    mutationFn: async (id: number) => {
+      const deletedInvestment = await fetchInvestment(id);
+      const result = await deleteInvestment(id);
+
+      if (result.success) {
+        await calculateTotalInvestmentValue(deletedInvestment!.accountId);
+      }
+
+      return result;
+    },
     invalidateKeys: () => [['investments']], // Invalidate investments query on success
     onInvalidationComplete: () => router.back(), // Navigate to previous page after deleting investment
   });

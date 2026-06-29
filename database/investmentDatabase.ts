@@ -22,8 +22,8 @@ const getInvestmentValues = (investment: InvestmentProps) => {
 };
 
 // Fetch all investments
-export const getInvestments = async ({ dbInstance }: DatabaseOptions = {}) => {
-  return getAllData<InvestmentProps>('investments', { dbInstance });
+export const getInvestments = async (options: DatabaseOptions = {}) => {
+  return getAllData<InvestmentProps>('investments', options);
 };
 
 // Fetch specific investment

@@ -13,7 +13,9 @@ import AccountForm from '@/components/AccountForm';
 import QueryState from '@/components/QueryState';
 import { useAccount, useDeleteAccount } from '@/hooks/useAccounts';
 import { useAccountFormik } from '@/hooks/useAccountsFormik';
+import { useInvestments, useInvestmentSummary } from '@/hooks/useInvestments';
 import useShowToast from '@/hooks/useShowToast';
+import { AccountType } from '@/types';
 
 const AccountManager = () => {
   const { accountId } = useLocalSearchParams();
@@ -30,6 +32,15 @@ const AccountManager = () => {
     refetch,
   } = useAccount(Number(accountId));
   const deleteMutation = useDeleteAccount();
+  const { data: linkedInvestments = [] } = useInvestments({
+    where: {
+      field: 'accountId',
+      operator: '=',
+      value: Number(accountId),
+    },
+  });
+  const { overallValue: totalInvestmentValue } =
+    useInvestmentSummary(linkedInvestments);
 
   // Formik setup
   const { accountFormik: formik } = useAccountFormik(
@@ -42,7 +53,10 @@ const AccountManager = () => {
       formik.setValues({
         name: account.name,
         type: account.type,
-        balance: account.balance.toString(),
+        balance:
+          account.type === AccountType.INVESTMENT
+            ? totalInvestmentValue.toString()
+            : account.balance.toString(),
         currency: account.currency,
         earnReturns: account.earnReturns,
       });
@@ -90,7 +104,10 @@ const AccountManager = () => {
       >
         <VStack className='flex-1 px-4'>
           {/* Account Form */}
-          <AccountForm formik={formik} />
+          <AccountForm
+            formik={formik}
+            linkedInvestments={linkedInvestments}
+          />
 
           {/* Button Group */}
           {account ? (

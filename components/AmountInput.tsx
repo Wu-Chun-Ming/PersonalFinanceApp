@@ -12,6 +12,7 @@ import CalculatorModal from './CalculatorModal';
 interface AmountInputProps {
   value: string;
   onChangeText: (text: string) => void;
+  isDisabled?: boolean;
   placeholder?: string;
   inputMode?: 'numeric' | 'text';
   showCalculator?: boolean;
@@ -20,6 +21,7 @@ interface AmountInputProps {
 const AmountInput = ({
   value,
   onChangeText,
+  isDisabled,
   placeholder = 'Enter Amount',
   inputMode = 'numeric',
   showCalculator = false,
@@ -29,7 +31,10 @@ const AmountInput = ({
   return (
     <>
       <HStack style={{ alignItems: 'center', gap: 12 }}>
-        <Input className='flex-1 text-center'>
+        <Input
+          className='flex-1 text-center'
+          isDisabled={isDisabled}
+        >
           <InputField
             type='text'
             value={value}
