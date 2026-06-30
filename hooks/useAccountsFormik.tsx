@@ -32,6 +32,7 @@ export const useAccountFormik = (
     validationSchema: accountSchema,
     transformValues: (values: AccountFormikProps): AccountProps => ({
       ...values,
+      name: values.name.trim(),
       type: values.type as AccountTypeValue,
       balance: Number(values.balance),
       updated_at: new Date().toISOString(),

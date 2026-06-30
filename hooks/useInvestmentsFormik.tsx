@@ -33,6 +33,7 @@ export const useInvestmentFormik = (
     transformValues: (values: InvestmentFormikProps): InvestmentProps => ({
       ...values,
       accountId: Number(values.accountId),
+      name: values.name.trim(),
       type: values.type as InvestmentTypeValue,
       value: Number(values.value),
       updated_at: new Date().toISOString(),
