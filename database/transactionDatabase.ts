@@ -42,13 +42,10 @@ const transformTransaction = (transaction: any): TransactionProps => {
 };
 
 // Fetch all transaction
-export const getTransactions = async ({
-  sortOptions,
-  dbInstance,
-}: DatabaseOptions = {}) => {
+export const getTransactions = async (options?: DatabaseOptions) => {
   return getAllData<TransactionProps>(
     'transactions',
-    { dbInstance, sortOptions },
+    options,
     transformTransaction,
   );
 };

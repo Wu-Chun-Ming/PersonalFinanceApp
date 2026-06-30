@@ -41,7 +41,7 @@ describe('Budget operations', () => {
     // Mock the getAllAsync method to return mock budgets
     (mockedDb.getAllAsync as jest.Mock).mockResolvedValue(mockBudgets);
 
-    const response = await getBudgets(mockedDb);
+    const response = await getBudgets({ dbInstance: mockedDb });
 
     expect(mockedDb.getAllAsync).toHaveBeenCalledWith('SELECT * FROM budgets');
     expect(response.data).toEqual(mockBudgets);
@@ -51,7 +51,7 @@ describe('Budget operations', () => {
     // Mock the getAllAsync method to return an empty array
     (mockedDb.getAllAsync as jest.Mock).mockResolvedValue([]);
 
-    const response = await getBudgets(mockedDb);
+    const response = await getBudgets({ dbInstance: mockedDb });
 
     expect(mockedDb.getAllAsync).toHaveBeenCalledWith('SELECT * FROM budgets');
     expect(response.data).toEqual([]);
@@ -123,7 +123,7 @@ describe('Budget error handling', () => {
   });
 
   test('should throw error when fetching budgets', async () => {
-    await expect(getBudgets(mockedDb)).rejects.toThrow(
+    await expect(getBudgets({ dbInstance: mockedDb })).rejects.toThrow(
       'Error fetching data from budgets table: Database error',
     );
   });

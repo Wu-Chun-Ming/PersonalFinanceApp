@@ -30,8 +30,8 @@ const transformAccount = (account: any): AccountProps => {
 };
 
 // Fetch all accounts
-export const getAccounts = async ({ dbInstance }: DatabaseOptions = {}) => {
-  return getAllData<AccountProps>('accounts', { dbInstance }, transformAccount);
+export const getAccounts = async (options?: DatabaseOptions) => {
+  return getAllData<AccountProps>('accounts', options, transformAccount);
 };
 
 // Fetch specific account

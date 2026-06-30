@@ -1,12 +1,12 @@
 import * as SQLite from 'expo-sqlite';
 
 import { getAllData, upsertRow } from '@/database';
-import { BudgetProps } from '@/types';
+import { BudgetProps, DatabaseOptions } from '@/types';
 import { budgetTableColumns } from './schema';
 
 // Fetch budgets
-export const getBudgets = async (dbInstance?: SQLite.SQLiteDatabase) => {
-  return getAllData<BudgetProps>('budgets', { dbInstance });
+export const getBudgets = async (options?: DatabaseOptions) => {
+  return getAllData<BudgetProps>('budgets', options);
 };
 
 // Update budget amount
