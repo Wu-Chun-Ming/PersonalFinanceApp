@@ -62,7 +62,7 @@ export const getAllData = async <T>(
       const result: T[] = await db.getAllAsync(
         `SELECT * FROM ${table}` +
           (where
-            ? ` WHERE ${where.field} ${where.operator} ${where.value}`
+            ? ` WHERE ${where.field} ${where.operator} '${where.value}'`
             : '') +
           (sortOptions
             ? ` ORDER BY ${sortOptions.sortField} ${sortOptions.sortOrder}`
