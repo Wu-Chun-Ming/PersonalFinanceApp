@@ -16,14 +16,25 @@ const getInvestmentValues = (investment: InvestmentProps) => {
     investment.accountId,
     investment.name,
     investment.type,
-    investment.value,
+    investment.value * 100, // Convert to cents
     investment.currency,
   ];
 };
 
+const transformInvestment = (investment: any): InvestmentProps => {
+  return {
+    ...investment,
+    value: investment.value / 100,
+  };
+};
+
 // Fetch all investments
 export const getInvestments = async (options: DatabaseOptions = {}) => {
-  return getAllData<InvestmentProps>('investments', options);
+  return getAllData<InvestmentProps>(
+    'investments',
+    options,
+    transformInvestment,
+  );
 };
 
 // Fetch specific investment
@@ -31,9 +42,15 @@ export const showInvestment = async (
   id: number,
   dbInstance?: SQLite.SQLiteDatabase,
 ) => {
-  return getRowByPrimaryKey<InvestmentProps>('investments', 'id', id, {
-    dbInstance,
-  });
+  return getRowByPrimaryKey<InvestmentProps>(
+    'investments',
+    'id',
+    id,
+    {
+      dbInstance,
+    },
+    transformInvestment,
+  );
 };
 
 // Store new investment

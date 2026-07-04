@@ -76,7 +76,7 @@ export const transactionTableSchema = `
         date TEXT,
         type TEXT NOT NULL CHECK(type IN (${allowedTransactionTypes})),
         category TEXT NOT NULL CHECK(category IN (${allowedTransactionCategories})),
-        amount REAL NOT NULL,
+        amount INTEGER NOT NULL,
         description TEXT,
         recurring INTEGER NOT NULL CHECK(recurring IN (0, 1)),
         recurring_frequency TEXT,
@@ -109,7 +109,7 @@ export const budgetTableSchema = `
         year INTEGER NOT NULL,
         month INTEGER NOT NULL,
         category TEXT NOT NULL CHECK(category IN (${allowedBudgetCategories})),
-        amount REAL NOT NULL DEFAULT 0.0,
+        amount INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (year, month, category)
     );
 `;
@@ -146,7 +146,7 @@ export const accountTableSchema = `
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         type TEXT NOT NULL CHECK(type IN (${allowedAccountTypes})),
-        balance REAL NOT NULL DEFAULT 0.0,
+        balance INTEGER NOT NULL DEFAULT 0,
         currency TEXT NOT NULL,
         earnReturns INTEGER NOT NULL CHECK(earnReturns IN (0, 1)),
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -188,7 +188,7 @@ export const investmentTableSchema = `
         accountId INTEGER NOT NULL,
         name TEXT NOT NULL,
         type TEXT NOT NULL CHECK(type IN (${allowedInvestmentTypes})),
-        value REAL NOT NULL DEFAULT 0.0,
+        value INTEGER NOT NULL,
         currency TEXT NOT NULL,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (accountId) REFERENCES accounts(id) ON DELETE CASCADE

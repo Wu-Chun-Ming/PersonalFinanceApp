@@ -16,7 +16,7 @@ const getAccountValues = (account: AccountProps) => {
   return [
     account.name,
     account.type,
-    account.balance,
+    account.balance * 100, // Convert to cents
     account.currency,
     account.earnReturns,
   ];
@@ -25,6 +25,7 @@ const getAccountValues = (account: AccountProps) => {
 const transformAccount = (account: any): AccountProps => {
   return {
     ...account,
+    balance: account.balance / 100,
     earnReturns: Boolean(account.earnReturns),
   };
 };

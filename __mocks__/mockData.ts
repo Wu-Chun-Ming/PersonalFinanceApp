@@ -10,7 +10,7 @@ export const mockDatabaseTransactions = [
     date: '2025-01-01',
     type: TransactionType.EXPENSE,
     category: TransactionCategory.FOOD,
-    amount: 100,
+    amount: 10000,
     description: 'Grocery shopping',
     recurring: 0,
     recurring_frequency: null,
@@ -21,7 +21,7 @@ export const mockDatabaseTransactions = [
     date: null,
     type: TransactionType.EXPENSE,
     category: TransactionCategory.TRANSPORTATION,
-    amount: 200,
+    amount: 20000,
     description: 'Bus ticket',
     recurring: 1,
     recurring_frequency: JSON.stringify({
@@ -39,7 +39,7 @@ export const mockDatabaseTransactions = [
     date: null,
     type: TransactionType.INCOME,
     category: TransactionCategory.SALARY,
-    amount: 3000,
+    amount: 300000,
     description: 'Monthly salary',
     recurring: 1,
     recurring_frequency: JSON.stringify({
@@ -57,7 +57,7 @@ export const mockDatabaseTransactions = [
     date: '2025-01-02',
     type: TransactionType.EXPENSE,
     category: TransactionCategory.TRANSPORTATION,
-    amount: 200,
+    amount: 20000,
     description: 'Bus ticket',
     recurring: 0,
     recurring_frequency: null,
@@ -68,7 +68,7 @@ export const mockDatabaseTransactions = [
     date: '2025-01-03',
     type: TransactionType.INCOME,
     category: TransactionCategory.FREELANCE,
-    amount: 500,
+    amount: 50000,
     description: 'Freelance project',
     recurring: 0,
     recurring_frequency: null,
@@ -76,116 +76,59 @@ export const mockDatabaseTransactions = [
   },
 ];
 
-export const mockTransactions = [
-  {
-    id: 1,
-    date: new Date('2025-01-01'),
-    type: TransactionType.EXPENSE,
-    category: TransactionCategory.FOOD,
-    amount: 100,
-    description: 'Grocery shopping',
-    recurring: false,
-    recurring_frequency: null,
-    accountId: 1,
-  },
-  {
-    id: 2,
-    date: null,
-    type: TransactionType.EXPENSE,
-    category: TransactionCategory.TRANSPORTATION,
-    amount: 200,
-    description: 'Bus ticket',
-    recurring: true,
-    recurring_frequency: {
-      frequency: RecurringFrequency.YEARLY,
-      time: {
-        month: 1,
-        day: null,
-        date: null,
-      },
-    },
-    accountId: 1,
-  },
-  {
-    id: 3,
-    date: null,
-    type: TransactionType.INCOME,
-    category: TransactionCategory.SALARY,
-    amount: 3000,
-    description: 'Monthly salary',
-    recurring: true,
-    recurring_frequency: {
-      frequency: RecurringFrequency.MONTHLY,
-      time: {
-        month: null,
-        day: null,
-        date: 1,
-      },
-    },
-    accountId: 1,
-  },
-  {
-    id: 4,
-    date: new Date('2025-01-02'),
-    type: TransactionType.EXPENSE,
-    category: TransactionCategory.TRANSPORTATION,
-    amount: 200,
-    description: 'Bus ticket',
-    recurring: false,
-    recurring_frequency: null,
-    accountId: 1,
-  },
-  {
-    id: 5,
-    date: new Date('2025-01-03'),
-    type: TransactionType.INCOME,
-    category: TransactionCategory.FREELANCE,
-    amount: 500,
-    description: 'Freelance project',
-    recurring: false,
-    recurring_frequency: null,
-    accountId: 1,
-  },
-];
+export const mockTransactions = mockDatabaseTransactions.map((transaction) => ({
+  ...transaction,
+  date: transaction.date ? new Date(transaction.date) : null,
+  amount: transaction.amount / 100,
+  recurring: Boolean(transaction.recurring),
+  recurring_frequency: transaction.recurring_frequency
+    ? JSON.parse(transaction.recurring_frequency)
+    : null,
+}));
 
-export const mockBudgets = [
+export const mockDatabaseBudgets = [
   {
     year: 2024,
     month: 8,
     category: TransactionCategory.FOOD,
-    amount: 500,
+    amount: 50000,
   },
   {
     year: 2025,
     month: 12,
     category: TransactionCategory.TRANSPORTATION,
-    amount: 300,
+    amount: 30000,
   },
   {
     year: 2023,
     month: 7,
     category: TransactionCategory.OTHER,
-    amount: 4000,
+    amount: 400000,
   },
   {
     year: 2026,
     month: 8,
     category: TransactionCategory.RENT,
-    amount: 600,
+    amount: 60000,
   },
   {
     year: 2025,
     month: 1,
     category: TransactionCategory.ENTERTAINMENT,
-    amount: 200,
+    amount: 20000,
   },
   {
     year: 2024,
     month: 11,
     category: TransactionCategory.UTILITIES,
-    amount: 150,
+    amount: 15000,
   },
 ];
+
+export const mockBudgets = mockDatabaseBudgets.map((budget) => ({
+  ...budget,
+  amount: budget.amount / 100,
+}));
 
 export const mockDefaultGoals = {
   savings: {

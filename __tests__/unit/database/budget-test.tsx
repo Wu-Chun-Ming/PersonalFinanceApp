@@ -1,6 +1,6 @@
 import { SQLiteDatabase } from 'expo-sqlite';
 
-import { mockBudgets } from '@/__mocks__/mockData';
+import { mockBudgets, mockDatabaseBudgets } from '@/__mocks__/mockData';
 import { getBudgets, updateBudget } from '@/database/budgetDatabase';
 import * as databaseModule from '@/database/init';
 
@@ -39,7 +39,7 @@ describe('Budget operations', () => {
 
   test('should fetch budgets successfully', async () => {
     // Mock the getAllAsync method to return mock budgets
-    (mockedDb.getAllAsync as jest.Mock).mockResolvedValue(mockBudgets);
+    (mockedDb.getAllAsync as jest.Mock).mockResolvedValue(mockDatabaseBudgets);
 
     const response = await getBudgets({ dbInstance: mockedDb });
 

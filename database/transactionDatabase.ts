@@ -22,7 +22,7 @@ const getTransactionValues = (transaction: TransactionProps) => {
     transaction.date ? transaction.date.toString() : null,
     transaction.type,
     transaction.category,
-    transaction.amount,
+    transaction.amount * 100, // Convert to cents
     transaction?.description,
     transaction.recurring,
     JSON.stringify(transaction.recurring_frequency),
@@ -34,6 +34,7 @@ const transformTransaction = (transaction: any): TransactionProps => {
   return {
     ...transaction,
     date: transaction.date ? new Date(transaction.date) : null,
+    amount: transaction.amount / 100,
     recurring: Boolean(transaction.recurring),
     recurring_frequency: transaction.recurring_frequency
       ? JSON.parse(transaction.recurring_frequency)
