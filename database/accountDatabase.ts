@@ -75,7 +75,7 @@ export const upsertAccount = async (
   return upsertRow(
     'accounts',
     accountTableColumns,
-    [account.id, ...getAccountValues(account)],
+    [account.id, ...getAccountValues(account), account.updated_at],
     'id',
     accountTableColumns.slice(1),
     {
