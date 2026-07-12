@@ -3,6 +3,7 @@ export * from './budget';
 export * from './goal';
 export * from './ocr';
 export * from './transaction';
+export * from './transfer';
 export * from './database';
 export * from './file';
 export * from './currency';

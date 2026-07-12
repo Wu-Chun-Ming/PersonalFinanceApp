@@ -11,6 +11,9 @@ export const tableInfo: TableInfoProps = {
   transactions: {
     entityName: 'transaction',
   },
+  transfers: {
+    entityName: 'transfer',
+  },
   budgets: {
     entityName: 'budget',
   },
@@ -82,6 +85,44 @@ export const transactionTableSchema = `
         recurring_frequency TEXT,
         accountId INTEGER NOT NULL,
         FOREIGN KEY (accountId) REFERENCES accounts(id)
+    );
+`;
+
+/*
+Table: transfers
+============================================================
+Column Name             Intended Type
+============================================================
+id                      INTEGER
+fromAccountId           INTEGER
+toAccountId             INTEGER
+amount                  DOUBLE
+currency                VARCHAR
+date                    DATE (YYYY-MM-DD)
+description             VARCHAR
+*/
+
+export const transferTableColumns = [
+  'id',
+  'date',
+  'fromAccountId',
+  'toAccountId',
+  'amount',
+  'description',
+  'currency',
+];
+
+export const transfersTableSchema = `
+    CREATE TABLE IF NOT EXISTS transfers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        fromAccountId INTEGER NOT NULL,
+        toAccountId INTEGER NOT NULL,
+        amount INTEGER NOT NULL,
+        description TEXT,
+        currency TEXT NOT NULL,
+        FOREIGN KEY (fromAccountId) REFERENCES accounts(id) ON DELETE CASCADE,
+        FOREIGN KEY (toAccountId) REFERENCES accounts(id) ON DELETE CASCADE
     );
 `;
 

@@ -6,11 +6,12 @@ import {
   ScrollView,
   Text,
   TouchableNativeFeedback,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Gluestack UI
 import { Button, ButtonText } from '@/components/ui/button';
@@ -106,6 +107,16 @@ const TransactionManager = () => {
     const isNewTransaction = transactionId === 'new';
     navigation.setOptions({
       title: isNewTransaction ? 'Create New Transaction' : 'Edit Transaction',
+      headerRight: () =>
+        isNewTransaction && (
+          <TouchableOpacity onPress={() => router.replace(`/transfer/new`)}>
+            <AntDesign
+              name='swap'
+              size={24}
+              color='white'
+            />
+          </TouchableOpacity>
+        ),
     });
 
     // Show toast if transaction is not found

@@ -12,8 +12,8 @@ import {
   accountTableSchema,
   budgetTableSchema,
   investmentTableSchema,
-  joinTableColumns,
   transactionTableSchema,
+  transfersTableSchema,
 } from './schema';
 
 // Initialise database
@@ -23,6 +23,7 @@ const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
       // Create the tables
       await db.execAsync(`
         ${transactionTableSchema}
+        ${transfersTableSchema}
         ${budgetTableSchema}
         ${accountTableSchema}
         ${investmentTableSchema}

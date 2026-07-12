@@ -17,6 +17,30 @@ const MoreScreen = () => {
       }}
       edges={['bottom']}
     >
+      {/* Transfers */}
+      <TouchableOpacity
+        onPress={() => router.push('/transfer/listing')}
+        style={{
+          marginVertical: 5,
+          paddingHorizontal: 5,
+          paddingVertical: 15,
+          borderRadius: 20,
+          backgroundColor: '#F59E0B',
+        }}
+      >
+        <HStack>
+          <MaterialCommunityIcons
+            name='transfer'
+            size={24}
+            color='black'
+            style={{
+              marginHorizontal: 10,
+            }}
+          />
+          <Heading>Transfers</Heading>
+        </HStack>
+      </TouchableOpacity>
+
       {/* Accounts */}
       <TouchableOpacity
         onPress={() => router.push('/(stack)/accounts')}
