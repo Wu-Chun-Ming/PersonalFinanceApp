@@ -67,6 +67,7 @@ const TransferForm = ({
         visible={dateModalVisible}
         fieldName='date'
         formik={formik}
+        mode='single'
         onClose={() => setDateModalVisible(false)}
       />
 

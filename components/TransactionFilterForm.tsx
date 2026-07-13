@@ -395,6 +395,7 @@ const TransactionFilterForm = ({
         visible={dateModalVisible}
         fieldName='date'
         formik={formik}
+        mode='multiple'
         onClose={() => setDateModalVisible(false)}
       />
     </>

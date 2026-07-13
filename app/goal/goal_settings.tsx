@@ -186,6 +186,7 @@ const GoalSettingsScreen = () => {
             visible={dateModalVisible}
             fieldName='savings.date'
             formik={formik}
+            mode='single'
             minimumDate={new Date()}
             onClose={() => setDateModalVisible(false)}
           />
