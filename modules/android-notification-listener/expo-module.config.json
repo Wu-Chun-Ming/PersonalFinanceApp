@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["AndroidNotificationListenerModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.androidnotificationlistener.AndroidNotificationListenerModule"]
+  }
+}
