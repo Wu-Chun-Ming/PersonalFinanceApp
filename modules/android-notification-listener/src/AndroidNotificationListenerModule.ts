@@ -6,7 +6,30 @@ declare class AndroidNotificationListenerModule extends NativeModule<AndroidNoti
   PI: number;
   hello(): string;
   setValueAsync(value: string): Promise<void>;
+  openNotificationSettings: () => Promise<void>;
+  getPendingNotifications: () => Promise<any[]>;
+  markProcessed: (id: number) => Promise<void>;
 }
 
 // This call loads the native module object from the JSI.
-export default requireNativeModule<AndroidNotificationListenerModule>('AndroidNotificationListener');
+export default requireNativeModule<AndroidNotificationListenerModule>(
+  'AndroidNotificationListener',
+);
+
+const module = requireNativeModule('AndroidNotificationListener');
+
+export const openSettings = () => {
+  return module.openNotificationSettings();
+};
+
+export const getPendingNotifications = () => {
+  return module.getPendingNotifications();
+};
+
+export const markProcessed = (id: number) => {
+  return module.markProcessed(id);
+};
+
+export const addNotificationListener = (callback: any) => {
+  return module.addListener('onTransactionNotificationReceived', callback);
+};

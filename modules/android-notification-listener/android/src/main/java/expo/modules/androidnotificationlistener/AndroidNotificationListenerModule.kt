@@ -20,7 +20,17 @@ class AndroidNotificationListenerModule : Module() {
     }
 
     // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+    Events("onChange", "onTransactionNotificationReceived")
+
+    OnStartObserving("onTransactionNotificationReceived") {
+        NotificationEventBus.register { data ->
+            sendEvent("onTransactionNotificationReceived", data)
+        }
+    }
+
+    OnStopObserving("onTransactionNotificationReceived") {
+        NotificationEventBus.unregister()
+    }
 
     // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
     Function("hello") {
@@ -34,6 +44,30 @@ class AndroidNotificationListenerModule : Module() {
       sendEvent("onChange", mapOf(
         "value" to value
       ))
+    }
+
+    AsyncFunction("openNotificationSettings") {
+        appContext.reactContext?.run(NotificationPermission::open)
+    }
+
+    AsyncFunction("getPendingNotifications") {
+        val repo = NotificationRepository(NotificationDatabase(appContext.reactContext!!))
+        repo.getPending().map { notification ->
+            mapOf(
+                "id" to notification.id,
+                "notificationKey" to notification.notificationKey,
+                "packageName" to notification.packageName,
+                "title" to (notification.title ?: ""),
+                "text" to (notification.text ?: ""),
+                "postTime" to notification.postTime,
+                "status" to notification.status
+            )
+        }
+    }
+
+    AsyncFunction("markProcessed") { id: Long ->
+        val repo = NotificationRepository(NotificationDatabase(appContext.reactContext!!))
+        repo.markProcessed(id)
     }
 
     // Enables the module to be used as a native view. Definition components that are accepted as part of

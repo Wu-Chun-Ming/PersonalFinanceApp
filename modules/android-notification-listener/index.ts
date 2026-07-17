@@ -2,4 +2,10 @@
 // and on native platforms to AndroidNotificationListenerModule.ts
 export { default } from './src/AndroidNotificationListenerModule';
 export { default as AndroidNotificationListenerView } from './src/AndroidNotificationListenerView';
-export * from  './src/AndroidNotificationListener.types';
+export * from './src/AndroidNotificationListener.types';
+export {
+  openSettings,
+  addNotificationListener,
+  getPendingNotifications,
+  markProcessed,
+} from './src/AndroidNotificationListenerModule';
