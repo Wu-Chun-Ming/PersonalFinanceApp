@@ -3,6 +3,8 @@ package expo.modules.androidnotificationlistener
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import java.net.URL
+import android.app.NotificationManager
+import android.content.ComponentName
 
 class AndroidNotificationListenerModule : Module() {
   // Each module class must implement the definition function. The definition consists of components
@@ -50,16 +52,26 @@ class AndroidNotificationListenerModule : Module() {
         appContext.reactContext?.run(NotificationPermission::open)
     }
 
+    AsyncFunction("isNotificationListenerEnabled") {
+        val context = appContext.reactContext ?: return@AsyncFunction false
+
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+
+        notificationManager?.isNotificationListenerAccessGranted(
+            ComponentName(context, AndroidNotificationListener::class.java)
+        ) ?: false
+    }
+
     AsyncFunction("getPendingNotifications") {
         val repo = NotificationRepository(NotificationDatabase(appContext.reactContext!!))
         repo.getPending().map { notification ->
             mapOf(
                 "id" to notification.id,
-                "notificationKey" to notification.notificationKey,
-                "packageName" to notification.packageName,
+                "notification_key" to notification.notificationKey,
+                "package_name" to notification.packageName,
                 "title" to (notification.title ?: ""),
-                "text" to (notification.text ?: ""),
-                "postTime" to notification.postTime,
+                "message" to (notification.text ?: ""),
+                "post_time" to notification.postTime,
                 "status" to notification.status
             )
         }

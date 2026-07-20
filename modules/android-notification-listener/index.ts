@@ -4,7 +4,8 @@ export { default } from './src/AndroidNotificationListenerModule';
 export { default as AndroidNotificationListenerView } from './src/AndroidNotificationListenerView';
 export * from './src/AndroidNotificationListener.types';
 export {
-  openSettings,
+  openNotificationSettings,
+  isNotificationListenerEnabled,
   addNotificationListener,
   getPendingNotifications,
   markProcessed,

@@ -18,8 +18,12 @@ export default requireNativeModule<AndroidNotificationListenerModule>(
 
 const module = requireNativeModule('AndroidNotificationListener');
 
-export const openSettings = () => {
+export const openNotificationSettings = () => {
   return module.openNotificationSettings();
+};
+
+export const isNotificationListenerEnabled = () => {
+  return module.isNotificationListenerEnabled();
 };
 
 export const getPendingNotifications = () => {

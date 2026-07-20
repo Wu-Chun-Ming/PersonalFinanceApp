@@ -9,13 +9,15 @@ import { Input, InputField } from '@/components/ui/input';
 
 // Custom import
 import styles from '@/app/styles';
+import AppSwitch from '@/components/AppSwitch';
 import FormGroup from '@/components/FormGroup';
 import { DEFAULT_TIMEOUT_SEC } from '@/constants/api';
 import { useSettings } from '@/hooks/useSettings';
 import { useSettingsFormik } from '@/hooks/useSettingsFormik';
+import * as AndroidNotificationListener from '@/modules/android-notification-listener';
 
 const SettingsScreen = () => {
-  const { serverConfig, modelConfig } = useSettings();
+  const { serverConfig, modelConfig, preferences } = useSettings();
 
   // Formik setup
   const { settingsFormik: formik } = useSettingsFormik({
@@ -23,6 +25,8 @@ const SettingsScreen = () => {
     model: modelConfig.modelName || '',
     apiKey: modelConfig.apiKey || '',
     timeout: modelConfig.timeout?.toString() || DEFAULT_TIMEOUT_SEC.toString(),
+    notificationCapture: preferences.notificationCapture,
+    autoDeduction: preferences.autoDeduction,
   });
 
   useEffect(() => {
@@ -144,6 +148,26 @@ const SettingsScreen = () => {
           />
         </Input>
       </FormGroup>
+
+      <AppSwitch
+        value={formik.values.notificationCapture}
+        onToggle={async () => {
+          await AndroidNotificationListener.openNotificationSettings();
+          formik.setFieldValue(
+            'notificationCapture',
+            !formik.values.notificationCapture,
+          );
+        }}
+        label='Enable Notification Capture'
+      />
+
+      <AppSwitch
+        value={formik.values.autoDeduction}
+        onToggle={() =>
+          formik.setFieldValue('autoDeduction', !formik.values.autoDeduction)
+        }
+        label='Auto Deduction for Past Transactions'
+      />
 
       <View
         style={{

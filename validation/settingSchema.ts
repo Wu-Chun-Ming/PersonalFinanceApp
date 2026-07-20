@@ -7,16 +7,8 @@ export const settingsSchema = Yup.object().shape({
     (value) =>
       !value || value.startsWith('https://') || value.startsWith('http://'),
   ),
-  model: Yup.string().when('serverUrl', ([serverUrl], schema) => {
-    return !serverUrl || serverUrl.trim() === ''
-      ? schema.required(
-          'Model name is required when server URL is not provided',
-        )
-      : schema.notRequired();
-  }),
-  apiKey: Yup.string().when('serverUrl', ([serverUrl], schema) => {
-    return !serverUrl || serverUrl.trim() === ''
-      ? schema.required('API key is required when server URL is not provided')
-      : schema.notRequired();
-  }),
+  model: Yup.string().optional(),
+  apiKey: Yup.string().optional(),
+  notificationCapture: Yup.boolean(),
+  autoDeduction: Yup.boolean(),
 });
