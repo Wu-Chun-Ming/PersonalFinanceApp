@@ -9,3 +9,4 @@ export * from './file';
 export * from './currency';
 export * from './account';
 export * from './investment';
+export * from './notification';

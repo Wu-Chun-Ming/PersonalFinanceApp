@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { router, Tabs, useNavigation } from 'expo-router';
-import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import {
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons';
 import { DrawerActions } from '@react-navigation/native';
 
 // Gluestack UI
@@ -105,6 +110,25 @@ export default function TabLayout() {
               className='ml-2'
             >
               Import Data
+            </MenuItemLabel>
+          </MenuItem>
+          <MenuItem
+            key='notifications'
+            textValue='Notifications'
+            onPress={() => {
+              router.navigate(`/notification/listing`);
+            }}
+          >
+            <Ionicons
+              name='notifications-outline'
+              size={20}
+              color='black'
+            />
+            <MenuItemLabel
+              size='md'
+              className='ml-2'
+            >
+              Notifications
             </MenuItemLabel>
           </MenuItem>
           <MenuItem

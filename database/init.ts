@@ -12,6 +12,7 @@ import {
   accountTableSchema,
   budgetTableSchema,
   investmentTableSchema,
+  notificationTableSchema,
   transactionTableSchema,
   transfersTableSchema,
 } from './schema';
@@ -27,6 +28,7 @@ const initializeDatabase = async (dbInstance?: SQLite.SQLiteDatabase) => {
         ${budgetTableSchema}
         ${accountTableSchema}
         ${investmentTableSchema}
+        ${notificationTableSchema}
       `);
 
       // Insert default account

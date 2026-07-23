@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect } from 'react';
+import { AppState, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
@@ -24,6 +24,21 @@ const SettingsScreen = () => {
     apiKey: modelConfig.apiKey || '',
     timeout: modelConfig.timeout?.toString() || DEFAULT_TIMEOUT_SEC.toString(),
   });
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', async (state) => {
+      if (state === 'active') {
+        const enabled =
+          await AndroidNotificationListener.isNotificationListenerEnabled();
+
+        formik.setFieldValue('notificationCapture', enabled, false);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   useFocusEffect(
     useCallback(() => {

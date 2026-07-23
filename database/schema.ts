@@ -1,5 +1,6 @@
 import { ACCOUNT_TYPES } from '@/constants/account';
 import { INVESTMENT_TYPES } from '@/constants/investment';
+import { NOTIFICATION_STATUS } from '@/constants/notification';
 import {
   EXPENSE_CATEGORIES,
   TRANSACTION_CATEGORIES,
@@ -234,4 +235,45 @@ export const investmentTableSchema = `
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (accountId) REFERENCES accounts(id) ON DELETE CASCADE
     );
+`;
+
+/* 
+Table: notification_queue
+============================================================
+Column Name             Type
+============================================================
+id                      INTEGER
+notification_key        VARCHAR
+package_name            VARCHAR
+title                   VARCHAR
+message                 VARCHAR
+post_time               DATETIME
+status                  ENUM('pending', 'processed', 'failed')
+============================================================
+*/
+
+export const notificationTableColumns = [
+  'id',
+  'notification_key',
+  'package_name',
+  'title',
+  'message',
+  'post_time',
+  'status',
+];
+
+const allowedNotificationStatuses = NOTIFICATION_STATUS.map(
+  (status) => `'${status}'`,
+).join(', ');
+
+export const notificationTableSchema = `
+  CREATE TABLE IF NOT EXISTS notification_queue (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      notification_key TEXT UNIQUE,
+      package_name TEXT,
+      title TEXT,
+      message TEXT,
+      post_time INTEGER,
+      status TEXT NOT NULL CHECK(status IN (${allowedNotificationStatuses})) DEFAULT 'pending'
+  );
 `;
